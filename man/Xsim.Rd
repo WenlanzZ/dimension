@@ -4,8 +4,8 @@
 \alias{Xsim}
 \title{simulate X matrix}
 \usage{
-Xsim(n = 100, p = 90, ncc = 2, var = 10, orthogonl = FALSE,
-  seed = 1000)
+Xsim(n = 100, p = 90, ncc = 2, var = 10, fact = 30,
+  orthogonl = FALSE, seed = 1000)
 }
 \arguments{
 \item{n}{number of rows for matrix X.}
@@ -14,11 +14,13 @@ Xsim(n = 100, p = 90, ncc = 2, var = 10, orthogonl = FALSE,
 
 \item{ncc}{number of correlated columns.}
 
+\item{var}{varaince.}
+
+\item{fact}{scale on basis if orthogonal is true.}
+
 \item{orthogonl}{a logical value. Generate orthogonal noise if true.}
 
 \item{seed}{the random number seed.}
-
-\item{sigma}{covariance matrix.}
 }
 \description{
 These functions provide multivariate normal distributed X matrix.
@@ -26,6 +28,6 @@ These functions provide multivariate normal distributed X matrix.
 \examples{
 \donttest{
 # 3 baskets, each with enrollement size 5
-X <- Xsim(n=100,p=90,ncc=2,var=10)
+X <- Xsim(n=100,p=90,ncc=2,var=10,fact = 30)
 }
 }

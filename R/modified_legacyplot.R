@@ -1,0 +1,37 @@
+#' @title Summary plots of bcp() output.
+#'
+#' @description This function produces summary plots of bcp() output. It is adapted from the default legacyplot function in pacakge bcp.
+#' @param X a list. the result of a call to bcp().
+#' @param annotation annotate points up to total rank calculated. No annotation when annotation=0.
+#' @examples
+#' \donttest{
+#' modified_legacyplot(bcp(as.vector(c(rep(0,9),100,rep(0,10))),p0=0.1))
+#' }
+#' @import ggplot2
+#' @import gridExtra
+#' @export
+
+modified_legacyplot <- function(x,annotation=NULL) {
+  
+  x$posterior.prob[nrow(x$data)]<-0
+  if (missing(annotation)) {annotation <- nrow(x$data);cat("Anotating for all point. Set annotation = 0 to stop annotation.\n")}
+  if (!is.null(annotation)&annotation > nrow(x$data)) stop("annotation number must be strictly less or equal to than rows of x")
+  if(annotation==0) {mark=rep("",nrow(x$data))}else{
+  mark=c(1:annotation,rep("",nrow(x$data)-annotation))}
+
+  p1 <- ggplot() + theme_minimal() + xlab("") + ylab("Posterior Mean") + 
+    theme(plot.title = element_text(hjust = 0.5),panel.grid.major = element_blank(),panel.grid.minor = element_blank(),panel.background = element_rect(colour = "black", size=0.5)) +
+    ggtitle(paste0("Posterior Means and Probabilities of a Change","\n"))+scale_x_continuous(breaks=seq(0,nrow(x$data),1))+
+    geom_point(aes(x = x$data[,1], y = x$posterior.mean),colour="red") + geom_line(aes(x = x$data[,1], y = x$posterior.mean),color = "black",cex=0.5) + geom_text_repel(aes(x= x$data[,1], y = x$posterior.mean, label=mark),colour="black",size=5) 
+    
+  
+  p2 <- ggplot() + theme_minimal() + xlab("Dimension") + ylab("Posterior Probability") + 
+   theme(plot.title = element_text(hjust = 0.5),panel.grid.major = element_blank(),panel.grid.minor = element_blank(),panel.background = element_rect(colour = "black", size=0.5)) +
+    ylim(0,1)+scale_x_continuous(breaks=seq(0,nrow(x$data),1))+
+    geom_point(aes(x = x$data[,1], y = x$posterior.prob),colour="blue") + geom_line(aes(x = x$data[,1], y = x$posterior.prob),color = "black",cex=0.5) + geom_text_repel(aes(x= x$data[,1], y = x$posterior.prob, label=mark),colour="black",size=5) 
+  
+  #merge all three plots within one grid (and visualize this)
+  grid.arrange(p1,p2, ncol=1)
+  #save
+  g <- arrangeGrob(p1,p2,ncol=2) #generates g
+}
