@@ -31,11 +31,12 @@ function(X,                 #data matrix
 # ---------------------------------------------------------------------
     ndf = nrow(X)
     pdim = ncol(X)
-    if (missing(rnk)) {rnk <- min(ndf,pdim);cat('No rnk specified. Calculating full singular value decomposition instead.')}
-    if (rnk <= 0)  stop("rnk must be positive")
+    if (missing(rnk)) {rnk <- min(ndf,pdim);cat('No rnk specified. Calculating full singular value decomposition instead.\n')}
+    else if(rnk <= 0) stop("rnk must be positive")#cat('rnk missing',!missing(rnk),'rnk = ',rnk,'rnk <=0',rnk <= 0,'and',!missing(rnk)&&rnk <= 0,'\n')
+    
     transpose_flag=FALSE
     if(nrow(X)<ncol(X)){
-        warning('The number of samples of X is smaller than the number of features of X. A transpose of X is used instead')
+        warning('The number of samples of X is smaller than the number of features of X. A transpose of X is used instead.\n')
         X = t(X)
         transpose_flag=TRUE
     }
@@ -44,5 +45,5 @@ function(X,                 #data matrix
     irl = tibble(eigen = tmp$d[1:rnk]^2/(pdim), dim = 1:rnk)
     if(nrow(tmp$v)==pdim){eigenvec = tmp$v[,1:rnk]}else{eigenvec = tmp$u[,1:rnk]}
     
-    return(list(ndf=ndf,pdim=pdim,svr=svr,transpose_flag=transpose_flag,irl=irl,eigenvec=eigenvec))
+    return(list(ndf=ndf,pdim=pdim,svr=svr,rnk=rnk,transpose_flag=transpose_flag,irl=irl,eigenvec=eigenvec))
 }

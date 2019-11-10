@@ -37,13 +37,25 @@
 #' @importFrom  tibble tibble
 #' @export
 
-OptimumDimension <- function(X=X,MPSamples=NULL,rnk = NA,times=NULL) {
+OptimumDimension <- 
+  function(X,                   #data matrix
+        MPSamples=NULL,          #A list of ouput from function MarcenkoPasturSample.
+        rnk = NA,             #number of singular vectors to estimate
+        times=NA,              #split data into X times for parallel computation.
+        ...) {
 
+
+  if (is.null(X))  stop("Invalid input X")
+  if(missing(times)) {times <- 0}
+  else if (times < 0)  stop("times must be positive")
+  else if (times > min(nrow(X) - 1, ncol(X) - 1)) stop("times must be strictly less than min(nrow(X), ncol(X))")
   if (!missing(MPSamples)) cat("MP samples have already been calculated.\n")
+  if (missing(rnk)) {rnk <- min(nrow(X),ncol(X));cat('No rnk specified. Calculating full singular value decomposition instead.\n');cat('rnk missing, new rnk = ',rnk,'\n')}
   if (missing(MPSamples)) {MPSamples <- MarcenkoPasturSample(X,rnk=rnk,times=times);cat("finish calculating MP samples.\n")}
 
   ndf = MPSamples$ndf
   pdim = MPSamples$pdim
+  rnk = MPSamples$rnk
   var_correct = MPSamples$var_correct
   irl = MPSamples$irl
   MP_irl = MPSamples$MP_irl
@@ -52,10 +64,14 @@ OptimumDimension <- function(X=X,MPSamples=NULL,rnk = NA,times=NULL) {
   sigma_MP = MP_irl$eigen
 
   #Bayesian Change Point
-  bcp.irl = bcp(as.vector(sigma_a-sigma_MP), p0 = 0.001)
+  bcp.irl = bcp(as.vector(sigma_a-sigma_MP), p0 = 0.1)
+  #Bayesian Posterior Prob Change Point
+  bcp_post = bcp(as.vector(c(bcp.irl$posterior.prob[-rnk],0)),p0=0.1)
+  #Bayesian Diff Change Point
+  bcp_diff = bcp(as.vector(-diff(sigma_a-sigma_MP)),p0=0.001)
   #Single Change Point
   changePoint = detectChangePoint(sigma_a-sigma_MP,cpmType="Exponential")$changePoint
   
-  return(list(MarcenkoPasturSample=list(ndf=ndf,pdim=pdim,var_correct=var_correct,irl=irl,MP_irl=MP_irl),
-              Changepoint=list(bcp.irl=bcp.irl,changePoint=changePoint)))
+  return(list(MarcenkoPasturSample=list(ndf=ndf,pdim=pdim,rnk=rnk,var_correct=var_correct,irl=irl,MP_irl=MP_irl),
+              Changepoint=list(bcp.irl=bcp.irl,bcp_post=bcp_post,bcp_diff=bcp_diff,changePoint=changePoint)))
 }

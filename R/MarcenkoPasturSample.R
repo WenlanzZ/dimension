@@ -35,21 +35,24 @@ function(X,                   #data matrix
 # Check input parameters
 # ---------------------------------------------------------------------
   if (is.null(X))  stop("Invalid input X")
-  if (!is.null(times)&times <= 0)  stop("times must be positive")
-  if (!is.null(times)&times > min(nrow(X) - 1, ncol(X) - 1)) stop("times must be strictly less than min(nrow(X), ncol(X))")
+  if(missing(times)) {times <- 0}
+  else if (times < 0)  stop("times must be positive")
+  else if (times > min(nrow(X) - 1, ncol(X) - 1)) stop("times must be strictly less than min(nrow(X), ncol(X))")
   if (!missing(params)) cat("parameters have already been calculated.\n")
+  if (missing(rnk)) {rnk <- min(nrow(X),ncol(X));cat('No rnk specified. Calculating full singular value decomposition instead.\n');cat('rnk missing, new rnk = ',rnk,'\n')}
   if (missing(params)) {params <- CheckDimMatrix(X,rnk=rnk);cat("finish checking dimension of X and calculating eigenvalues of X.\n")}
 
  
   ndf = params$ndf
   pdim = params$pdim
   svr = params$svr
+  rnk = params$rnk
   irl = params$irl
   transpose_flag = params$transpose_flag
 
   var_correct=min(irl$eigen)/MarchenkoPasturPar(ndf,pdim,var=1,svr=svr)$upper#0.00061704 001C
   cat("The corrected variance of MP distribution is ",var_correct,".\n",sep="")
-  if(!transpose_flag){
+  if(!transpose_flag&&times==0){
     system.time({sim=rmp(pdim, ndf=ndf, pdim=pdim, var=var_correct, svr=ndf/pdim)})
     }else{
       ncores=8
@@ -62,5 +65,5 @@ function(X,                   #data matrix
   cat("finish MP sampling.\n")
   MP_irl = tibble(eigen = sim[order(sim,decreasing = T)][1:rnk], dim = 1:rnk)
   
-  return(list(ndf=ndf,pdim=pdim,var_correct=var_correct,irl=irl,MP_irl=MP_irl,eigenvec = params$eigenvec))
+  return(list(ndf=ndf,pdim=pdim,var_correct=var_correct,rnk=rnk,irl=irl,MP_irl=MP_irl,eigenvec = params$eigenvec))
 }

@@ -22,7 +22,7 @@ modified_legacyplot <- function(x,annotation=NULL) {
   p1 <- ggplot() + theme_minimal() + xlab("") + ylab("Posterior Mean") + 
     theme(plot.title = element_text(hjust = 0.5),panel.grid.major = element_blank(),panel.grid.minor = element_blank(),panel.background = element_rect(colour = "black", size=0.5)) +
     ggtitle(paste0("Posterior Means and Probabilities of a Change","\n"))+scale_x_continuous(breaks=seq(0,nrow(x$data),1))+
-    geom_point(aes(x = x$data[,1], y = x$posterior.mean),colour="red") + geom_line(aes(x = x$data[,1], y = x$posterior.mean),color = "black",cex=0.5) + geom_text_repel(aes(x= x$data[,1], y = x$posterior.mean, label=mark),colour="black",size=5) 
+    geom_point(aes(x = x$data[,1], y = x$data[, 2]),colour="red") + geom_line(aes(x = x$data[,1], y = x$posterior.mean),color = "black",cex=0.5) + geom_text_repel(aes(x= x$data[,1], y = x$posterior.mean, label=mark),colour="black",size=5) 
     
   
   p2 <- ggplot() + theme_minimal() + xlab("Dimension") + ylab("Posterior Probability") + 

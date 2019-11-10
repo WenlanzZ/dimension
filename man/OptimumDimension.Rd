@@ -4,7 +4,7 @@
 \alias{OptimumDimension}
 \title{Rank Estimation in High-Dimensional matrix X.}
 \usage{
-OptimumDimension(X = X, MPSamples = NULL, rnk = NA, times = NULL)
+OptimumDimension(X, MPSamples = NULL, rnk = NA, times = NA, ...)
 }
 \arguments{
 \item{X}{A numeric real- or real-valued sparse matrix with n number of samples and p number of features. If p>n, a warning message is generated and the transpose of X is used.}
@@ -42,9 +42,9 @@ We hypothesize that the deviation of eigenvalues of X from the MP distribution i
 
 \examples{
 \donttest{
-results<-OptimumDimension(X,rnk=40)
+results<-OptimumDimension(X,rnk=10,times=1000)
 str(results)
-ScreePlot(results$MarcenkoPasturSample)
+ScreePlot(results$MarcenkoPasturSample,annotation=0)
 modified_legacyplot(results$Changepoint$bcp.irl,annotation=10)
 }
 should import RMTstat after fix bug
