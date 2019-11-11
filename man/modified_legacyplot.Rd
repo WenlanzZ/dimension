@@ -4,7 +4,7 @@
 \alias{modified_legacyplot}
 \title{Summary plots of bcp() output.}
 \usage{
-modified_legacyplot(x, annotation = NULL)
+modified_legacyplot(x, annotation = NULL, medianfilter = TRUE)
 }
 \arguments{
 \item{annotation}{annotate points up to total rank calculated. No annotation when annotation=0.}

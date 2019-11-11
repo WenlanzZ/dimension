@@ -17,7 +17,12 @@
 #' }
 #' @examples
 #' \donttest{
+#' X <- Xsim(n=1000,p=500,ncc=10,var=2,fact = 1,orthogonl = FALSE)
 #' MPSamples<-MarcenkoPasturSample(X,rnk=40,times=100)
+#' 
+#' #equivelantly, if CheckDimMatrix is calcualted
+#' params <- CheckDimMatrix(X,rnk=40)
+#' MPSamples = MarcenkoPasturSample(params=params,times=100)
 #' }
 #' should import RMTstat after fix bug
 #' @importFrom tibble tibble
@@ -34,18 +39,33 @@ function(X,                   #data matrix
 # ---------------------------------------------------------------------
 # Check input parameters
 # ---------------------------------------------------------------------
-  if (is.null(X))  stop("Invalid input X")
-  if(missing(times)) {times <- 0}
-  else if (times < 0)  stop("times must be positive")
-  else if (times > min(nrow(X) - 1, ncol(X) - 1)) stop("times must be strictly less than min(nrow(X), ncol(X))")
-  if (!missing(params)) cat("parameters have already been calculated.\n")
-  if (missing(rnk)) {rnk <- min(nrow(X),ncol(X));cat('No rnk specified. Calculating full singular value decomposition instead.\n');cat('rnk missing, new rnk = ',rnk,'\n')}
-  if (missing(params)) {params <- CheckDimMatrix(X,rnk=rnk);cat("finish checking dimension of X and calculating eigenvalues of X.\n")}
 
- 
+  if(!missing(params)){
+    cat("parameters have already been calculated.\n")
+  }else{
+    if (is.null(X)){
+      stop("Invalid input X")
+      }else{
+        if (missing(rnk)){
+        rnk <- min(nrow(X),ncol(X))
+        cat('No rnk specified. Calculating full singular value decomposition instead.new rnk = ',rnk,'\n')
+      }
+        if(missing(times)) times <- 0
+        else if (times < 0) stop("times must be positive")
+        else if (times > min(nrow(X) - 1, ncol(X) - 1)) stop("times must be strictly less than min(nrow(X), ncol(X))")
+  
+        params <- CheckDimMatrix(X,rnk=rnk)
+        cat("finish checking dimension of X and calculating eigenvalues of X.\n")
+      }
+  }
+  if(missing(times)) times <- 0
+  else if (times < 0) stop("times must be positive")
+  else if (times > min(params$ndf - 1, params$pdim - 1)) stop("times must be strictly less than min(nrow(X), ncol(X))")
+   
   ndf = params$ndf
   pdim = params$pdim
   svr = params$svr
+  if(!missing(rnk)&&rnk!=params$rnk) warning("rnk specified does not match rnk calculated in params, use rnk in params instead.\n")
   rnk = params$rnk
   irl = params$irl
   transpose_flag = params$transpose_flag

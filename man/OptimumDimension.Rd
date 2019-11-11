@@ -24,7 +24,9 @@ Returns a list with entries:
   \item{irl:}{ a data frame of scaled eigenvalues and corresponding dimensions.}
   \item{MP_irl:}{ a data frame of samped expected eigenvalues from Marcenko-Pastur and corresponding dimensions.}
   \item{bcp_irl:}{ probability of change in mean and posterior means of eigenvalue difference between $X$ and $N$.}
-  \item{changePoint:}{ estimated changepoint position by "cpm" package.}
+  \item{bcp_post:}{ probability of change in mean and posterior means of bcp_rirl.}
+  \item{bcp_diff:}{ probability of change in mean and posterior means of eigenvalue difference in difference between $X$ and $N$.}
+  \item{changePoint:}{ estimated changepoint position by from bcp_post.}
 }
 }
 \description{
@@ -42,10 +44,15 @@ We hypothesize that the deviation of eigenvalues of X from the MP distribution i
 
 \examples{
 \donttest{
-results<-OptimumDimension(X,rnk=10,times=1000)
+X <- Xsim(n=1000,p=500,ncc=10,var=2,fact = 1,orthogonl = FALSE)
+results<-OptimumDimension(X,rnk=10,times=100)
+
+#equivelantly, if MarcenkoPasturSample is calcualted
+MPSamples<-MarcenkoPasturSample(X,rnk=40,times=100)
+results<-OptimumDimension(MPSamples)
 str(results)
-ScreePlot(results$MarcenkoPasturSample,annotation=0)
-modified_legacyplot(results$Changepoint$bcp.irl,annotation=10)
+ScreePlot(results$MarcenkoPasturSample,Changepoint=results$Changepoint$changePoint,annotation=10)
+modified_legacyplot(results$Changepoint$bcp_post,annotation=10)
 }
 should import RMTstat after fix bug
 }

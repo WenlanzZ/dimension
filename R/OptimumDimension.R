@@ -14,7 +14,9 @@
 #'   \item{irl:}{ a data frame of scaled eigenvalues and corresponding dimensions.}
 #'   \item{MP_irl:}{ a data frame of samped expected eigenvalues from Marcenko-Pastur and corresponding dimensions.}
 #'   \item{bcp_irl:}{ probability of change in mean and posterior means of eigenvalue difference between $X$ and $N$.}
-#'   \item{changePoint:}{ estimated changepoint position by "cpm" package.}
+#'   \item{bcp_post:}{ probability of change in mean and posterior means of bcp_rirl.}
+#'   \item{bcp_diff:}{ probability of change in mean and posterior means of eigenvalue difference in difference between $X$ and $N$.}
+#'   \item{changePoint:}{ estimated changepoint position by from bcp_post.}
 #' }
 #' @section Details:
 #' We estimate a low rank approximation of a signal-rich subspace in large high-dimensional data by decomposing matrix
@@ -25,10 +27,15 @@
 #' We hypothesize that the deviation of eigenvalues of X from the MP distribution indicates the intrinsic dimension of signal-rich subspace.
 #' @examples
 #' \donttest{
-#' results<-OptimumDimension(X,rnk=10,times=1000)
+#' X <- Xsim(n=1000,p=500,ncc=10,var=2,fact = 1,orthogonl = FALSE)
+#' results<-OptimumDimension(X,rnk=10,times=100)
+#' 
+#' #equivelantly, if MarcenkoPasturSample is calcualted
+#' MPSamples<-MarcenkoPasturSample(X,rnk=40,times=100)
+#' results<-OptimumDimension(MPSamples)
 #' str(results)
-#' ScreePlot(results$MarcenkoPasturSample,annotation=0)
-#' modified_legacyplot(results$Changepoint$bcp.irl,annotation=10)
+#' ScreePlot(results$MarcenkoPasturSample,Changepoint=results$Changepoint$changePoint,annotation=10)
+#' modified_legacyplot(results$Changepoint$bcp_post,annotation=10)
 #' }
 #' should import RMTstat after fix bug
 #' @seealso \code{\link[RMTstat]} for details of Marcenko-Pastur distribution.
@@ -43,16 +50,29 @@ OptimumDimension <-
         rnk = NA,             #number of singular vectors to estimate
         times=NA,              #split data into X times for parallel computation.
         ...) {
+# ---------------------------------------------------------------------
+# Check input parameters
+# ---------------------------------------------------------------------
 
-
-  if (is.null(X))  stop("Invalid input X")
-  if(missing(times)) {times <- 0}
-  else if (times < 0)  stop("times must be positive")
-  else if (times > min(nrow(X) - 1, ncol(X) - 1)) stop("times must be strictly less than min(nrow(X), ncol(X))")
-  if (!missing(MPSamples)) cat("MP samples have already been calculated.\n")
-  if (missing(rnk)) {rnk <- min(nrow(X),ncol(X));cat('No rnk specified. Calculating full singular value decomposition instead.\n');cat('rnk missing, new rnk = ',rnk,'\n')}
-  if (missing(MPSamples)) {MPSamples <- MarcenkoPasturSample(X,rnk=rnk,times=times);cat("finish calculating MP samples.\n")}
-
+  if(!missing(MPSamples)){
+    cat("MP samples have already been calculated.\n")
+  }else{
+    if (is.null(X)){
+      stop("Invalid input X")
+      }else{
+        if (missing(rnk)){
+        rnk <- min(nrow(X),ncol(X))
+        cat('No rnk specified. Calculating full singular value decomposition instead.new rnk = ',rnk,'\n')
+      }
+        if(missing(times)) times <- 0
+        else if (times < 0) stop("times must be positive")
+        else if (times > min(nrow(X) - 1, ncol(X) - 1)) stop("times must be strictly less than min(nrow(X), ncol(X))")
+  
+        MPSamples <- MarcenkoPasturSample(X,rnk=rnk,times=times)
+        cat("finish calculating MP samples.\n")
+      }
+  }
+  
   ndf = MPSamples$ndf
   pdim = MPSamples$pdim
   rnk = MPSamples$rnk
@@ -67,10 +87,12 @@ OptimumDimension <-
   bcp.irl = bcp(as.vector(sigma_a-sigma_MP), p0 = 0.1)
   #Bayesian Posterior Prob Change Point
   bcp_post = bcp(as.vector(c(bcp.irl$posterior.prob[-rnk],0)),p0=0.1)
+  #Estimated change point from bcp_post
+  changePoint = rnk+1-which.max(rev(runmed(c(bcp_post$posterior.prob[-rnk],0),3)))
   #Bayesian Diff Change Point
   bcp_diff = bcp(as.vector(-diff(sigma_a-sigma_MP)),p0=0.001)
   #Single Change Point
-  changePoint = detectChangePoint(sigma_a-sigma_MP,cpmType="Exponential")$changePoint
+  #changePoint = detectChangePoint(sigma_a-sigma_MP,cpmType="Exponential")$changePoint
   
   return(list(MarcenkoPasturSample=list(ndf=ndf,pdim=pdim,rnk=rnk,var_correct=var_correct,irl=irl,MP_irl=MP_irl),
               Changepoint=list(bcp.irl=bcp.irl,bcp_post=bcp_post,bcp_diff=bcp_diff,changePoint=changePoint)))

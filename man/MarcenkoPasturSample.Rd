@@ -31,7 +31,12 @@ This function sample scaled expected eigenvalues from Marcenko-Pastur distributi
 }
 \examples{
 \donttest{
+X <- Xsim(n=1000,p=500,ncc=10,var=2,fact = 1,orthogonl = FALSE)
 MPSamples<-MarcenkoPasturSample(X,rnk=40,times=100)
+
+#equivelantly, if CheckDimMatrix is calcualted
+params <- CheckDimMatrix(X,rnk=40)
+MPSamples<-MarcenkoPasturSample(params,times=100)
 }
 should import RMTstat after fix bug
 }

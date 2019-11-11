@@ -27,7 +27,7 @@ Return parameter setting for MarcenkoPasturSample function.
 \examples{
 \donttest{
 X <- Xsim(n=1000,p=500,ncc=10,var=2,fact = 1,orthogonl = FALSE)
-CheckDimMatrix(X,rnk=40)
+params <- CheckDimMatrix(X,rnk=40)
 }
 #should import RMTstat after fix bug
 }

@@ -9,9 +9,10 @@
 #' }
 #' @import ggplot2
 #' @import gridExtra
+#' @importFrom stats runmed 
 #' @export
 
-modified_legacyplot <- function(x,annotation=NULL) {
+modified_legacyplot <- function(x,annotation=NULL,medianfilter=TRUE) {
   
   x$posterior.prob[nrow(x$data)]<-0
   if (missing(annotation)) {annotation <- nrow(x$data);cat("Anotating for all point. Set annotation = 0 to stop annotation.\n")}
@@ -28,7 +29,7 @@ modified_legacyplot <- function(x,annotation=NULL) {
   p2 <- ggplot() + theme_minimal() + xlab("Dimension") + ylab("Posterior Probability") + 
    theme(plot.title = element_text(hjust = 0.5),panel.grid.major = element_blank(),panel.grid.minor = element_blank(),panel.background = element_rect(colour = "black", size=0.5)) +
     ylim(0,1)+scale_x_continuous(breaks=seq(0,nrow(x$data),1))+
-    geom_point(aes(x = x$data[,1], y = x$posterior.prob),colour="blue") + geom_line(aes(x = x$data[,1], y = x$posterior.prob),color = "black",cex=0.5) + geom_text_repel(aes(x= x$data[,1], y = x$posterior.prob, label=mark),colour="black",size=5) 
+    geom_point(aes(x = x$data[,1], y = switch(2-medianfilter,runmed(x$posterior.prob,3),x$posterior.prob)),colour="blue") + geom_line(aes(x = x$data[,1], y = switch(2-medianfilter,runmed(x$posterior.prob,3),x$posterior.prob)),color = "black",cex=0.5) + geom_text_repel(aes(x = x$data[,1], y = switch(2-medianfilter,runmed(x$posterior.prob,3),x$posterior.prob), label=mark),colour="black",size=5)
   
   #merge all three plots within one grid (and visualize this)
   grid.arrange(p1,p2, ncol=1)
