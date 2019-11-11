@@ -32,7 +32,7 @@
 #' 
 #' #equivelantly, if MarcenkoPasturSample is calcualted
 #' MPSamples<-MarcenkoPasturSample(X,rnk=40,times=100)
-#' results<-OptimumDimension(MPSamples)
+#' results = OptimumDimension(MPSamples=MPSamples)
 #' str(results)
 #' ScreePlot(results$MarcenkoPasturSample,Changepoint=results$Changepoint$changePoint,annotation=10)
 #' modified_legacyplot(results$Changepoint$bcp_post,annotation=10)
@@ -84,7 +84,7 @@ OptimumDimension <-
   sigma_MP = MP_irl$eigen
 
   #Bayesian Change Point
-  bcp.irl = bcp(as.vector(sigma_a-sigma_MP), p0 = 0.1)
+  bcp_irl = bcp(as.vector(sigma_a-sigma_MP), p0 = 0.1)
   #Bayesian Posterior Prob Change Point
   bcp_post = bcp(as.vector(c(bcp.irl$posterior.prob[-rnk],0)),p0=0.1)
   #Estimated change point from bcp_post
@@ -95,5 +95,5 @@ OptimumDimension <-
   #changePoint = detectChangePoint(sigma_a-sigma_MP,cpmType="Exponential")$changePoint
   
   return(list(MarcenkoPasturSample=list(ndf=ndf,pdim=pdim,rnk=rnk,var_correct=var_correct,irl=irl,MP_irl=MP_irl),
-              Changepoint=list(bcp.irl=bcp.irl,bcp_post=bcp_post,bcp_diff=bcp_diff,changePoint=changePoint)))
+              Changepoint=list(bcp_irl=bcp_irl,bcp_post=bcp_post,bcp_diff=bcp_diff,changePoint=changePoint)))
 }
