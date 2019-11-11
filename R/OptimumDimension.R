@@ -86,7 +86,7 @@ OptimumDimension <-
   #Bayesian Change Point
   bcp_irl = bcp(as.vector(sigma_a-sigma_MP), p0 = 0.1)
   #Bayesian Posterior Prob Change Point
-  bcp_post = bcp(as.vector(c(bcp.irl$posterior.prob[-rnk],0)),p0=0.1)
+  bcp_post = bcp(as.vector(c(bcp_irl$posterior.prob[-rnk],0)),p0=0.1)
   #Estimated change point from bcp_post
   changePoint = rnk+1-which.max(rev(runmed(c(bcp_post$posterior.prob[-rnk],0),3)))
   #Bayesian Diff Change Point

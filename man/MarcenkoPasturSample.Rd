@@ -36,7 +36,7 @@ MPSamples<-MarcenkoPasturSample(X,rnk=40,times=100)
 
 #equivelantly, if CheckDimMatrix is calcualted
 params <- CheckDimMatrix(X,rnk=40)
-MPSamples<-MarcenkoPasturSample(params,times=100)
+MPSamples = MarcenkoPasturSample(params=params,times=100)
 }
 should import RMTstat after fix bug
 }

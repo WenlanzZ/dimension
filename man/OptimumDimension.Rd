@@ -49,7 +49,7 @@ results<-OptimumDimension(X,rnk=10,times=100)
 
 #equivelantly, if MarcenkoPasturSample is calcualted
 MPSamples<-MarcenkoPasturSample(X,rnk=40,times=100)
-results<-OptimumDimension(MPSamples)
+results = OptimumDimension(MPSamples=MPSamples)
 str(results)
 ScreePlot(results$MarcenkoPasturSample,Changepoint=results$Changepoint$changePoint,annotation=10)
 modified_legacyplot(results$Changepoint$bcp_post,annotation=10)
