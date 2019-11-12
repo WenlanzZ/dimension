@@ -25,7 +25,6 @@ Returns a list with entries:
   \item{MP_irl:}{ a data frame of samped expected eigenvalues from Marcenko-Pastur and corresponding dimensions.}
   \item{bcp_irl:}{ probability of change in mean and posterior means of eigenvalue difference between $X$ and $N$.}
   \item{bcp_post:}{ probability of change in mean and posterior means of bcp_rirl.}
-  \item{bcp_diff:}{ probability of change in mean and posterior means of eigenvalue difference in difference between $X$ and $N$.}
   \item{changePoint:}{ estimated changepoint position by from bcp_post.}
 }
 }

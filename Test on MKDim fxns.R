@@ -42,7 +42,7 @@ results = OptimumDimension(MPSamples=MPSamples)
 str(results)
 
 ScreePlot(results$MarcenkoPasturSample,Changepoint=results$Changepoint$changePoint,annotation=0)
-modified_legacyplot(results$Changepoint$bcp.irl,annotation=10,medianfilter = FALSE)
+modified_legacyplot(results$Changepoint$bcp_irl,annotation=10,medianfilter = FALSE)
 modified_legacyplot(results$Changepoint$bcp_post,annotation=10)
 legacyplot(results$Changepoint$bcp_post)
 

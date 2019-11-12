@@ -15,7 +15,6 @@
 #'   \item{MP_irl:}{ a data frame of samped expected eigenvalues from Marcenko-Pastur and corresponding dimensions.}
 #'   \item{bcp_irl:}{ probability of change in mean and posterior means of eigenvalue difference between $X$ and $N$.}
 #'   \item{bcp_post:}{ probability of change in mean and posterior means of bcp_rirl.}
-#'   \item{bcp_diff:}{ probability of change in mean and posterior means of eigenvalue difference in difference between $X$ and $N$.}
 #'   \item{changePoint:}{ estimated changepoint position by from bcp_post.}
 #' }
 #' @section Details:
@@ -90,10 +89,10 @@ OptimumDimension <-
   #Estimated change point from bcp_post
   changePoint = rnk+1-which.max(rev(runmed(c(bcp_post$posterior.prob[-rnk],0),3)))
   #Bayesian Diff Change Point
-  bcp_diff = bcp(as.vector(-diff(sigma_a-sigma_MP)),p0=0.001)
+  #bcp_diff = bcp(as.vector(-diff(sigma_a-sigma_MP)),p0=0.001)
   #Single Change Point
   #changePoint = detectChangePoint(sigma_a-sigma_MP,cpmType="Exponential")$changePoint
   
   return(list(MarcenkoPasturSample=list(ndf=ndf,pdim=pdim,rnk=rnk,var_correct=var_correct,irl=irl,MP_irl=MP_irl),
-              Changepoint=list(bcp_irl=bcp_irl,bcp_post=bcp_post,bcp_diff=bcp_diff,changePoint=changePoint)))
+              Changepoint=list(bcp_irl=bcp_irl,bcp_post=bcp_post,changePoint=changePoint)))
 }
