@@ -16,7 +16,7 @@ modified_legacyplot <- function(x,annotation=NULL,medianfilter=TRUE) {
   
   x$posterior.prob[nrow(x$data)]<-0
   if (missing(annotation)) {annotation <- nrow(x$data);cat("Anotating for all point. Set annotation = 0 to stop annotation.\n")}
-  if (!is.null(annotation)&annotation > nrow(x$data)) stop("annotation number must be strictly less or equal to than rows of x")
+  if (!is.null(annotation)&annotation > nrow(x$data)) stop("Annotation number must be strictly less or equal to than rows of x")
   if(annotation==0) {mark=rep("",nrow(x$data))}else{
   mark=c(1:annotation,rep("",nrow(x$data)-annotation))}
 

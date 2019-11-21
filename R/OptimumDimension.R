@@ -5,14 +5,19 @@
 #' @param MPSamples A list. Samples from Marc\u{e}nko-Pastur (MP) distribution and eigenvalues of X. Output from MarcenkoPasturSample function.
 #' @param rnk number of right singular vectors to estimate. rnk must be smaller or equal to max(nrow(X),ncol(X)).
 #' @param times split data into X times for parallel computation.
+#' @param p threshold for selecting changepoint.default is 0.90.
 #' @return
 #' Returns a list with entries:
 #' \describe{
 #'   \item{ndf:}{ number of degrees of freedom of X and the white Wishart matrix.}
 #'   \item{pdim:}{ number of dimensions of X and the white Wishart matrix.}
 #'   \item{var_correct:}{ population variance for Marcenko-Pastur distribution.}
+#'   \item{rnk:}{ number of right singular vectors to estimate.}
+#'   \item{transpose_flag:}{ whether the matrix X is transposed.}
 #'   \item{irl:}{ a data frame of scaled eigenvalues and corresponding dimensions.}
 #'   \item{MP_irl:}{ a data frame of samped expected eigenvalues from Marcenko-Pastur and corresponding dimensions.}
+#'   \item{v:}{ right singular vectors of X matrix with truncation up to dimension rnk.}
+#'   \item{u:}{ left singular vectors of X matrix with truncation up to dimension rnk.}
 #'   \item{bcp_irl:}{ probability of change in mean and posterior means of eigenvalue difference between $X$ and $N$.}
 #'   \item{bcp_post:}{ probability of change in mean and posterior means of bcp_rirl.}
 #'   \item{changePoint:}{ estimated changepoint position by from bcp_post.}
@@ -44,10 +49,11 @@
 #' @export
 
 OptimumDimension <- 
-  function(X,                   #data matrix
-        MPSamples=NULL,          #A list of ouput from function MarcenkoPasturSample.
-        rnk = NA,             #number of singular vectors to estimate
-        times=NA,              #split data into X times for parallel computation.
+  function(X,                     #data matrix
+        MPSamples=NULL,           #A list of ouput from function MarcenkoPasturSample.
+        rnk = NA,                 #number of singular vectors to estimate
+        times=NA,                 #split data into X times for parallel computation.
+        p=0.90,                  #threshold for selecting changepoint
         ...) {
 # ---------------------------------------------------------------------
 # Check input parameters
@@ -64,11 +70,10 @@ OptimumDimension <-
         cat('No rnk specified. Calculating full singular value decomposition instead.new rnk = ',rnk,'\n')
       }
         if(missing(times)) times <- 0
-        else if (times < 0) stop("times must be positive")
-        else if (times > min(nrow(X) - 1, ncol(X) - 1)) stop("times must be strictly less than min(nrow(X), ncol(X))")
-  
+        else if (times < 0) stop("Times must be positive")
+        else if (times > min(nrow(X) - 1, ncol(X) - 1)) stop("Times must be strictly less than min(nrow(X), ncol(X))")
         MPSamples <- MarcenkoPasturSample(X,rnk=rnk,times=times)
-        cat("finish calculating MP samples.\n")
+        cat("Finish calculating MP samples.\n")
       }
   }
   
@@ -88,19 +93,35 @@ OptimumDimension <-
   bcp_post = bcp(as.vector(c(bcp_irl$posterior.prob[-rnk],0)),p0=0.1)
   #Estimated change point from bcp_post
   # changePoint = rnk+1-which.max(rev(c(bcp_post$posterior.prob[-rnk],0)))
-  if (length(which(c(bcp_post$posterior.prob[-rnk],0)==max(c(bcp_post$posterior.prob[-rnk],0))))==1){
-    changePoint = which.max(c(bcp_post$posterior.prob[-rnk],0))
+  # if (length(which(c(bcp_post$posterior.prob[-rnk],0)==max(c(bcp_post$posterior.prob[-rnk],0))))==1){
+  #   changePoint = which.max(c(bcp_post$posterior.prob[-rnk],0))
+  # }else{
+  #   post_max = rnk+1-which.max(rev(c(bcp_post$posterior.prob[-rnk],0)))
+  #   irl_max = rnk+1-which.max(rev(c(bcp_irl$posterior.prob[-rnk],0)))
+  #   threshold = c(bcp_irl$posterior.prob[-rnk],0)[post_max] > 0.95
+  #   changePoint = switch(2-threshold,post_max,irl_max)
+  # }
+  prob_post = c(bcp_post$posterior.prob[-rnk],0)
+  prob_irl = c(bcp_irl$posterior.prob[-rnk],0)
+  post_max = which(prob_post==max(prob_post))
+  num_max = length(post_max)
+  if (num_max==1){
+    #unimodal changepoint in bcp_post
+    changePoint = rnk+1-which.max(rev(prob_post))
   }else{
-    post_max = rnk+1-which.max(rev(c(bcp_post$posterior.prob[-rnk],0)))
-    irl_max = rnk+1-which.max(rev(c(bcp_irl$posterior.prob[-rnk],0)))
-    threshold = c(bcp_irl$posterior.prob[-rnk],0)[post_max] > 0.95
-    changePoint = switch(2-threshold,post_max,irl_max)
+        #multiple changepoints in bcp_post
+        #1. find all max changepoinst in bcp_post 
+        #2. Any of them in prob_irl >0.95*max(prob_irl)
+        irl_max = rnk+1-which.max(rev(prob_irl))
+        threshold <- prob_irl[post_max] > p*max(prob_irl)
+        #3. If none in 2. then choose irl_max
+        changePoint = switch(2-any(threshold),max(post_max[threshold]),irl_max)
   }
   #Bayesian Diff Change Point
   #bcp_diff = bcp(as.vector(-diff(sigma_a-sigma_MP)),p0=0.001)
   #Single Change Point
   #changePoint = detectChangePoint(sigma_a-sigma_MP,cpmType="Exponential")$changePoint
   
-  return(list(MarcenkoPasturSample=list(ndf=ndf,pdim=pdim,rnk=rnk,var_correct=var_correct,irl=irl,MP_irl=MP_irl),
+  return(list(MarcenkoPasturSample=list(ndf=ndf,pdim=pdim,var_correct=var_correct,rnk=rnk,transpose_flag=MPSamples$transpose_flag,irl=irl,MP_irl=MP_irl,v=MPSamples$v,u=MPSamples$u),
               Changepoint=list(bcp_irl=bcp_irl,bcp_post=bcp_post,changePoint=changePoint)))
 }

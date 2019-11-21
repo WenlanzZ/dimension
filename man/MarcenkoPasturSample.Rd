@@ -21,9 +21,12 @@ Returns a list with entries:
   \item{ndf:}{ number of degrees of freedom of X and the white Wishart matrix.}
   \item{pdim:}{ number of dimensions of X and the white Wishart matrix.}
   \item{var_correct:}{ population variance for Marcenko-Pastur distribution.}
+  \item{rnk:}{ number of right singular vectors to estimate.}
+  \item{transpose_flag:}{ whether the matrix X is transposed.}
   \item{irl:}{ a data frame of scaled eigenvalues and corresponding dimensions.}
   \item{MP_irl:}{ a data frame of samped expected eigenvalues from Marcenko-Pastur and corresponding dimensions.}
-  \item{eigenvec:}{ right singular vectors of X matrix with truncation up to dimension rnk.}
+  \item{v:}{ right singular vectors of X matrix with truncation up to dimension rnk.}
+  \item{u:}{ left singular vectors of X matrix with truncation up to dimension rnk.}
 }
 }
 \description{

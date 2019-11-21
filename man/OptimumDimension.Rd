@@ -4,7 +4,8 @@
 \alias{OptimumDimension}
 \title{Rank Estimation in High-Dimensional matrix X.}
 \usage{
-OptimumDimension(X, MPSamples = NULL, rnk = NA, times = NA, ...)
+OptimumDimension(X, MPSamples = NULL, rnk = NA, times = NA,
+  p = 0.9, ...)
 }
 \arguments{
 \item{X}{A numeric real- or real-valued sparse matrix with n number of samples and p number of features. If p>n, a warning message is generated and the transpose of X is used.}
@@ -14,6 +15,8 @@ OptimumDimension(X, MPSamples = NULL, rnk = NA, times = NA, ...)
 \item{rnk}{number of right singular vectors to estimate. rnk must be smaller or equal to max(nrow(X),ncol(X)).}
 
 \item{times}{split data into X times for parallel computation.}
+
+\item{p}{threshold for selecting changepoint.default is 0.90.}
 }
 \value{
 Returns a list with entries:
@@ -21,8 +24,12 @@ Returns a list with entries:
   \item{ndf:}{ number of degrees of freedom of X and the white Wishart matrix.}
   \item{pdim:}{ number of dimensions of X and the white Wishart matrix.}
   \item{var_correct:}{ population variance for Marcenko-Pastur distribution.}
+  \item{rnk:}{ number of right singular vectors to estimate.}
+  \item{transpose_flag:}{ whether the matrix X is transposed.}
   \item{irl:}{ a data frame of scaled eigenvalues and corresponding dimensions.}
   \item{MP_irl:}{ a data frame of samped expected eigenvalues from Marcenko-Pastur and corresponding dimensions.}
+  \item{v:}{ right singular vectors of X matrix with truncation up to dimension rnk.}
+  \item{u:}{ left singular vectors of X matrix with truncation up to dimension rnk.}
   \item{bcp_irl:}{ probability of change in mean and posterior means of eigenvalue difference between $X$ and $N$.}
   \item{bcp_post:}{ probability of change in mean and posterior means of bcp_rirl.}
   \item{changePoint:}{ estimated changepoint position by from bcp_post.}

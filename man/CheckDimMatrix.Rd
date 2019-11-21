@@ -17,8 +17,11 @@ Returns a list with entries:
   \item{ndf:}{ number of degrees of freedom of X and the white Wishart matrix.}
   \item{pdim:}{ number of dimensions of X and the white Wishart matrix.}
   \item{svr:}{ samples to variance ratio; equals to ndf divided by pdim.}
+  \item{rnk:}{ number of right singular vectors to estimate.}
   \item{transpose_flag:}{ whether the matrix X is transposed.}
   \item{irl:}{ a data frame of scaled eigenvalues and corresponding dimensions.}
+  \item{v:}{ right singular vectors of X matrix with truncation up to dimension rnk.}
+  \item{u:}{ left singular vectors of X matrix with truncation up to dimension rnk.}
 }
 }
 \description{
@@ -30,4 +33,7 @@ X <- Xsim(n=1000,p=500,ncc=10,var=2,fact = 1,orthogonl = FALSE)
 params <- CheckDimMatrix(X,rnk=40)
 }
 #should import RMTstat after fix bug
+}
+\seealso{
+Random Matrix Theory pacakge credit to Gregory Giecold and Lionel Ouaknin
 }

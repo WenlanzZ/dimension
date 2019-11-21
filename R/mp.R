@@ -4,9 +4,9 @@
 MarchenkoPasturPar <- function( ndf=NA, pdim=NA, var=1, svr=ndf/pdim ) {
     gamma          <- svr
 
-    inv.gamma.sqrt <- sqrt( 1/gamma )
-    a              <- var*( 1 - 1/inv.gamma.sqrt )^2
-    b              <- var*( 1 + 1/inv.gamma.sqrt )^2
+    inv.gamma.sqrt <- sqrt( gamma )
+    a              <- var*( 1 - inv.gamma.sqrt )^2
+    b              <- var*( 1 + inv.gamma.sqrt )^2
 
     list( lower=a, upper=b )
 }

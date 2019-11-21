@@ -11,9 +11,12 @@
 #'   \item{ndf:}{ number of degrees of freedom of X and the white Wishart matrix.}
 #'   \item{pdim:}{ number of dimensions of X and the white Wishart matrix.}
 #'   \item{var_correct:}{ population variance for Marcenko-Pastur distribution.}
+#'   \item{rnk:}{ number of right singular vectors to estimate.}
+#'   \item{transpose_flag:}{ whether the matrix X is transposed.}
 #'   \item{irl:}{ a data frame of scaled eigenvalues and corresponding dimensions.}
 #'   \item{MP_irl:}{ a data frame of samped expected eigenvalues from Marcenko-Pastur and corresponding dimensions.}
-#'   \item{eigenvec:}{ right singular vectors of X matrix with truncation up to dimension rnk.}
+#'   \item{v:}{ right singular vectors of X matrix with truncation up to dimension rnk.}
+#'   \item{u:}{ left singular vectors of X matrix with truncation up to dimension rnk.}
 #' }
 #' @examples
 #' \donttest{
@@ -27,6 +30,9 @@
 #' should import RMTstat after fix bug
 #' @importFrom tibble tibble
 #' @importFrom irlba irlba
+#' @import doParallel
+#' @import parallel
+#' @import foreach
 #' @export
 
 MarcenkoPasturSample <- 
@@ -41,7 +47,7 @@ function(X,                   #data matrix
 # ---------------------------------------------------------------------
 
   if(!missing(params)){
-    cat("parameters have already been calculated.\n")
+    cat("Parameters have already been calculated.\n")
   }else{
     if (is.null(X)){
       stop("Invalid input X")
@@ -51,28 +57,26 @@ function(X,                   #data matrix
         cat('No rnk specified. Calculating full singular value decomposition instead.new rnk = ',rnk,'\n')
       }
         if(missing(times)) times <- 0
-        else if (times < 0) stop("times must be positive")
-        else if (times > min(nrow(X) - 1, ncol(X) - 1)) stop("times must be strictly less than min(nrow(X), ncol(X))")
-  
+        else if (times < 0) stop("Times must be positive")
+        else if (times > min(nrow(X) - 1, ncol(X) - 1)) stop("Times must be strictly less than min(nrow(X), ncol(X))")
         params <- CheckDimMatrix(X,rnk=rnk)
-        cat("finish checking dimension of X and calculating eigenvalues of X.\n")
       }
   }
   if(missing(times)) times <- 0
-  else if (times < 0) stop("times must be positive")
-  else if (times > min(params$ndf - 1, params$pdim - 1)) stop("times must be strictly less than min(nrow(X), ncol(X))")
+  else if (times < 0) stop("Times must be positive")
+  else if (times > min(params$ndf - 1, params$pdim - 1)) stop("Times must be strictly less than min(nrow(X), ncol(X))")
    
   ndf = params$ndf
   pdim = params$pdim
   svr = params$svr
-  if(!missing(rnk)&&rnk!=params$rnk) warning("rnk specified does not match rnk calculated in params, use rnk in params instead.\n")
+  if(!missing(rnk)&&rnk!=params$rnk) warning("Rnk specified does not match rnk calculated in params, use rnk in params instead.\n")
   rnk = params$rnk
   irl = params$irl
   transpose_flag = params$transpose_flag
 
   var_correct=min(irl$eigen)/MarchenkoPasturPar(ndf,pdim,var=1,svr=svr)$upper#0.00061704 001C
   cat("The corrected variance of MP distribution is ",var_correct,".\n",sep="")
-  if(!transpose_flag&&times==0){
+  if(times==0){
     system.time({sim=rmp(pdim, ndf=ndf, pdim=pdim, var=var_correct, svr=ndf/pdim)})
     }else{
       ncores=8
@@ -82,8 +86,7 @@ function(X,                   #data matrix
           tmp <- rmp(pdim/times, ndf=ndf, pdim=pdim, var=var_correct, svr=ndf/pdim)
         }})
         }
-  cat("finish MP sampling.\n")
   MP_irl = tibble(eigen = sim[order(sim,decreasing = T)][1:rnk], dim = 1:rnk)
   
-  return(list(ndf=ndf,pdim=pdim,var_correct=var_correct,rnk=rnk,irl=irl,MP_irl=MP_irl,eigenvec = params$eigenvec))
+  return(list(ndf=ndf,pdim=pdim,var_correct=var_correct,rnk=rnk,transpose_flag=transpose_flag,irl=irl,MP_irl=MP_irl,v = params$v, u = params$u))
 }
