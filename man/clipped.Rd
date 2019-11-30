@@ -27,9 +27,9 @@ method = "identity" returns eigenvalued specified in location vector.}
 \value{
 Returns a list with entries:
 \describe{
-  \item{xi_clipped:}{ Cleaned estimator of eigenvalues through a simple eigenvalue clipping procedure (cf. reference below).}
-  \item{X_clipped:}{ Cleaned estimator of the true sigmal matrix underlying a noisy high dimensional matrix X.}
-  \item{E_clipped:}{ Cleaned estimator of the true correlation matrix underlying a noisy, in-sample estimate E (empirical correaltion matrix estimated from X (cf. reference below)).}
+  \item{xi_clipped:}{ cleaned estimator of eigenvalues through a simple eigenvalue clipping procedure (cf. reference below).}
+  \item{X_clipped:}{ cleaned estimator of the true sigmal matrix underlying a noisy high dimensional matrix X.}
+  \item{E_clipped:}{ cleaned estimator of the true correlation matrix underlying a noisy, in-sample estimate E (empirical correaltion matrix estimated from X (cf. reference below)).}
   \item{v:}{ right singular vectors of X matrix with truncation up to dimension rnk.}
   \item{u:}{ left singular vectors of X matrix with truncation up to dimension rnk.}
 }

@@ -4,7 +4,7 @@
 \alias{CheckDimMatrix}
 \title{Return parameter setting for MarcenkoPasturSample function.}
 \usage{
-CheckDimMatrix(X, rnk = NA, ...)
+CheckDimMatrix(X = X, rnk = NA, verbose = TRUE)
 }
 \arguments{
 \item{X}{A numeric real- or real-valued sparse matrix with n number of samples and p number of features. If p>n, a warning message is generated and the transpose of X is used.}
@@ -19,9 +19,6 @@ Returns a list with entries:
   \item{svr:}{ samples to variance ratio; equals to ndf divided by pdim.}
   \item{rnk:}{ number of right singular vectors to estimate.}
   \item{transpose_flag:}{ whether the matrix X is transposed.}
-  \item{irl:}{ a data frame of scaled eigenvalues and corresponding dimensions.}
-  \item{v:}{ right singular vectors of X matrix with truncation up to dimension rnk.}
-  \item{u:}{ left singular vectors of X matrix with truncation up to dimension rnk.}
 }
 }
 \description{
@@ -29,7 +26,7 @@ Return parameter setting for MarcenkoPasturSample function.
 }
 \examples{
 \donttest{
-X <- Xsim(n=1000,p=500,ncc=10,var=2,fact = 1,orthogonl = FALSE)
+X <- Xsim(n=1000,p=500,ncc=10,var=2,fact = 1)
 params <- CheckDimMatrix(X,rnk=40)
 }
 #should import RMTstat after fix bug

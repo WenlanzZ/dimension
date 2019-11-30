@@ -1,4 +1,4 @@
-Package: MKDim
+Package: dimension
 Type: Package
 Title: Determine Signal Space Dimension
 Version: 0.1.0
@@ -17,11 +17,16 @@ Depends: R (>= 3.5.0)
 License: LGPL-2
 Maintainer: Wenlan Zang <wenlan.zang@yale.edu>
 Imports:
+    doParallel,
+    parallel,
+    foreach,
     irlba,
     mvtnorm,
-    ggplot2, 
-    tibble, 
-    cpm,
+    stats,
+    ggplot2,
+    gridExtra,
+    ggrepel,
+    tibble,
     bcp
 LazyData: true
 Encoding: UTF-8
@@ -35,3 +40,4 @@ Suggests:
     doParallel
 VignetteBuilder: 
     knitr
+

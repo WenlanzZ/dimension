@@ -4,10 +4,12 @@
 \alias{modified_legacyplot}
 \title{Summary plots of bcp() output.}
 \usage{
-modified_legacyplot(x, annotation = NULL, medianfilter = TRUE)
+modified_legacyplot(x, annotation = NULL, medianfilter = FALSE)
 }
 \arguments{
 \item{annotation}{annotate points up to total rank calculated. No annotation when annotation=0.}
+
+\item{medianfilter}{a logical value. Compute running medians to smooth scatter plot.}
 
 \item{X}{a list. the result of a call to bcp().}
 }

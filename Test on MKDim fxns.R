@@ -1,70 +1,75 @@
-library(devtools)
-setwd("/Users/wz262/Projects")
-install("MKDim")
-library(MKDim)
-?Xsim
-?CheckDimMatrix
-?MarcenkoPasturSample
-?OptimumDimension
-?clipped
+rm(list=lsf.str())
 
 #auto generating documents after changing fxns
-setwd("/Users/wz262/Projects/MKDim")
+setwd("/Users/wz262/Projects/dimension")
 library(roxygen2)
 library(devtools)
 document()
 
+#library
+setwd("/Users/wz262/Projects")
+install("dimension")
+3
+library(dimension)
+?Xsim
+?CheckDimMatrix
+?subspace
+?dimension
+?clipped
+
+
 #Test on MKDim package
-X <- Xsim(n=150,p=100,ncc=100,var=2,fact = 1,orthogonl = FALSE)
+X <- Xsim(n = 150, p = 100, ncc = 10, var = 2, fact = 1)
 
 ########################################################
 #####test on CheckDimMatrix#########
 ########################################################
 
-params = CheckDimMatrix(X,rnk=30)
+params = CheckDimMatrix(X, rnk = 30)
 params = CheckDimMatrix(X)
 
 #test on warning
-params = CheckDimMatrix(rnk=30)
-params = CheckDimMatrix(X,rnk=-1)
-params = CheckDimMatrix(X,rnk=2000)
+params = CheckDimMatrix(rnk = 30)
+params = CheckDimMatrix(X, rnk = -1)
+params = CheckDimMatrix(X, rnk = 2000)
 str(params)
 
-MarchenkoPasturPar(ndf=150,pdim=100,var=1,svr=params$svr)
+MarchenkoPasturPar(ndf = 150, pdim = 100, var = 1, svr = params$svr)
 
 ########################################################
-#####test on MarcenkoPasturSample#########
+#####test on subspace#########
 ########################################################
 
-MPSamples = MarcenkoPasturSample(X)
-MPSamples = MarcenkoPasturSample(X,time=10)
-MPSamples = MarcenkoPasturSample(X,rnk=10)
-MPSamples = MarcenkoPasturSample(X,params,times=10)
-MPSamples = MarcenkoPasturSample(params=params,times=10)
-MPSamples = MarcenkoPasturSample(X,rnk=40,times=10)
+subspace_ <- subspace(X)
+subspace_ <- subspace(X, time = 10)
+subspace_ <- subspace(X, rank = 1:10, basis = "eigen")
+subspace_ <- subspace(X, rank = c(2, 3, 6), times = 10, basis = "eigen")
+subspace_
+str(subspace_)
+plot(subspace_, Changepoint = 0)
+plot(subspace_, annotation = 0)
+plot(subspace_, Changepoint = 0, annotation = 5)
 #test on warning
-MPSamples = MarcenkoPasturSample(X,time=-1)
-MPSamples = MarcenkoPasturSample(X,rnk=-1,times=10)
-MPSamples = MarcenkoPasturSample(X,params,rnk=40,times=10)
-str(MPSamples)
+subspace_ <- subspace(X, time = -1)
+subspace_ <- subspace(X, rank = -1, times = 10)
+str(subspace_)
 
 ########################################################
 #####test on OptimumDimension#########
 ########################################################
 
-results = OptimumDimension(X)
-results = OptimumDimension(X,rnk=30)
-results = OptimumDimension(X,MPSamples)
-results = OptimumDimension(MPSamples=MPSamples)
-
+results = dimension(X)
+results = dimension(X, rank = 30, times = 10)
+results = dimension(X, subspace_)
+results = dimension(subspace_ = subspace_)
+results = dimension(X, rank=1:40, times = 10, basis="eigen")
 #test on warning
-results = OptimumDimension(X,rnk=30,times=100,p=0.95)
-results = OptimumDimension(X,times=100)
+results = dimension(X, rank=1:40, times = 10, basis="eigen")
+results = dimension(X,times=99)
 str(results)
 
-ScreePlot(results$MarcenkoPasturSample,Changepoint=results$Changepoint$changePoint,annotation=0)
-modified_legacyplot(results$Changepoint$bcp_irl,annotation=10,medianfilter = FALSE)
-modified_legacyplot(results$Changepoint$bcp_post,annotation=10,medianfilter = FALSE)
+modified_legacyplot(results$Changepoint$bcp_irl,annotation=10)
+modified_legacyplot(results$Changepoint$bcp_post,annotation=10)
 legacyplot(results$Changepoint$bcp_post)
 
 

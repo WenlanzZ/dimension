@@ -13,9 +13,9 @@
 #' @return
 #' Returns a list with entries:
 #' \describe{
-#'   \item{xi_clipped:}{ Cleaned estimator of eigenvalues through a simple eigenvalue clipping procedure (cf. reference below).}
-#'   \item{X_clipped:}{ Cleaned estimator of the true sigmal matrix underlying a noisy high dimensional matrix X.}
-#'   \item{E_clipped:}{ Cleaned estimator of the true correlation matrix underlying a noisy, in-sample estimate E (empirical correaltion matrix estimated from X (cf. reference below)).}
+#'   \item{xi_clipped:}{ cleaned estimator of eigenvalues through a simple eigenvalue clipping procedure (cf. reference below).}
+#'   \item{X_clipped:}{ cleaned estimator of the true sigmal matrix underlying a noisy high dimensional matrix X.}
+#'   \item{E_clipped:}{ cleaned estimator of the true correlation matrix underlying a noisy, in-sample estimate E (empirical correaltion matrix estimated from X (cf. reference below)).}
 #'   \item{v:}{ right singular vectors of X matrix with truncation up to dimension rnk.}
 #'   \item{u:}{ left singular vectors of X matrix with truncation up to dimension rnk.}
 #' }
@@ -38,15 +38,14 @@
 #' should import RMTstat after fix bug
 #' @export
 
-clipped <- 
-function(X,                                           #data matrix
-         params=NULL,                                 #A list of ouput from function CheckDimMatrix.
-         rnk=NA,                                      #number of singular vectors to estimate
-         method=c("threshold","hard","identity"),     #choose method from c("threshold","hard","identity")
-         alpha=NA,                                    #determining the fraction to keep of the top eigenvalues of an empirical correlation matrix. 
-         location = NA,                               #indicate the location of eigenvalues to keep.
-         zeroout = FALSE,                             #zero out eigenvalues when clipping. default is to set it to average.
-         ...)                                         # optional arguments
+clipped <- function(X,                                           # data matrix
+                    params=NULL,                                 # a list of ouput from function CheckDimMatrix.
+                    rnk=NA,                                      # number of singular vectors to estimate
+                    method=c("threshold","hard","identity"),     # choose method from c("threshold","hard","identity")
+                    alpha=NA,                                    # determining the fraction to keep of the top eigenvalues of an empirical correlation matrix. 
+                    location = NA,                               # indicate the location of eigenvalues to keep.
+                    zeroout = FALSE,                             # zero out eigenvalues when clipping. default is to set it to average.
+                    ...)                                         # optional arguments
 {
 
 # ---------------------------------------------------------------------
@@ -128,3 +127,5 @@ function(X,                                           #data matrix
 
     return(list(xi_clipped=xi_clipped,X_clipped=X_clipped,E_clipped=E_clipped,v=v,u=u))
 }
+
+

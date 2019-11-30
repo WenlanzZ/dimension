@@ -5,7 +5,7 @@
 \title{simulate X matrix}
 \usage{
 Xsim(n = 100, p = 90, ncc = 2, var = 10, fact = 30,
-  orthogonl = FALSE, seed = 1000)
+  seed = 1000)
 }
 \arguments{
 \item{n}{number of rows for matrix X.}
@@ -17,8 +17,6 @@ Xsim(n = 100, p = 90, ncc = 2, var = 10, fact = 30,
 \item{var}{varaince.}
 
 \item{fact}{scale on basis if orthogonal is true.}
-
-\item{orthogonl}{a logical value. Generate orthogonal noise if true.}
 
 \item{seed}{the random number seed.}
 }
