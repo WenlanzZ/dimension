@@ -55,10 +55,12 @@ subspace <- function(X = X,                          # data matrix
       rank <- CheckRankInput(rank, nrow(X), ncol(X), verbose)
     }
     # Checking for times input
-    if (missing(times)) {
-      times <- 0
-    } else {
-      CheckTimesInput(times, nrow(X), ncol(X), verbose)
+    if (MP) {
+      if (missing(times)) {
+        times <- 0
+      } else {
+        CheckTimesInput(times, nrow(X), ncol(X), verbose)
+      }
     }
     # Check X matrix dimension
     params <- CheckDimMatrix(X, rnk = max(rank))
@@ -112,7 +114,7 @@ subspace <- function(X = X,                          # data matrix
   value <- (list(ndf  = ndf, 
                  pdim = pdim, 
                  rank = rank,
-                 var_correct = var_correct,
+                 var_correct = ifelse(MP, var_correct, NA)
                  transpose_flag = transpose_flag, 
                  irl = irl, 
                  sigma_a = sigma_a,
@@ -136,18 +138,20 @@ print.subspace <- function(obj) {
   
 }
 
-#x_clipped <- x %–% subspace(x, 1:9, basis = “eigen”)
+#x_clipped <- x %–% subspace(x, 1:9, MP = FALSE, basis = “eigen”)
 #' @export
 `%-%` <- function(X, subspace_) {
 # ---------------------------------------------------------------------------------------------------------
 # Basic parameter set up
 # ---------------------------------------------------------------------------------------------------------  
+  AmbientSpace <- subspace(X, rnk = min(nrow(X),ncol(X)), MP = FALSE, basis = "eigen")
+  
   rank            <- subspace_$rank
   var_correct     <- subspace_$var_correct
   sigma_a         <- subspace_$sigma_a
   sigma_MP        <- subspace_$sigma_MP
   
-  xi_clipped = rep(NA,min(nrow(X),ncol(X)))
+  xi_clipped = AmbientSpace$sigma_a
   xi_clipped[rank] = irl$eigen[rank]
   xi_clipped = ifelse(is.na(xi_clipped),0,xi_clipped)
   #calculate estimated X
