@@ -1,19 +1,19 @@
-#' @title Scree Plot of scaled eigenvalues of X and sampled Expected Eigenvalues from Marcenko-Pastur distribution
+#' @title Scree plot of scaled eigenvalues of X and random noise matrix N
 #'
-#' @description This function plot scree plot of scaled eigenvalues of X and sampled scaled expected eigenvalues from Marcenko-Pastur distribution.
+#' @description This is a generic function for supspace class to plot scree plot of scaled eigenvalues of X and sampled scaled expected eigenvalues from Marcenko-Pastur distribution.
 #' @param data A subsapce class.
 #' @param Changepoint A number. Estimated changepoint in OptimumDimension function.
 #' @param annotation A number. Choose to label points up to annotation number. Set to 0 with no annotation.
 #' @examples
 #' \donttest{
-#' plot(subspace_,Changepoint=0,annotation=5)
+#' plot(Subspace, Changepoint = 0, annotation = 15)
 #' }
 #' @import ggplot2
 #' @importFrom tibble tibble
 #' @importFrom ggrepel geom_text_repel
 #' @export
 
-plot.subspace <- function(obj = subspace_,                 # A subspace class
+plot.subspace <- function(obj,                              # A subspace class
                           Changepoint = NULL,               # Estimated changepoint in OptimumDimension function
                           annotation = NULL,                # Choose to label points up to annotation number
                           verbose = TRUE)
@@ -54,8 +54,6 @@ plot.subspace <- function(obj = subspace_,                 # A subspace class
   scree <- ggplot() + 
             geom_line(aes(x = dim, y = eigen), irl, colour = "black") + 
             geom_point(aes(x = dim, y = eigen), irl, color = "red") +
-            geom_line(aes(x = dim, y = eigen), MP_irl, colour = "black") + 
-            geom_point(aes(x = dim, y = eigen), MP_irl, color = "blue") +
             theme_minimal() + 
             xlab("Dimension") + 
             ylab("Eigenvalue Scaled") + 
@@ -70,6 +68,12 @@ plot.subspace <- function(obj = subspace_,                 # A subspace class
                      ", Var = ", 
                      round(var_correct,2))
             )
+
+  if (!is.null(MP_irl)) {
+    scree <- scree +           
+              geom_line(aes(x = dim, y = eigen), MP_irl, colour = "black") + 
+              geom_point(aes(x = dim, y = eigen), MP_irl, color = "blue")
+  }
           
   if (!missing(Changepoint)) {
     scree <- scree + 

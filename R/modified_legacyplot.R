@@ -1,9 +1,9 @@
-#' @title Summary plots of bcp() output.
+#' @title Summary plots of bcp() output
 #'
 #' @description This function produces summary plots of bcp() output. It is adapted from the default legacyplot function in pacakge bcp.
-#' @param X a list. the result of a call to bcp().
-#' @param annotation annotate points up to total rank calculated. No annotation when annotation=0.
-#' @param medianfilter a logical value. Compute running medians to smooth scatter plot. 
+#' @param X A list. The result of a call to bcp().
+#' @param annotation Annotate points up to total rank calculated. No annotation when annotation=0.
+#' @param medianfilter A logical value. Compute running medians to smooth scatter plot. 
 #' @examples
 #' \donttest{
 #' modified_legacyplot(bcp(as.vector(c(rep(0,9),100,rep(0,10))),p0=0.1))

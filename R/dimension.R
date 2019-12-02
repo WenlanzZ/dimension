@@ -1,53 +1,57 @@
-#' @title Rank Estimation in High-Dimensional matrix X.
+#' @title Signal subspace dimension estimation in high-dimensional matrix
 #'
-#' @description Estimate a low rank approximation of a signal-rich subspace in large high-dimensional data.
-#' @param X A numeric real- or real-valued sparse matrix with n number of samples and p number of features. If p > n, a warning message is generated and the transpose of X is used.
-#' @param MPSamples A list. Samples from Marc\u{e}nko-Pastur (MP) distribution and eigenvalues of X. Output from MarcenkoPasturSample function.
-#' @param rnk number of right singular vectors to estimate. rnk must be smaller or equal to max(nrow(X),ncol(X)).
-#' @param times split data into X times for parallel computation.
-#' @param p threshold for selecting changepoint.default is 0.90.
+#' Estimate the dimension of a signal-rich subspace in large high-dimensional data.
+#'
+#' @param X A numeric real-valued matrix with n number of samples and p number of features. 
+#'   If p>n, a warning message is generated and the transpose of X is used.
+#' @param subspace_ A subspace class.
+#' @inheritParams rank A series of right singular vectors to estimate. rank must be smaller or equal to min(nrow(X),ncol(X)).
+#' @inheritParams basis Choose eigenvalue decomposition or singular value decomposition.
+#' @inheritParams times Split data into X times for parallel computation.
+#' @param p Threshold for selecting changepoint. default is 0.90.
 #' @return
 #' Returns a list with entries:
 #' \describe{
-#'   \item{ndf:}{ number of degrees of freedom of X and the white Wishart matrix.}
-#'   \item{pdim:}{ number of dimensions of X and the white Wishart matrix.}
-#'   \item{rnk:}{ number of right singular vectors to estimate.}
-#'   \item{var_correct:}{ population variance for Marcenko-Pastur distribution.}
-#'   \item{transpose_flag:}{ whether the matrix X is transposed.}
-#'   \item{irl:}{ a data frame of scaled eigenvalues and corresponding dimensions.}
-#'   \item{MP_irl:}{ a data frame of samped expected eigenvalues from Marcenko-Pastur and corresponding dimensions.}
-#'   \item{v:}{ right singular vectors of X matrix with truncation up to dimension rnk.}
-#'   \item{u:}{ left singular vectors of X matrix with truncation up to dimension rnk.}
-#'   \item{bcp_irl:}{ probability of change in mean and posterior means of eigenvalue difference between $X$ and $N$.}
-#'   \item{bcp_post:}{ probability of change in mean and posterior means of bcp_rirl.}
-#'   \item{changePoint:}{ estimated changepoint position by from bcp_post.}
+#'   \item{ndf:}{ The number of degrees of freedom of X.}
+#'   \item{pdim:}{ The number of dimensions of X.}
+#'   \item{rank:}{ A series of right singular vectors estimated.}
+#'   \item{var_correct:}{ Corrected population variance for Marcenko-Pastur distribution.}
+#'   \item{transpose_flag:}{ A logical value indicating whether the matrix X is transposed.}
+#'   \item{irl:}{ A data frame of scaled eigenvalues for specified rank and corresponding dimensions.}
+#'   \item{MP_irl:}{ A data frame of samped expected eigenvalues from Marcenko-Pastur for specified rank and corresponding dimensions.}
+#'   \item{v:}{ Right singular vectors of X matrix for specified rank.}
+#'   \item{u:}{ Left singular vectors of X matrix or specified rank.}
+#'   \item{bcp_irl:}{ Probability of change in mean and posterior means of eigenvalue difference between $X$ and $N$.}
+#'   \item{bcp_post:}{ Probability of change in mean and posterior means of bcp_rirl.}
+#'   \item{changePoint:}{ Estimated signal subspace dimension.}
 #' }
 #' @section Details:
-#' We estimate a low rank approximation of a signal-rich subspace in large high-dimensional data by decomposing matrix
-#' into a signal-plus-noise space and approximate the signal-rich subspace with a rank K approximation
-#' \eqn{\hat{X}=\sum_{k=1}^{K}d_ku_k{v_k}^T}. To estimate rank K, we propose a simple procedure assuming that matrix X is composed
-#' of a low-rank signal matrix S and an average general noise random matrix \eqn{\bar{N}}. It has been shown that
-#' the average eigenvalues of random matrices N follows a universal Marc\u{e}nko-Pastur (MP) distribution.
-#' We hypothesize that the deviation of eigenvalues of X from the MP distribution indicates the intrinsic dimension of signal-rich subspace.
+#'   We estimate the intrinsic dimension of a signal-rich subspace in large high-dimensional data by decomposing matrix
+#'   into a signal-plus-noise space and approximate the signal-rich subspace with a rank K approximation
+#'   \eqn{\hat{X}=\sum_{k=1}^{K}d_ku_k{v_k}^T}. To estimate rank K, we propose a simple procedure assuming that matrix X is composed
+#'   of a low-rank signal matrix S and an average general noise random matrix \eqn{\bar{N}}. It has been shown that
+#'   the average eigenvalues of random matrices N follows a universal Marc\u{e}nko-Pastur (MP) distribution.
+#'   We hypothesize that the deviation of eigenvalues of X from the MP distribution indicates the intrinsic dimension of signal-rich subspace.
 #' @examples
 #' \donttest{
-#' X <- Xsim(n=1000,p=500,ncc=10,var=2,fact = 1,orthogonl = FALSE)
-#' results<-dimension(X,rnk=10,times=100)
+#' X <- Xsim(n = 150, p = 100, ncc = 10, var = 2)
+#' results <- dimension(X, rank = 1:40, times = 10, basis="eigen")
 #' 
-#' #equivelantly, if MarcenkoPasturSample is calcualted
-#' MPSamples<-MarcenkoPasturSample(X,rnk=40,times=100)
-#' results = dimension(MPSamples=MPSamples)
+#' #equivelantly, if subsapce is calcualted
+#' Subspace <- subspace(X, rank = 1:30, basis = "eigen")
+#' results <- dimension(subspace_ = Subspace)
+#' 
 #' str(results)
-#' ScreePlot(results$MarcenkoPasturSample,Changepoint=results$Changepoint$changePoint,annotation=10)
-#' modified_legacyplot(results$Changepoint$bcp_post,annotation=10)
+#' plot(results$Subspace, Changepoint = results$Changepoint$dimension, annotation = 10)
+#' modified_legacyplot(results$Changepoint$bcp_irl, annotation = 10)
+#' modified_legacyplot(results$Changepoint$bcp_post, annotation = 10)
 #' }
-#' should import RMTstat after fix bug
 #' @seealso \code{\link[RMTstat]} for details of Marcenko-Pastur distribution.
 #' @importFrom bcp bcp
 #' @importFrom  tibble tibble
 #' @export
 
-dimension <- function(X = X,                          # data matrix
+dimension <- function(X,                          # data matrix
                       subspace_ = NULL,               # subspace class
                       rank = NA,                      # number of singular vectors to estimate
                       basis = c("eigen","singular"),  # 
@@ -59,8 +63,10 @@ dimension <- function(X = X,                          # data matrix
 # ---------------------------------------------------------------------------------------------------------
 # Check input parameters
 # ---------------------------------------------------------------------------------------------------------
-  if (!missing(subspace_)) {
-    cat("Subspace have already been calculated.\n")
+  if (!missing(subspace_) & !is.null(subspace_$MP_irl)) {
+    if (verbose) {
+        cat("Subspace have already been calculated.\n")
+    }
   } else {
     if (is.null(X)) {
       stop("Invalid input X")
@@ -117,8 +123,8 @@ dimension <- function(X = X,                          # data matrix
     changePoint <- switch(2 - any(threshold), max(post_max[threshold]), irl_max)
   }
 
-  return(list(subspace    = subspace_,
+  return(list(Subspace    = subspace_,
               Changepoint = list(bcp_irl  = bcp_irl,
                                  bcp_post = bcp_post,
-                                 changePoint = changePoint)))
+                                 dimension = changePoint)))
 }

@@ -2,16 +2,16 @@
 % Please edit documentation in R/modified_legacyplot.R
 \name{modified_legacyplot}
 \alias{modified_legacyplot}
-\title{Summary plots of bcp() output.}
+\title{Summary plots of bcp() output}
 \usage{
 modified_legacyplot(x, annotation = NULL, medianfilter = FALSE)
 }
 \arguments{
-\item{annotation}{annotate points up to total rank calculated. No annotation when annotation=0.}
+\item{annotation}{Annotate points up to total rank calculated. No annotation when annotation=0.}
 
-\item{medianfilter}{a logical value. Compute running medians to smooth scatter plot.}
+\item{medianfilter}{A logical value. Compute running medians to smooth scatter plot.}
 
-\item{X}{a list. the result of a call to bcp().}
+\item{X}{A list. The result of a call to bcp().}
 }
 \description{
 This function produces summary plots of bcp() output. It is adapted from the default legacyplot function in pacakge bcp.

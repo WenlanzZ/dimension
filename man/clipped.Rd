@@ -4,54 +4,59 @@
 \alias{clipped}
 \title{Eigenvalue clipping Procedure}
 \usage{
-clipped(X, params = NULL, rnk = NA, method = c("threshold", "hard",
-  "identity"), alpha = NA, location = NA, zeroout = FALSE, ...)
+clipped(X, subspace_ = NULL, rank = NA, method = c("threshold",
+  "hard", "identity"), alpha = NA, location = NA, zeroout = FALSE,
+  verbose = TRUE, ...)
 }
 \arguments{
-\item{X}{A numeric real- or real-valued sparse matrix with n number of samples and p number of features. If p>n, a warning message is generated and the transpose of X is used.}
+\item{X}{A numeric real-valued matrix with n number of samples and p number of features. 
+If p>n, a warning message is generated and the transpose of X is used.}
 
-\item{params}{A list of ouput from function CheckDimMatrix.}
+\item{subspace_}{A subspace class.}
 
-\item{rnk}{number of right singular vectors to estimate. rnk must be smaller or equal to max(nrow(X),ncol(X)).}
-
-\item{method}{the method to be used; method = "threshold" returns (1-alpha)*rnk proportion of eigenvalues above threshold; 
+\item{method}{The method to be used; method = "threshold" returns (1-alpha)*rnk proportion of eigenvalues above threshold; 
 method = "hard" returns all the empirical eigenvalues greater than the upper limit of the support to the Marcenko-Pastur spectrum;
 method = "identity" returns eigenvalued specified in location vector.}
 
-\item{alpha}{determining the fraction to keep of the top eigenvalues in threshold method.}
+\item{alpha}{Determine the fraction to keep of the top eigenvalues in threshold method.}
 
-\item{location}{indicate the location of eigenvalues to keep in identity method.}
+\item{location}{Indicate the location of eigenvalues to keep in identity method.}
 
-\item{zeroout}{zero out eigenvalues when clipping. default is to set it to average.}
+\item{zeroout}{A logical value to zero out eigenvalues when clipping. default is to set to FALSE.}
 }
 \value{
 Returns a list with entries:
 \describe{
-  \item{xi_clipped:}{ cleaned estimator of eigenvalues through a simple eigenvalue clipping procedure (cf. reference below).}
-  \item{X_clipped:}{ cleaned estimator of the true sigmal matrix underlying a noisy high dimensional matrix X.}
-  \item{E_clipped:}{ cleaned estimator of the true correlation matrix underlying a noisy, in-sample estimate E (empirical correaltion matrix estimated from X (cf. reference below)).}
-  \item{v:}{ right singular vectors of X matrix with truncation up to dimension rnk.}
-  \item{u:}{ left singular vectors of X matrix with truncation up to dimension rnk.}
+  \item{xi_clipped:}{ A cleaned estimator of eigenvalues through a simple eigenvalue clipping procedure (cf. reference below).}
+  \item{X_clipped:}{ A cleaned estimator of the true sigmal matrix underlying a noisy high dimensional matrix X.}
+  \item{E_clipped:}{ A cleaned estimator of the true correlation matrix underlying a noisy, in-sample estimate E (empirical correaltion matrix estimated from X (cf. reference below)).}
+  \item{v:}{ Right singular vectors of X matrix for specified rank.}
+  \item{u:}{ Left singular vectors of X matrix or specified rank.}
 }
 }
 \description{
-This function clips the scaled eigenvalues of X in order to provide a cleaned estimator E_clipped of the underlying correlation matrix. Proceeds by keeping the [N * alpha] top eigenvalues and shrinking the remaining ones by a trace-preserving constant (i.e. Tr(E_clipped) = Tr(E)). This function is adpated from "Python for Random Matrix Theory" credit to J.-P. Bouchaud and M. Potters.
+This function clips the scaled eigenvalues of X in order to provide a cleaned estimator E_clipped 
+  of the underlying correlation matrix. Proceeds by keeping the [N * alpha] top eigenvalues and shrinking 
+  the remaining ones by a trace-preserving constant (i.e. Tr(E_clipped) = Tr(E)) or zero out remaining ones. 
+  This function is adpated from "Python for Random Matrix Theory" credit to J.-P. Bouchaud and M. Potters.
 }
 \examples{
 \donttest{
-X <- Xsim(n=1000,p=500,ncc=10,var=2,fact = 1,orthogonl = FALSE)
-x_clp<-clipped(x,rnk=20,method="threshold",alpha=0.9,zeroout=TRUE)
-x_clp<-clipped(x,rnk=20,method="hard",zeroout=FALSE)
-x_clp<-clipped(x,rnk=20,method="identity",location=c(1:15),zeroout=FALSE)
+X <- Xsim(n = 150, p = 100, ncc = 10, var = 2)
+X_clp <- clipped(X, rank = 20, method = "threshold", alpha = 0.9, zeroout = TRUE)
+x_clp<-clipped(x, rnk = 20, method = "hard", zeroout = FALSE)
+x_clp<-clipped(x, rnk = 20, method = "identity", location = c(1:15), zeroout = FALSE)
 
-#equivelantly, if CheckDimMatrix is calcualted
-params <- CheckDimMatrix(X,rnk=40)
-x_clp<-clipped(params=params,method="threshold",alpha=0.9,zeroout=TRUE)
+#equivelantly, if Subspace is calcualted
+Subspace <- subspace(X, rank = 1:40, times = 10, basis = "eigen")
+X_clp <- clipped(subspace_ = Subspace, method = "identity", location = c(1:5), zeroout = TRUE)
 }
 Reference
 ---------
 "Financial Applications of Random Matrix Theory: a short review",
 J.-P. Bouchaud and M. Potters
 arXiv: 0910.1205 [q-fin.ST]
-should import RMTstat after fix bug
+}
+\seealso{
+* [MarchenkoPasturPar()] calculates upper and lower limits of Marcenko-Pastur distribution from RMTstat package.
 }

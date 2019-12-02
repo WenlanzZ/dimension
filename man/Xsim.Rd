@@ -2,23 +2,20 @@
 % Please edit documentation in R/Simulation.R
 \name{Xsim}
 \alias{Xsim}
-\title{simulate X matrix}
+\title{Simulate X matrix}
 \usage{
-Xsim(n = 100, p = 90, ncc = 2, var = 10, fact = 30,
-  seed = 1000)
+Xsim(n = 100, p = 90, ncc = 2, var = 10, seed = 1000)
 }
 \arguments{
-\item{n}{number of rows for matrix X.}
+\item{n}{The number of rows for matrix X.}
 
-\item{p}{number of columns for matrix X.}
+\item{p}{The number of columns for matrix X.}
 
-\item{ncc}{number of correlated columns.}
+\item{ncc}{The number of correlated columns.}
 
-\item{var}{varaince.}
+\item{var}{Varaince.}
 
-\item{fact}{scale on basis if orthogonal is true.}
-
-\item{seed}{the random number seed.}
+\item{seed}{The random number seed.}
 }
 \description{
 These functions provide multivariate normal distributed X matrix.
@@ -26,6 +23,6 @@ These functions provide multivariate normal distributed X matrix.
 \examples{
 \donttest{
 # 3 baskets, each with enrollement size 5
-X <- Xsim(n=100,p=90,ncc=2,var=10,fact = 30)
+X <- Xsim(n = 150, p = 100, ncc = 10, var = 2)
 }
 }

@@ -1,28 +1,28 @@
-#' @title Return parameter setting for MarcenkoPasturSample function.
+#' @title Return parameter setting for subspace function
 #'
-#' @param X A numeric real- or real-valued sparse matrix with n number of samples and p number of features. If p>n, a warning message is generated and the transpose of X is used.
-#' @param rnk number of right singular vectors to estimate. rnk must be smaller or equal to max(nrow(X),ncol(X)).
+#' @param X A numeric real-valued matrix with n number of samples and p number of features. If p>n, a warning message is generated and the transpose of X is used.
+#' @param rnk The number of right singular vectors to estimate. rnk must be smaller or equal to max(nrow(X),ncol(X)).
 #' @return
 #' Returns a list with entries:
 #' \describe{
-#'   \item{ndf:}{ number of degrees of freedom of X and the white Wishart matrix.}
-#'   \item{pdim:}{ number of dimensions of X and the white Wishart matrix.}
-#'   \item{svr:}{ samples to variance ratio; equals to ndf divided by pdim.}
-#'   \item{rnk:}{ number of right singular vectors to estimate.}
-#'   \item{transpose_flag:}{ whether the matrix X is transposed.}
+#'   \item{ndf:}{ The number of degrees of freedom of X.}
+#'   \item{pdim:}{ The number of dimensions of X.}
+#'   \item{svr:}{ The samples to variance ratio: equals to ndf divided by pdim.}
+#'   \item{rnk:}{ The number of right singular vectors estimated.}
+#'   \item{transpose_flag:}{ A logical value indicating whether the matrix X is transposed.}
 #' }
 #' @examples
 #' \donttest{
-#' X <- Xsim(n=1000,p=500,ncc=10,var=2,fact = 1)
-#' params <- CheckDimMatrix(X,rnk=40)
+#' X <- Xsim(n = 150, p = 100, ncc = 10, var = 2)
+#' params <- CheckDimMatrix(X, rnk = 40)
 #' }
-#' #should import RMTstat after fix bug
-#' @seealso Random Matrix Theory pacakge credit to Gregory Giecold and Lionel Ouaknin
+#' 
+#' @seealso [checkDesignMatrix()] from Random Matrix Theory pacakge credit to Gregory Giecold and Lionel Ouaknin.
 #' @importFrom  tibble tibble
 #' @export
 
-CheckDimMatrix <- function(X = X,                    # data matrix
-                           rnk = NA,                 # number of singular vectors to estimate
+CheckDimMatrix <- function(X,                        # A data matrix
+                           rnk = NA,                 # The number of singular vectors to estimate
                            verbose = TRUE)           # output message
 {
 # ----------------------------------------------------------------------------------------------------------

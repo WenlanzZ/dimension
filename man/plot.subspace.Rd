@@ -2,10 +2,10 @@
 % Please edit documentation in R/plot.subspace.R
 \name{plot.subspace}
 \alias{plot.subspace}
-\title{Scree Plot of scaled eigenvalues of X and sampled Expected Eigenvalues from Marcenko-Pastur distribution}
+\title{Scree plot of scaled eigenvalues of X and random noise matrix N}
 \usage{
-\method{plot}{subspace}(obj = subspace_, Changepoint = NULL,
-  annotation = NULL, verbose = TRUE)
+\method{plot}{subspace}(obj, Changepoint = NULL, annotation = NULL,
+  verbose = TRUE)
 }
 \arguments{
 \item{Changepoint}{A number. Estimated changepoint in OptimumDimension function.}
@@ -15,10 +15,10 @@
 \item{data}{A subsapce class.}
 }
 \description{
-This function plot scree plot of scaled eigenvalues of X and sampled scaled expected eigenvalues from Marcenko-Pastur distribution.
+This is a generic function for supspace class to plot scree plot of scaled eigenvalues of X and sampled scaled expected eigenvalues from Marcenko-Pastur distribution.
 }
 \examples{
 \donttest{
-plot(subspace_,Changepoint=0,annotation=5)
+plot(Subspace, Changepoint = 0, annotation = 15)
 }
 }
