@@ -9,6 +9,8 @@
 #' @param basis Choose eigenvalue decomposition or singular value decomposition.
 #' @param MP A logical value. If true, sample eigenvlaues from random noise matrix with MP distribution.
 #' @param times Split data into X times for parallel computation.
+#' @param verbose output message
+#' @param ... Extra parameters
 #' @return
 #' Returns a list with entries:
 #' \describe{
@@ -142,16 +144,121 @@ subspace <- function(X,                              # data matrix
   value
 }
 
+#' @title Print subsapce
+#'
+#' A generic function.
+#'
+#' @param x a subspace class.
+#' @param ... Extra parameters
 #' @export
-print.subspace <- function(obj) {
-  cat("An object of class subspace within",ifelse(obj$transpose_flag,"transposed",""), "X matrix with", obj$ndf, "samples and", obj$pdim, "features.\n")
-  if (all(diff(obj$rank)==1)) {
-    cat("Estimated rank range from ",min(obj$rank), " to ", max(obj$rank),"\n")
+print.subspace <- function(x,...) {
+  cat("An object of class subspace within",ifelse(x$transpose_flag,"transposed",""), "X matrix with", x$ndf, "samples and", x$pdim, "features.\n")
+  if (all(diff(x$rank)==1)) {
+    cat("Estimated rank range from ",min(x$rank), " to ", max(x$rank),"\n")
   } else {
-      cat("Estimated rank range", obj$rank, "\n")
+      cat("Estimated rank range", x$rank, "\n")
   }
   
 }
+
+#' @title Scree plot of scaled eigenvalues of X and random noise matrix N
+#'
+#' @description This is a generic function for supspace class to plot scree plot of scaled eigenvalues of X and sampled scaled expected eigenvalues from Marcenko-Pastur distribution.
+#' @param x A subsapce class.
+#' @param Changepoint A number. Estimated changepoint in OptimumDimension function.
+#' @param annotation A number. Choose to label points up to annotation number. Set to 0 with no annotation.
+#' @param verbose output message
+#' @param ... Extra parameters
+#' @examples
+#' \donttest{
+#' plot(Subspace, Changepoint = 0, annotation = 15)
+#' }
+#' @import ggplot2
+#' @importFrom tibble tibble
+#' @importFrom ggrepel geom_text_repel
+#' @export
+
+plot.subspace <- function(x,                              # A subspace class
+                          Changepoint = NULL,               # Estimated changepoint in OptimumDimension function
+                          annotation = NULL,                # Choose to label points up to annotation number
+                          verbose = TRUE,
+                          ...)
+{
+# ---------------------------------------------------------------------------------------------------------
+# Basic parameter set up
+# ---------------------------------------------------------------------------------------------------------
+  ndf             <- x$ndf
+  pdim            <- x$pdim
+  rank            <- x$rank
+  rnk             <- max(rank)
+  var_correct     <- x$var_correct
+  transpose_flag  <- x$transpose_flag
+  irl             <- x$irl
+  MP_irl          <- x$MP_irl
+# ---------------------------------------------------------------------------------------------------------
+# Check input parameters
+# ---------------------------------------------------------------------------------------------------------
+  if (missing(annotation)) {
+    annotation <- rnk
+    if (verbose) {
+      cat("Anotating for all points. Set annotation = 0 to stop annotation.\n")
+    }
+  }
+  if (!is.null(annotation) & annotation > rnk) 
+  {
+    annotation <- rnk
+    warning("Annotation number must be strictly less or equal to than maximum rank.\n")
+  }
+  if (annotation == 0) {
+    mark <- rep("", length(rank))
+  } else {
+    mark <- ifelse(annotation >= rank, rank, "")
+  }
+# ---------------------------------------------------------------------------------------------------------
+# Scree plot for both eigenvalues of X and simulated eigenvalues of noise
+# ---------------------------------------------------------------------------------------------------------
+  scree <- ggplot() + 
+            geom_line(aes(x = dim, y = eigen), irl, colour = "black") + 
+            geom_point(aes(x = dim, y = eigen), irl, color = "red") +
+            theme_minimal() + 
+            xlab("Dimension") + 
+            ylab("Eigenvalue Scaled") + 
+            theme(plot.title = element_text(hjust = 0.5)) + 
+            geom_text_repel(aes(x= irl$dim, y = irl$eigen, label=mark), colour="black", size=5) +
+            ggtitle(
+              paste0("Scree Plot\n",
+                     "N = ", 
+                     ifelse(transpose_flag,pdim,ndf), 
+                     ", P = ", 
+                     ifelse(transpose_flag,ndf,pdim), 
+                     ", Var = ", 
+                     round(var_correct,2))
+            )
+
+  if (!is.null(MP_irl)) {
+    scree <- scree +           
+              geom_line(aes(x = dim, y = eigen), MP_irl, colour = "black") + 
+              geom_point(aes(x = dim, y = eigen), MP_irl, color = "blue")
+  }
+          
+  if (!missing(Changepoint)) {
+    scree <- scree + 
+              ggtitle(
+                paste0("Scree Plot\n", 
+                       "N = ", 
+                       ifelse(transpose_flag,pdim,ndf), 
+                       ", P = ", 
+                       ifelse(transpose_flag,ndf,pdim), 
+                       ", Var = ", 
+                       round(var_correct,2), 
+                       ", ChnagePoint est = ", 
+                       Changepoint)
+              )
+  }
+
+  return(scree)
+}
+
 
 # #x_clipped <- x %–% subspace(x, 1:9, MP = FALSE, basis = “eigen”)
 # #' @export
@@ -185,8 +292,16 @@ print.subspace <- function(obj) {
 #   function(X, subspace_) return(SetCols.bm(x, j, value)))
 
 
+#' @title Check Rank Input
+#'
+#' A generic function.
+#'
+#' @param rank A series of right singular vectors to estimate. rank must be smaller or equal to min(nrow(X),ncol(X)).
+#' @param ndf The number of degrees of freedom of X.
+#' @param pdim The number of dimensions of X.
+#' @param verbose output message
 #' @export
-CheckRankInput <- function(rank, ndf, pdim, verbose=TRUE) {
+CheckRankInput <- function(rank, ndf, pdim, verbose = TRUE) {
   stopifnot(is.numeric(rank))
   stopifnot(rank%%1==0)
   if (length(rank) == 1) {
@@ -220,6 +335,14 @@ CheckRankInput <- function(rank, ndf, pdim, verbose=TRUE) {
   }
 }
 
+#' @title Check Times Input
+#'
+#' A generic function.
+#'
+#' @param times Split data into X times for parallel computation.
+#' @param ndf The number of degrees of freedom of X.
+#' @param pdim The number of dimensions of X.
+#' @param verbose output message
 #' @export
 CheckTimesInput <- function(times, ndf, pdim, verbose=TRUE) {
   stopifnot(is.numeric(times))

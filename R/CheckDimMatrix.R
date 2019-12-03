@@ -2,6 +2,7 @@
 #'
 #' @param X A numeric real-valued matrix with n number of samples and p number of features. If p>n, a warning message is generated and the transpose of X is used.
 #' @param rnk The number of right singular vectors to estimate. rnk must be smaller or equal to max(nrow(X),ncol(X)).
+#' @param verbose output message
 #' @return
 #' Returns a list with entries:
 #' \describe{

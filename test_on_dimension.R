@@ -1,5 +1,6 @@
 rm(list=lsf.str())
 
+load_all()
 #auto generating documents after changing fxns
 setwd("/Users/wz262/Projects/dimension")
 library(roxygen2)

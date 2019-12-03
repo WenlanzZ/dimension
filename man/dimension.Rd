@@ -15,7 +15,17 @@ If p>n, a warning message is generated and the transpose of X is used.}
 
 \item{subspace_}{A subspace class.}
 
+\item{rank}{A series of right singular vectors to estimate. rank must be smaller or equal to min(nrow(X),ncol(X)).}
+
+\item{basis}{Choose eigenvalue decomposition or singular value decomposition.}
+
+\item{times}{Split data into X times for parallel computation.}
+
 \item{p}{Threshold for selecting changepoint. default is 0.90.}
+
+\item{verbose}{output message}
+
+\item{...}{Extra parameters}
 }
 \value{
 Returns a list with entries:
@@ -45,7 +55,7 @@ Estimate the dimension of a signal-rich subspace in large high-dimensional data.
   into a signal-plus-noise space and approximate the signal-rich subspace with a rank K approximation
   \eqn{\hat{X}=\sum_{k=1}^{K}d_ku_k{v_k}^T}. To estimate rank K, we propose a simple procedure assuming that matrix X is composed
   of a low-rank signal matrix S and an average general noise random matrix \eqn{\bar{N}}. It has been shown that
-  the average eigenvalues of random matrices N follows a universal Marc\u{e}nko-Pastur (MP) distribution.
+  the average eigenvalues of random matrices N follows a universal Marcenko-Pastur (MP) distribution.
   We hypothesize that the deviation of eigenvalues of X from the MP distribution indicates the intrinsic dimension of signal-rich subspace.
 }
 
@@ -55,7 +65,7 @@ X <- Xsim(n = 150, p = 100, ncc = 10, var = 2)
 results <- dimension(X, rank = 1:40, times = 10, basis="eigen")
 
 #equivelantly, if subsapce is calcualted
-Subspace <- subspace(X, rank = 1:30, basis = "eigen")
+Subspace <- subspace(X, rank = 1:40, times = 10,  basis = "eigen")
 results <- dimension(subspace_ = Subspace)
 
 str(results)
@@ -65,5 +75,5 @@ modified_legacyplot(results$Changepoint$bcp_post, annotation = 10)
 }
 }
 \seealso{
-\code{\link[RMTstat]} for details of Marcenko-Pastur distribution.
+[RMTstat] for details of Marcenko-Pastur distribution.
 }

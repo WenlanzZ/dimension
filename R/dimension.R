@@ -5,10 +5,12 @@
 #' @param X A numeric real-valued matrix with n number of samples and p number of features. 
 #'   If p>n, a warning message is generated and the transpose of X is used.
 #' @param subspace_ A subspace class.
-#' @inheritParams rank A series of right singular vectors to estimate. rank must be smaller or equal to min(nrow(X),ncol(X)).
-#' @inheritParams basis Choose eigenvalue decomposition or singular value decomposition.
-#' @inheritParams times Split data into X times for parallel computation.
+#' @param rank A series of right singular vectors to estimate. rank must be smaller or equal to min(nrow(X),ncol(X)).
+#' @param basis Choose eigenvalue decomposition or singular value decomposition.
+#' @param times Split data into X times for parallel computation.
 #' @param p Threshold for selecting changepoint. default is 0.90.
+#' @param verbose output message
+#' @param ... Extra parameters
 #' @return
 #' Returns a list with entries:
 #' \describe{
@@ -30,7 +32,7 @@
 #'   into a signal-plus-noise space and approximate the signal-rich subspace with a rank K approximation
 #'   \eqn{\hat{X}=\sum_{k=1}^{K}d_ku_k{v_k}^T}. To estimate rank K, we propose a simple procedure assuming that matrix X is composed
 #'   of a low-rank signal matrix S and an average general noise random matrix \eqn{\bar{N}}. It has been shown that
-#'   the average eigenvalues of random matrices N follows a universal Marc\u{e}nko-Pastur (MP) distribution.
+#'   the average eigenvalues of random matrices N follows a universal Marcenko-Pastur (MP) distribution.
 #'   We hypothesize that the deviation of eigenvalues of X from the MP distribution indicates the intrinsic dimension of signal-rich subspace.
 #' @examples
 #' \donttest{
@@ -38,7 +40,7 @@
 #' results <- dimension(X, rank = 1:40, times = 10, basis="eigen")
 #' 
 #' #equivelantly, if subsapce is calcualted
-#' Subspace <- subspace(X, rank = 1:30, basis = "eigen")
+#' Subspace <- subspace(X, rank = 1:40, times = 10,  basis = "eigen")
 #' results <- dimension(subspace_ = Subspace)
 #' 
 #' str(results)
@@ -46,7 +48,7 @@
 #' modified_legacyplot(results$Changepoint$bcp_irl, annotation = 10)
 #' modified_legacyplot(results$Changepoint$bcp_post, annotation = 10)
 #' }
-#' @seealso \code{\link[RMTstat]} for details of Marcenko-Pastur distribution.
+#' @seealso [RMTstat] for details of Marcenko-Pastur distribution.
 #' @importFrom bcp bcp
 #' @importFrom  tibble tibble
 #' @export

@@ -7,13 +7,15 @@
 #' @param X A numeric real-valued matrix with n number of samples and p number of features. 
 #'   If p>n, a warning message is generated and the transpose of X is used.
 #' @param subspace_ A subspace class.
-#' @inheritParams rank A series of right singular vectors to estimate. rank must be smaller or equal to min(nrow(X),ncol(X)).
+#' @param rank A series of right singular vectors to estimate. rank must be smaller or equal to min(nrow(X),ncol(X)).
 #' @param method The method to be used; method = "threshold" returns (1-alpha)*rnk proportion of eigenvalues above threshold; 
 #'   method = "hard" returns all the empirical eigenvalues greater than the upper limit of the support to the Marcenko-Pastur spectrum;
 #'   method = "identity" returns eigenvalued specified in location vector.
 #' @param alpha Determine the fraction to keep of the top eigenvalues in threshold method. 
 #' @param location Indicate the location of eigenvalues to keep in identity method.
 #' @param zeroout A logical value to zero out eigenvalues when clipping. default is to set to FALSE.
+#' @param verbose output message
+#' @param ... Extra parameters
 #' @return
 #' Returns a list with entries:
 #' \describe{
@@ -34,11 +36,7 @@
 #' Subspace <- subspace(X, rank = 1:40, times = 10, basis = "eigen")
 #' X_clp <- clipped(subspace_ = Subspace, method = "identity", location = c(1:5), zeroout = TRUE)
 #' }
-#' Reference
-#' ---------
-#' "Financial Applications of Random Matrix Theory: a short review",
-#' J.-P. Bouchaud and M. Potters
-#' arXiv: 0910.1205 [q-fin.ST]
+#' @importFrom stats na.omit
 #' @seealso 
 #' * [MarchenkoPasturPar()] calculates upper and lower limits of Marcenko-Pastur distribution from RMTstat package.
 #' @export

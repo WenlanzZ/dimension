@@ -1,5 +1,9 @@
 #' @title Marcenko-Pastur distribution within package "RMTsata".
 #' @description All credit to Iain M. Johnstone, Zongming Ma, Patrick O. Perry and Morteza Shahram (https://cran.r-project.org/web/packages/RMTstat/index.html). 
+#' @param ndf The number of degrees of freedom of X.
+#' @param pdim The number of dimensions of X.
+#' @param var Population variance.
+#' @param svr ndf/pdim.
 #' @export
 MarchenkoPasturPar <- function( ndf=NA, pdim=NA, var=1, svr=ndf/pdim ) {
     gamma          <- svr
@@ -10,6 +14,16 @@ MarchenkoPasturPar <- function( ndf=NA, pdim=NA, var=1, svr=ndf/pdim ) {
 
     list( lower=a, upper=b )
 }
+
+#' @title dmp within package "RMTsata".
+#'
+#' @description All credit to Iain M. Johnstone, Zongming Ma, Patrick O. Perry and Morteza Shahram (https://cran.r-project.org/web/packages/RMTstat/index.html). 
+#' @param x Vector of quantiles.
+#' @param ndf The number of degrees of freedom of X.
+#' @param pdim The number of dimensions of X.
+#' @param var Population variance.
+#' @param svr ndf/pdim.
+#' @param log A logical value.
 #' @export
 dmp <- function( x, ndf=NA, pdim=NA, var=1, svr=ndf/pdim, log = FALSE ) {
     gamma  <- svr
@@ -42,6 +56,17 @@ dmp <- function( x, ndf=NA, pdim=NA, var=1, svr=ndf/pdim, log = FALSE ) {
     }
     d
 }
+
+#' @title pmp within package "RMTsata".
+#'
+#' @description All credit to Iain M. Johnstone, Zongming Ma, Patrick O. Perry and Morteza Shahram (https://cran.r-project.org/web/packages/RMTstat/index.html). 
+#' @param q Vector of quantiles.
+#' @param ndf The number of degrees of freedom of X.
+#' @param pdim The number of dimensions of X.
+#' @param var Population variance.
+#' @param svr ndf/pdim.
+#' @param lower.tail A logical value.
+#' @param log.p A logical value.
 #' @export
 pmp <- function( q, ndf=NA, pdim=NA, var=1, svr=ndf/pdim,
                  lower.tail = TRUE, log.p = FALSE ) {
@@ -73,6 +98,17 @@ pmp <- function( q, ndf=NA, pdim=NA, var=1, svr=ndf/pdim,
     res
 }
 pmp <- Vectorize( pmp )
+
+#' @title qmp within package "RMTsata".
+#'
+#' @description All credit to Iain M. Johnstone, Zongming Ma, Patrick O. Perry and Morteza Shahram (https://cran.r-project.org/web/packages/RMTstat/index.html). 
+#' @param p Vector of probabilities.
+#' @param ndf The number of degrees of freedom of X.
+#' @param pdim The number of dimensions of X.
+#' @param var Population variance.
+#' @param svr ndf/pdim.
+#' @param lower.tail A logical value.
+#' @param log.p A logical value.
 #' @export
 qmp <- function( p, ndf=NA, pdim=NA, var=1, svr=ndf/pdim,
                  lower.tail = TRUE, log.p = FALSE ) {
@@ -105,6 +141,16 @@ qmp <- function( p, ndf=NA, pdim=NA, var=1, svr=ndf/pdim,
     q
 }
 qmp <- Vectorize( qmp )
+
+#' @title rmp within package "RMTsata".
+#'
+#' @description All credit to Iain M. Johnstone, Zongming Ma, Patrick O. Perry and Morteza Shahram (https://cran.r-project.org/web/packages/RMTstat/index.html). 
+#' @param n Number of observations.
+#' @param ndf The number of degrees of freedom of X.
+#' @param pdim The number of dimensions of X.
+#' @param var Population variance.
+#' @param svr ndf/pdim.
+#' @importFrom stats runif
 #' @export
 rmp <- function( n, ndf=NA, pdim=NA, var=1, svr=ndf/pdim ) {
     u <- runif( n )

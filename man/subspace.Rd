@@ -18,6 +18,10 @@ If p>n, a warning message is generated and the transpose of X is used.}
 \item{MP}{A logical value. If true, sample eigenvlaues from random noise matrix with MP distribution.}
 
 \item{times}{Split data into X times for parallel computation.}
+
+\item{verbose}{output message}
+
+\item{...}{Extra parameters}
 }
 \value{
 Returns a list with entries:
@@ -54,5 +58,6 @@ plot(Subspace, Changepoint = 0, annotation = 15)
 }
 \seealso{
 * [MarchenkoPasturPar()] calculates upper and lower limits of Marcenko-Pastur distribution from RMTstat package.
+
 * [rmp()] sample scaled eigenvalues of random noise matrix from RMTstat package.
 }

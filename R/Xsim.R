@@ -12,6 +12,7 @@
 #' X <- Xsim(n = 150, p = 100, ncc = 10, var = 2)
 #' }
 #' @importFrom mvtnorm rmvnorm
+#' @importFrom stats rnorm
 #' @export
 
 Xsim <- function(n = 100,

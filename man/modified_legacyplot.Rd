@@ -7,11 +7,11 @@
 modified_legacyplot(x, annotation = NULL, medianfilter = FALSE)
 }
 \arguments{
+\item{x}{A list. The result of a call to bcp().}
+
 \item{annotation}{Annotate points up to total rank calculated. No annotation when annotation=0.}
 
 \item{medianfilter}{A logical value. Compute running medians to smooth scatter plot.}
-
-\item{X}{A list. The result of a call to bcp().}
 }
 \description{
 This function produces summary plots of bcp() output. It is adapted from the default legacyplot function in pacakge bcp.

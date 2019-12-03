@@ -14,6 +14,8 @@ If p>n, a warning message is generated and the transpose of X is used.}
 
 \item{subspace_}{A subspace class.}
 
+\item{rank}{A series of right singular vectors to estimate. rank must be smaller or equal to min(nrow(X),ncol(X)).}
+
 \item{method}{The method to be used; method = "threshold" returns (1-alpha)*rnk proportion of eigenvalues above threshold; 
 method = "hard" returns all the empirical eigenvalues greater than the upper limit of the support to the Marcenko-Pastur spectrum;
 method = "identity" returns eigenvalued specified in location vector.}
@@ -23,6 +25,10 @@ method = "identity" returns eigenvalued specified in location vector.}
 \item{location}{Indicate the location of eigenvalues to keep in identity method.}
 
 \item{zeroout}{A logical value to zero out eigenvalues when clipping. default is to set to FALSE.}
+
+\item{verbose}{output message}
+
+\item{...}{Extra parameters}
 }
 \value{
 Returns a list with entries:
@@ -51,11 +57,6 @@ x_clp<-clipped(x, rnk = 20, method = "identity", location = c(1:15), zeroout = F
 Subspace <- subspace(X, rank = 1:40, times = 10, basis = "eigen")
 X_clp <- clipped(subspace_ = Subspace, method = "identity", location = c(1:5), zeroout = TRUE)
 }
-Reference
----------
-"Financial Applications of Random Matrix Theory: a short review",
-J.-P. Bouchaud and M. Potters
-arXiv: 0910.1205 [q-fin.ST]
 }
 \seealso{
 * [MarchenkoPasturPar()] calculates upper and lower limits of Marcenko-Pastur distribution from RMTstat package.
