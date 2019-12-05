@@ -29,8 +29,8 @@ results <- dimension(subspace_ = Subspace)
 
 # clip matrix
 X_clp <- clipped(X, rank = 20, method = "threshold", alpha = 0.9, zeroout = TRUE)
-x_clp<-clipped(x, rnk = 20, method = "hard", zeroout = FALSE)
-x_clp<-clipped(x, rnk = 20, method = "identity", location = c(1:15), zeroout = FALSE)
+x_clp<-clipped(X, rnk = 20, method = "hard", zeroout = FALSE)
+x_clp<-clipped(X, rnk = 20, method = "identity", location = c(1:15), zeroout = FALSE)
 
 ## equivelantly, if Subspace is calcualted
 X_clp <- clipped(subspace_ = Subspace, method = "identity", location = c(1:5), zeroout = TRUE)
