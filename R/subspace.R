@@ -158,7 +158,6 @@ print.subspace <- function(x,...) {
   } else {
       cat("Estimated rank range", x$rank, "\n")
   }
-  
 }
 
 #' @title Scree plot of scaled eigenvalues of X and random noise matrix N
@@ -232,8 +231,7 @@ plot.subspace <- function(x,                                # A subspace class
                      ", P = ", 
                      ifelse(transpose_flag,ndf,pdim), 
                      ", Var = ", 
-                     round(var_correct,2))
-            )
+                     round(var_correct,2)))
 
   if (!is.null(MP_irl)) {
     scree <- scree +           
@@ -252,8 +250,7 @@ plot.subspace <- function(x,                                # A subspace class
                        ", Var = ", 
                        round(var_correct,2), 
                        ", ChnagePoint est = ", 
-                       Changepoint)
-              )
+                       Changepoint))
   }
 
   return(scree)

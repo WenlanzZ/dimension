@@ -124,7 +124,7 @@ clipped <- function(X,                                              # data matri
           }
           xi_clipped <- rep(NA, length(rank))
           xi_clipped[location] <- irl$eigen[location]
-          },
+        },
         stop("Invalid method input")
     )
 # ----------------------------------------------------------------------------------------------------------
