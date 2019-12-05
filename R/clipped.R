@@ -29,8 +29,8 @@
 #' \donttest{
 #' X <- Xsim(n = 150, p = 100, ncc = 10, var = 2)
 #' X_clp <- clipped(X, rank = 20, method = "threshold", alpha = 0.9, zeroout = TRUE)
-#' x_clp<-clipped(x, rnk = 20, method = "hard", zeroout = FALSE)
-#' x_clp<-clipped(x, rnk = 20, method = "identity", location = c(1:15), zeroout = FALSE)
+#' x_clp <- clipped(X, rank = 20, method = "hard", zeroout = FALSE)
+#' x_clp <- clipped(X, rank = 20, method = "identity", location = c(1:15), zeroout = FALSE)
 #' 
 #' #equivelantly, if Subspace is calcualted
 #' Subspace <- subspace(X, rank = 1:40, times = 10, basis = "eigen")

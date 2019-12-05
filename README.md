@@ -25,12 +25,12 @@ results <- dimension(X, rank = 1:40, times = 10, basis="eigen")
 
 ## equivelantly, if subsapce is calcualted
 Subspace <- subspace(X, rank = 1:40, times = 10,  basis = "eigen")
-results <- dimension(subspace_ = Subspace)
+results  <- dimension(subspace_ = Subspace)
 
 # clip matrix
 X_clp <- clipped(X, rank = 20, method = "threshold", alpha = 0.9, zeroout = TRUE)
-x_clp<-clipped(X, rnk = 20, method = "hard", zeroout = FALSE)
-x_clp<-clipped(X, rnk = 20, method = "identity", location = c(1:15), zeroout = FALSE)
+x_clp <- clipped(X, rank = 20, method = "hard", zeroout = FALSE)
+x_clp <- clipped(X, rank = 20, method = "identity", location = c(1:15), zeroout = FALSE)
 
 ## equivelantly, if Subspace is calcualted
 X_clp <- clipped(subspace_ = Subspace, method = "identity", location = c(1:5), zeroout = TRUE)
