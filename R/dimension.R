@@ -53,7 +53,7 @@
 #' @importFrom  tibble tibble
 #' @export
 
-dimension <- function(X,                          # data matrix
+dimension <- function(X,                              # data matrix
                       subspace_ = NULL,               # subspace class
                       rank = NA,                      # number of singular vectors to estimate
                       basis = c("eigen","singular"),  # 

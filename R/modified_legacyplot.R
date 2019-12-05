@@ -13,7 +13,7 @@
 #' @importFrom stats runmed 
 #' @export
 
-modified_legacyplot <- function(x, 
+modified_legacyplot <- function(x,                          # data matrix
                                 annotation   = NULL,        # Choose to label points up to annotation number
                                 medianfilter = FALSE)       # a logical value. Compute running medians to smooth scatter plot. 
 {

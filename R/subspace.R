@@ -178,7 +178,7 @@ print.subspace <- function(x,...) {
 #' @importFrom ggrepel geom_text_repel
 #' @export
 
-plot.subspace <- function(x,                              # A subspace class
+plot.subspace <- function(x,                                # A subspace class
                           Changepoint = NULL,               # Estimated changepoint in OptimumDimension function
                           annotation = NULL,                # Choose to label points up to annotation number
                           verbose = TRUE,
@@ -259,37 +259,6 @@ plot.subspace <- function(x,                              # A subspace class
   return(scree)
 }
 
-
-# #x_clipped <- x %–% subspace(x, 1:9, MP = FALSE, basis = “eigen”)
-# #' @export
-# `%-%` <- function(X, subspace_) {
-# # ---------------------------------------------------------------------------------------------------------
-# # Basic parameter set up
-# # ---------------------------------------------------------------------------------------------------------  
-#   AmbientSpace <- subspace(X, rnk = min(nrow(X),ncol(X)), MP = FALSE, basis = "eigen")
-
-#   rank            <- subspace_$rank
-#   var_correct     <- subspace_$var_correct
-#   sigma_a         <- subspace_$sigma_a
-#   sigma_MP        <- subspace_$sigma_MP
-  
-#   xi_clipped = AmbientSpace$sigma_a
-#   xi_clipped[rank] = irl$eigen[rank]
-#   xi_clipped = ifelse(is.na(xi_clipped),0,xi_clipped)
-#   #calculate estimated X
-#   X_clipped = u%*%diag(xi_clipped*pdim)%*%t(v)
-#   #calculate empirical covariance
-#   V_clipped = v%*%diag(xi_clipped*pdim)%*%t(v)/ (ndf - 1L)
-#   ## symmetric rescaling to correlation matrix
-#   E_clipped<-V_clipped / tcrossprod(diag(V_clipped) ^ 0.5)
-#   return(list(xi_clipped=xi_clipped,X_clipped=X_clipped,E_clipped=E_clipped,v=v,u=u))
-# }
-
-# #' clipped by location
-# #' @export
-# setMethod('%-%',
-#   signature(X = "matrix", subspace_="subspace"),
-#   function(X, subspace_) return(SetCols.bm(x, j, value)))
 
 
 #' @title Check Rank Input

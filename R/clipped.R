@@ -41,7 +41,7 @@
 #' * [MarchenkoPasturPar()] calculates upper and lower limits of Marcenko-Pastur distribution from RMTstat package.
 #' @export
 
-clipped <- function(X,                                          # data matrix
+clipped <- function(X,                                              # data matrix
                     subspace_ = NULL,                               # a list of ouput from function CheckDimMatrix
                     rank = NA,                                      # number of singular vectors to estimate
                     method = c("threshold", "hard", "identity"),    # choose method from c("threshold","hard")
