@@ -1,6 +1,6 @@
 rm(list=lsf.str())
+gc()
 
-load_all()
 #auto generating documents after changing fxns
 setwd("/Users/wz262/Projects/dimension")
 library(roxygen2)
@@ -12,6 +12,10 @@ setwd("/Users/wz262/Projects")
 install("dimension")
 3
 library(dimension)
+
+setwd("/Users/wz262/Projects/dimension")
+library(devtools)
+load_all()
 ?Xsim
 ?CheckDimMatrix
 ?subspace
@@ -20,13 +24,17 @@ library(dimension)
 
 
 #Test on MKDim package
-X <- Xsim(n = 150, p = 100, ncc = 10, var = 5)
+X <- Xsim(n = 150, p = 100, ncc = 30, var = c(rep(10,5),rep(3,25)))
+t1 <- proc.time()
+Subspace <- subspace(X, rank = 1:50, times = 10,  basis = "eigen")
+print(proc.time() - t1)
+gc()
 
 ########################################################
 #####test on CheckDimMatrix#########
 ########################################################
 
-params <- CheckDimMatrix(X, rnk = 30)
+params <- CheckDimMatrix(X, rnk = 50)
 params <- CheckDimMatrix(X)
 str(params)
 
@@ -67,7 +75,7 @@ Subspace <- subspace(X, rank = -1, times = 10)
 ########################################################
 
 results <- dimension(X)
-results <- dimension(X, rank = 30, times = 10)
+results <- dimension(X, rank = 50, times = 10)
 results <- dimension(X, Subspace)
 results <- dimension(subspace_ = Subspace)
 results <- dimension(subspace_ = subspace(X))
@@ -82,8 +90,8 @@ results <- dimension(X, rank=1:40, times = -1, basis="eigen")
 results <- dimension(X, times = 199)
 
 #test on legacy plot
-modified_legacyplot(results$Changepoint$bcp_irl, annotation = 10)
-modified_legacyplot(results$Changepoint$bcp_post, annotation = 10)
+modified_legacyplot(results$Changepoint$bcp_irl, annotation = 30)
+modified_legacyplot(results$Changepoint$bcp_post, annotation = 30)
 legacyplot(results$Changepoint$bcp_post)
 
 
