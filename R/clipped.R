@@ -1,17 +1,17 @@
 #' @title Eigenvalue clipping Procedure
 #'
-#' @description This function clips the scaled eigenvalues of X in order to provide a cleaned estimator E_clipped 
-#'   of the underlying correlation matrix. Proceeds by keeping the [N * alpha] top eigenvalues and shrinking 
-#'   the remaining ones by a trace-preserving constant (i.e. Tr(E_clipped) = Tr(E)) or zero out remaining ones. 
+#' @description This function clips the scaled eigenvalues of X in order to provide a cleaned estimator E_clipped
+#'   of the underlying correlation matrix. Proceeds by keeping the [N * alpha] top eigenvalues and shrinking
+#'   the remaining ones by a trace-preserving constant (i.e. Tr(E_clipped) = Tr(E)) or zero out remaining ones.
 #'   This function is adpated from "Python for Random Matrix Theory" credit to J.-P. Bouchaud and M. Potters.
-#' @param X A numeric real-valued matrix with n number of samples and p number of features. 
+#' @param X A numeric real-valued matrix with n number of samples and p number of features.
 #'   If p>n, a warning message is generated and the transpose of X is used.
 #' @param subspace_ A subspace class.
 #' @param rank A series of right singular vectors to estimate. rank must be smaller or equal to min(nrow(X),ncol(X)).
-#' @param method The method to be used; method = "threshold" returns (1-alpha)*rnk proportion of eigenvalues above threshold; 
+#' @param method The method to be used; method = "threshold" returns (1-alpha)*rnk proportion of eigenvalues above threshold;
 #'   method = "hard" returns all the empirical eigenvalues greater than the upper limit of the support to the Marcenko-Pastur spectrum;
 #'   method = "identity" returns eigenvalued specified in location vector.
-#' @param alpha Determine the fraction to keep of the top eigenvalues in threshold method. 
+#' @param alpha Determine the fraction to keep of the top eigenvalues in threshold method.
 #' @param location Indicate the location of eigenvalues to keep in identity method.
 #' @param zeroout A logical value to zero out eigenvalues when clipping. default is to set to FALSE.
 #' @param verbose output message
@@ -31,13 +31,13 @@
 #' X_clp <- clipped(X, rank = 20, method = "threshold", alpha = 0.9, zeroout = TRUE)
 #' x_clp <- clipped(X, rank = 20, method = "hard", zeroout = FALSE)
 #' x_clp <- clipped(X, rank = 20, method = "identity", location = c(1:15), zeroout = FALSE)
-#' 
+#'
 #' #equivelantly, if Subspace is calcualted
 #' Subspace <- subspace(X, rank = 1:40, times = 10, basis = "eigen")
 #' X_clp <- clipped(subspace_ = Subspace, method = "identity", location = c(1:5), zeroout = TRUE)
 #' }
 #' @importFrom stats na.omit
-#' @seealso 
+#' @seealso
 #' * [MarchenkoPasturPar()] calculates upper and lower limits of Marcenko-Pastur distribution from RMTstat package.
 #' @export
 
@@ -45,7 +45,7 @@ clipped <- function(X,                                              # data matri
                     subspace_ = NULL,                               # a list of ouput from function CheckDimMatrix
                     rank = NA,                                      # number of singular vectors to estimate
                     method = c("threshold", "hard", "identity"),    # choose method from c("threshold","hard")
-                    alpha = NA,                                     # determining the fraction to keep of the top eigenvalues of an empirical correlation matrix. 
+                    alpha = NA,                                     # determining the fraction to keep of the top eigenvalues of an empirical correlation matrix.
                     location = NA,                                  # preserve eigenvalues at these locations
                     zeroout = FALSE,                                # zero out eigenvalues when clipping. default is to set it to average.
                     verbose = TRUE,                                 # output message
@@ -87,7 +87,7 @@ clipped <- function(X,                                              # data matri
     transpose_flag <- subspace_$transpose_flag
 # ----------------------------------------------------------------------------------------------------------
 # Determine eigenvalues to preserve
-# ----------------------------------------------------------------------------------------------------------  
+# ----------------------------------------------------------------------------------------------------------
     switch(method,
         hard = {
           lambda_min <- MarchenkoPasturPar(ndf, pdim, var = 1, svr = svr)$lower
@@ -129,13 +129,13 @@ clipped <- function(X,                                              # data matri
     )
 # ----------------------------------------------------------------------------------------------------------
 # Zero out or average clipped eigenvalues
-# ----------------------------------------------------------------------------------------------------------  
-    gamma <- ifelse(zeroout, 0, (sum(irl$eigen) - sum(na.omit(xi_clipped))) / sum(is.na(xi_clipped))) 
-    if (verbose) cat("gamma = ", gamma, "\n")   
+# ----------------------------------------------------------------------------------------------------------
+    gamma <- ifelse(zeroout, 0, (sum(irl$eigen) - sum(na.omit(xi_clipped))) / sum(is.na(xi_clipped)))
+    if (verbose) cat("gamma = ", gamma, "\n")
     xi_clipped <- ifelse(is.na(xi_clipped), gamma, xi_clipped)
 # ----------------------------------------------------------------------------------------------------------
 # Calculate estimated X, COV, CORR
-# ----------------------------------------------------------------------------------------------------------  
+# ----------------------------------------------------------------------------------------------------------
     #calculate estimated X
     X_clipped <- u %*% diag(xi_clipped * pdim) %*% t(v)
     #calculate empirical covariance
@@ -143,10 +143,10 @@ clipped <- function(X,                                              # data matri
     ## symmetric rescaling to correlation matrix
     E_clipped <- V_clipped / tcrossprod(diag(V_clipped)^0.5)
 
-    return(list(xi_clipped = xi_clipped, 
-                X_clipped  = X_clipped, 
-                E_clipped  = E_clipped, 
-                v          = v, 
+    return(list(xi_clipped = xi_clipped,
+                X_clipped  = X_clipped,
+                E_clipped  = E_clipped,
+                v          = v,
                 u          = u))
 }
 

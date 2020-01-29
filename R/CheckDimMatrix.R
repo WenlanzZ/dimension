@@ -17,7 +17,7 @@
 #' X <- Xsim(n = 150, p = 100, ncc = 10, var = 2)
 #' params <- CheckDimMatrix(X, rnk = 40)
 #' }
-#' 
+#'
 #' @seealso [checkDesignMatrix()] from Random Matrix Theory pacakge credit to Gregory Giecold and Lionel Ouaknin.
 #' @importFrom  tibble tibble
 #' @export
@@ -35,7 +35,7 @@ CheckDimMatrix <- function(X,                        # A data matrix
 
     ndf  <- nrow(X)
     pdim <- ncol(X)
-    
+
     if (missing(rnk)) {
         rnk <- min(ndf, pdim)
         if (verbose) {
@@ -53,7 +53,7 @@ CheckDimMatrix <- function(X,                        # A data matrix
 # ----------------------------------------------------------------------------------------------------------
     transpose_flag <- FALSE
     if (nrow(X) < ncol(X)) {
-        warning("The number of samples of X is smaller than the number of features of X. 
+        warning("The number of samples of X is smaller than the number of features of X.
                 A transpose of X is used instead.\n")
         X <- t(X)
         transpose_flag <-TRUE
@@ -62,10 +62,10 @@ CheckDimMatrix <- function(X,                        # A data matrix
     }
 
     svr <- ndf/pdim
-    
+
     return(list(ndf  = ndf,
-                pdim = pdim, 
-                svr  = svr, 
-                rnk  = rnk, 
+                pdim = pdim,
+                svr  = svr,
+                rnk  = rnk,
                 transpose_flag = transpose_flag))
 }

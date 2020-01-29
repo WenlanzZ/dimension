@@ -1,9 +1,9 @@
 #' @title A constructor function for the "subspace" class
 #'
-#' @description This function calculates scaled eigenvalues and eigenvectors of X matrix, 
-#'   as well as sampled eigenvalues from a random noise matrix N of the same dimension as X, which follows a 
+#' @description This function calculates scaled eigenvalues and eigenvectors of X matrix,
+#'   as well as sampled eigenvalues from a random noise matrix N of the same dimension as X, which follows a
 #'   Marcenko-Pastur distribution with package "RMTsata"(https://cran.r-project.org/web/packages/RMTstat/index.html).
-#' @param X A numeric real-valued matrix with n number of samples and p number of features. 
+#' @param X A numeric real-valued matrix with n number of samples and p number of features.
 #'   If p>n, a warning message is generated and the transpose of X is used.
 #' @param rank A series of right singular vectors to estimate. rank must be smaller or equal to min(nrow(X),ncol(X)).
 #' @param basis Choose eigenvalue decomposition or singular value decomposition.
@@ -37,9 +37,9 @@
 #' Subspace
 #' plot(Subspace, Changepoint = 0, annotation = 15)
 #' }
-#' @seealso 
+#' @seealso
 #' * [MarchenkoPasturPar()] calculates upper and lower limits of Marcenko-Pastur distribution from RMTstat package.
-#' 
+#'
 #' * [rmp()] sample scaled eigenvalues of random noise matrix from RMTstat package.
 #' @importFrom tibble tibble
 #' @importFrom irlba irlba
@@ -92,7 +92,7 @@ subspace <- function(X,                              # data matrix
   transpose_flag  <- params$transpose_flag
 # ----------------------------------------------------------------------------------------------------------
 # Singular Value Decomposition of X matrix
-# ----------------------------------------------------------------------------------------------------------  
+# ----------------------------------------------------------------------------------------------------------
   #Col Mean center Matrix
   Xstd <- sweep(X, 2L, colMeans(X))
 
@@ -118,7 +118,7 @@ subspace <- function(X,                              # data matrix
       system.time({sim = rmp(pdim, ndf = ndf, pdim = pdim, var = var_correct, svr = ndf/pdim)})
     } else {
       ncores <- detectCores()
-      registerDoParallel(ncores) 
+      registerDoParallel(ncores)
       system.time({
         sim <- foreach(1:times, .combine = c) %dopar% {
           tmp <- rmp(pdim/times, ndf = ndf, pdim = pdim, var = var_correct, svr = ndf/pdim)
@@ -128,16 +128,16 @@ subspace <- function(X,                              # data matrix
     MP_irl <- tibble(eigen = sim[order(sim, decreasing = T)][rank], dim = rank)
     sigma_MP <- sim[order(sim,decreasing = T)][1:rnk]
   }
-  value <- (list(ndf  = ndf, 
-                 pdim = pdim, 
+  value <- (list(ndf  = ndf,
+                 pdim = pdim,
                  rank = rank,
                  var_correct = ifelse(MP, var_correct, NA),
-                 transpose_flag = transpose_flag, 
-                 irl = irl, 
+                 transpose_flag = transpose_flag,
+                 irl = irl,
                  sigma_a = sigma_a,
                  MP_irl = switch(2 - MP, MP_irl, NULL),
                  sigma_MP = switch(2 - MP, sigma_MP, NULL),
-                 v = v, 
+                 v = v,
                  u = u,
                  basis = basis))
   attr(value, "class") <- "subspace"
@@ -203,7 +203,7 @@ plot.subspace <- function(x,                                # A subspace class
       cat("Anotating for all points. Set annotation = 0 to stop annotation.\n")
     }
   }
-  if (!is.null(annotation) & annotation > rnk) 
+  if (!is.null(annotation) & annotation > rnk)
   {
     annotation <- rnk
     warning("Annotation number must be strictly less or equal to than maximum rank.\n")
@@ -216,47 +216,43 @@ plot.subspace <- function(x,                                # A subspace class
 # ---------------------------------------------------------------------------------------------------------
 # Scree plot for both eigenvalues of X and simulated eigenvalues of noise
 # ---------------------------------------------------------------------------------------------------------
-  scree <- ggplot() + 
-            geom_line(aes(x = dim, y = eigen), irl, colour = "black") + 
-            geom_point(aes(x = dim, y = eigen), irl, color = "red") +
-            theme_minimal() + 
-            xlab("Dimension") + 
-            ylab("Eigenvalue Scaled") + 
-            theme(plot.title = element_text(hjust = 0.5)) + 
-            geom_text_repel(aes(x= irl$dim, y = irl$eigen, label=mark), colour="black", size=5) +
-            ggtitle(
-              paste0("Scree Plot\n",
-                     "N = ", 
-                     ifelse(transpose_flag,pdim,ndf), 
-                     ", P = ", 
-                     ifelse(transpose_flag,ndf,pdim), 
-                     ", Var = ", 
-                     round(var_correct,2)))
+  scree <- ggplot() +
+    geom_line(aes(x = dim, y = eigen), irl, colour = "black") +
+    geom_point(aes(x = dim, y = eigen), irl, color = "red") +
+    theme_minimal() +
+    xlab("Dimension") +
+    ylab("Eigenvalue Scaled") +
+    theme(plot.title = element_text(hjust = 0.5)) +
+    geom_text_repel(aes(x= irl$dim, y = irl$eigen, label=mark), 
+                        color="black", size=5) +
+    ggtitle(paste0("Scree Plot\n",
+                   "N = ",
+                   ifelse(transpose_flag,pdim,ndf),
+                   ", P = ",
+                   ifelse(transpose_flag,ndf,pdim),
+                   ", Var = ",
+                   round(var_correct,2)))
 
   if (!is.null(MP_irl)) {
-    scree <- scree +           
-              geom_line(aes(x = dim, y = eigen), MP_irl, colour = "black") + 
-              geom_point(aes(x = dim, y = eigen), MP_irl, color = "blue")
+    scree <- scree +
+      geom_line(aes(x = dim, y = eigen), MP_irl, colour = "black") +
+      geom_point(aes(x = dim, y = eigen), MP_irl, color = "blue")
   }
-          
+
   if (!missing(Changepoint)) {
-    scree <- scree + 
-              ggtitle(
-                paste0("Scree Plot\n", 
-                       "N = ", 
-                       ifelse(transpose_flag,pdim,ndf), 
-                       ", P = ", 
-                       ifelse(transpose_flag,ndf,pdim), 
-                       ", Var = ", 
-                       round(var_correct,2), 
-                       ", ChnagePoint est = ", 
-                       Changepoint))
+    scree <- scree +
+      ggtitle(paste0("Scree Plot\n", "N = ",
+                     ifelse(transpose_flag, pdim, ndf),
+                     ", P = ",
+                     ifelse(transpose_flag,ndf,pdim),
+                     ", Var = ",
+                     round(var_correct,2),
+                     ", ChnagePoint est = ",
+                     Changepoint))
   }
 
   return(scree)
 }
-
-
 
 #' @title Check Rank Input
 #'

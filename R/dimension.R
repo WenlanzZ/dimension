@@ -2,7 +2,7 @@
 #'
 #' Estimate the dimension of a signal-rich subspace in large high-dimensional data.
 #'
-#' @param X A numeric real-valued matrix with n number of samples and p number of features. 
+#' @param X A numeric real-valued matrix with n number of samples and p number of features.
 #'   If p>n, a warning message is generated and the transpose of X is used.
 #' @param subspace_ A subspace class.
 #' @param rank A series of right singular vectors to estimate. rank must be smaller or equal to min(nrow(X),ncol(X)).
@@ -38,11 +38,11 @@
 #' \donttest{
 #' X <- Xsim(n = 150, p = 100, ncc = 10, var = 2)
 #' results <- dimension(X, rank = 1:40, times = 10, basis="eigen")
-#' 
+#'
 #' #equivelantly, if subsapce is calcualted
 #' Subspace <- subspace(X, rank = 1:40, times = 10,  basis = "eigen")
 #' results <- dimension(subspace_ = Subspace)
-#' 
+#'
 #' str(results)
 #' plot(results$Subspace, Changepoint = results$Changepoint$dimension, annotation = 10)
 #' modified_legacyplot(results$Changepoint$bcp_irl, annotation = 10)
@@ -56,7 +56,7 @@
 dimension <- function(X,                              # data matrix
                       subspace_ = NULL,               # subspace class
                       rank = NA,                      # number of singular vectors to estimate
-                      basis = c("eigen","singular"),  # 
+                      basis = c("eigen","singular"),  #
                       times = NA,                     # split data into X times for parallel computation.
                       p = 0.90,                       # threshold for selecting changepoint
                       verbose = TRUE,                 # output message
@@ -79,7 +79,7 @@ dimension <- function(X,                              # data matrix
         if (verbose) {
           cat("No rank specified. Calculating full singular value decomposition instead.\n")
         }
-      } 
+      }
       # Checking for times input
       if (missing(times)) {
       times <- 0
@@ -91,7 +91,7 @@ dimension <- function(X,                              # data matrix
   }
 # ---------------------------------------------------------------------------------------------------------
 # Basic parameter set up
-# ---------------------------------------------------------------------------------------------------------  
+# ---------------------------------------------------------------------------------------------------------
   ndf             <- subspace_$ndf
   pdim            <- subspace_$pdim
   rank            <- subspace_$rank
@@ -101,7 +101,7 @@ dimension <- function(X,                              # data matrix
   sigma_MP        <- subspace_$sigma_MP
 # ---------------------------------------------------------------------------------------------------------
 # Rank Estimation procedure
-# ---------------------------------------------------------------------------------------------------------  
+# ---------------------------------------------------------------------------------------------------------
   #Bayesian Change Point
   bcp_irl   <- bcp(as.vector(sigma_a-sigma_MP), p0 = 0.1)
   #Bayesian Posterior Prob Change Point
@@ -117,7 +117,7 @@ dimension <- function(X,                              # data matrix
     changePoint <- rnk + 1 - which.max(rev(prob_post))
   } else {
     #multiple changepoints in bcp_post
-    #1. find all max changepoinst in bcp_post 
+    #1. find all max changepoinst in bcp_post
     #2. Any of them in prob_irl >0.90*max(prob_irl)
     irl_max   <- rnk + 1 - which.max(rev(prob_irl))
     threshold <- prob_irl[post_max] > p*max(prob_irl)

@@ -1,5 +1,5 @@
 #' @title Marcenko-Pastur distribution within package "RMTsata".
-#' @description All credit to Iain M. Johnstone, Zongming Ma, Patrick O. Perry and Morteza Shahram (https://cran.r-project.org/web/packages/RMTstat/index.html). 
+#' @description All credit to Iain M. Johnstone, Zongming Ma, Patrick O. Perry and Morteza Shahram (https://cran.r-project.org/web/packages/RMTstat/index.html).
 #' @param ndf The number of degrees of freedom of X.
 #' @param pdim The number of dimensions of X.
 #' @param var Population variance.
@@ -17,7 +17,7 @@ MarchenkoPasturPar <- function( ndf=NA, pdim=NA, var=1, svr=ndf/pdim ) {
 
 #' @title dmp within package "RMTsata".
 #'
-#' @description All credit to Iain M. Johnstone, Zongming Ma, Patrick O. Perry and Morteza Shahram (https://cran.r-project.org/web/packages/RMTstat/index.html). 
+#' @description All credit to Iain M. Johnstone, Zongming Ma, Patrick O. Perry and Morteza Shahram (https://cran.r-project.org/web/packages/RMTstat/index.html).
 #' @param x Vector of quantiles.
 #' @param ndf The number of degrees of freedom of X.
 #' @param pdim The number of dimensions of X.
@@ -59,7 +59,7 @@ dmp <- function( x, ndf=NA, pdim=NA, var=1, svr=ndf/pdim, log = FALSE ) {
 
 #' @title pmp within package "RMTsata".
 #'
-#' @description All credit to Iain M. Johnstone, Zongming Ma, Patrick O. Perry and Morteza Shahram (https://cran.r-project.org/web/packages/RMTstat/index.html). 
+#' @description All credit to Iain M. Johnstone, Zongming Ma, Patrick O. Perry and Morteza Shahram (https://cran.r-project.org/web/packages/RMTstat/index.html).
 #' @param q Vector of quantiles.
 #' @param ndf The number of degrees of freedom of X.
 #' @param pdim The number of dimensions of X.
@@ -101,7 +101,7 @@ pmp <- Vectorize( pmp )
 
 #' @title qmp within package "RMTsata".
 #'
-#' @description All credit to Iain M. Johnstone, Zongming Ma, Patrick O. Perry and Morteza Shahram (https://cran.r-project.org/web/packages/RMTstat/index.html). 
+#' @description All credit to Iain M. Johnstone, Zongming Ma, Patrick O. Perry and Morteza Shahram (https://cran.r-project.org/web/packages/RMTstat/index.html).
 #' @param p Vector of probabilities.
 #' @param ndf The number of degrees of freedom of X.
 #' @param pdim The number of dimensions of X.
@@ -144,7 +144,7 @@ qmp <- Vectorize( qmp )
 
 #' @title rmp within package "RMTsata".
 #'
-#' @description All credit to Iain M. Johnstone, Zongming Ma, Patrick O. Perry and Morteza Shahram (https://cran.r-project.org/web/packages/RMTstat/index.html). 
+#' @description All credit to Iain M. Johnstone, Zongming Ma, Patrick O. Perry and Morteza Shahram (https://cran.r-project.org/web/packages/RMTstat/index.html).
 #' @param n Number of observations.
 #' @param ndf The number of degrees of freedom of X.
 #' @param pdim The number of dimensions of X.
