@@ -4,8 +4,7 @@
 \alias{plot.subspace}
 \title{Scree plot of scaled eigenvalues of X and random noise matrix N}
 \usage{
-\method{plot}{subspace}(x, Changepoint = NULL, annotation = NULL,
-  verbose = TRUE, ...)
+\method{plot}{subspace}(x, Changepoint = NULL, annotation = NULL, verbose = TRUE, ...)
 }
 \arguments{
 \item{x}{A subsapce class.}

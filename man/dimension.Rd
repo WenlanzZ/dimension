@@ -6,11 +6,19 @@
 
 Estimate the dimension of a signal-rich subspace in large high-dimensional data.}
 \usage{
-dimension(X, subspace_ = NULL, rank = NA, basis = c("eigen",
-  "singular"), times = NA, p = 0.9, verbose = TRUE, ...)
+dimension(
+  X,
+  subspace_ = NULL,
+  rank = NA,
+  basis = c("eigen", "singular"),
+  times = NA,
+  p = 0.9,
+  verbose = TRUE,
+  ...
+)
 }
 \arguments{
-\item{X}{A numeric real-valued matrix with n number of samples and p number of features. 
+\item{X}{A numeric real-valued matrix with n number of samples and p number of features.
 If p>n, a warning message is generated and the transpose of X is used.}
 
 \item{subspace_}{A subspace class.}

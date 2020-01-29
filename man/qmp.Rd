@@ -4,8 +4,15 @@
 \alias{qmp}
 \title{qmp within package "RMTsata".}
 \usage{
-qmp(p, ndf = NA, pdim = NA, var = 1, svr = ndf/pdim,
-  lower.tail = TRUE, log.p = FALSE)
+qmp(
+  p,
+  ndf = NA,
+  pdim = NA,
+  var = 1,
+  svr = ndf/pdim,
+  lower.tail = TRUE,
+  log.p = FALSE
+)
 }
 \arguments{
 \item{p}{Vector of probabilities.}

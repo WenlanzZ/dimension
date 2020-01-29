@@ -4,11 +4,18 @@
 \alias{subspace}
 \title{A constructor function for the "subspace" class}
 \usage{
-subspace(X, rank = NA, basis = c("eigen", "singular"), MP = TRUE,
-  times = NA, verbose = TRUE, ...)
+subspace(
+  X,
+  rank = NA,
+  basis = c("eigen", "singular"),
+  MP = TRUE,
+  times = NA,
+  verbose = TRUE,
+  ...
+)
 }
 \arguments{
-\item{X}{A numeric real-valued matrix with n number of samples and p number of features. 
+\item{X}{A numeric real-valued matrix with n number of samples and p number of features.
 If p>n, a warning message is generated and the transpose of X is used.}
 
 \item{rank}{A series of right singular vectors to estimate. rank must be smaller or equal to min(nrow(X),ncol(X)).}
@@ -41,8 +48,8 @@ Returns a list with entries:
 }
 }
 \description{
-This function calculates scaled eigenvalues and eigenvectors of X matrix, 
-  as well as sampled eigenvalues from a random noise matrix N of the same dimension as X, which follows a 
+This function calculates scaled eigenvalues and eigenvectors of X matrix,
+  as well as sampled eigenvalues from a random noise matrix N of the same dimension as X, which follows a
   Marcenko-Pastur distribution with package "RMTsata"(https://cran.r-project.org/web/packages/RMTstat/index.html).
 }
 \examples{

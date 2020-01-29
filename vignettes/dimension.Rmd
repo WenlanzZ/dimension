@@ -1,0 +1,26 @@
+---
+title: "dimension"
+author: "Wenlan Zang and Michael J. Kane"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{dimension}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Introduction
+
+The `dimension` package provides an efficient way to determine the dimension f a signal rich subspace in a large matrix. It also provides a cleaned estimator of the original matrix and correlation matrix. Source code is maintained at [https://github.com/WenlanzZ/dimension](https://github.com/WenlanzZ/dimension).
+
+The `dimension` package estimates the intrinsic dimension of a signal-rich subspace in large matrix "real- and complex value dense R matrices and real-valued saprse matrices from the `Matrix` package by decomposing matrix into a signal-plus-noise space and approximate the signal-rich subspace with a rank $K$ approximation $\hat{X}=\sum_{k=1}^{K}d_ku_k{v_k}^T$. To estimate rank $K$, it follows a simple procedure assuming that matrix $X$ is composed of a low-rank signal matrix $S$ and an average general noise random matrix $\bar{N}$. It has been shown that the average eigenvalues of random matrices $N$ follows a universal Marc\u{e}nko-Pastur (MP) distribution. We hypothesize that the deviation of eigenvalues of $X$ from the MP distribution indicates the intrinsic dimension of signal-rich subspace.
+
+```{r setup}
+library(dimension)
+```
