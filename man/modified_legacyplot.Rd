@@ -9,12 +9,15 @@ modified_legacyplot(x, annotation = NULL, medianfilter = FALSE)
 \arguments{
 \item{x}{A list. The result of a call to bcp().}
 
-\item{annotation}{Annotate points up to total rank calculated. No annotation when annotation=0.}
+\item{annotation}{Annotate points up to total components calculated.
+No annotation when annotation=0.}
 
-\item{medianfilter}{A logical value. Compute running medians to smooth scatter plot.}
+\item{medianfilter}{A logical value. Compute running medians to smooth
+scatter plot.}
 }
 \description{
-This function produces summary plots of bcp() output. It is adapted from the default legacyplot function in pacakge bcp.
+This function produces summary plots of bcp() output.
+ It is adapted from the default legacyplot function in pacakge bcp.
 }
 \examples{
 \donttest{

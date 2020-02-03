@@ -9,9 +9,9 @@ dmp(x, ndf = NA, pdim = NA, var = 1, svr = ndf/pdim, log = FALSE)
 \arguments{
 \item{x}{Vector of quantiles.}
 
-\item{ndf}{The number of degrees of freedom of X.}
+\item{ndf}{The number of degrees of freedom of x.}
 
-\item{pdim}{The number of dimensions of X.}
+\item{pdim}{The number of dimensions of x.}
 
 \item{var}{Population variance.}
 
@@ -20,5 +20,7 @@ dmp(x, ndf = NA, pdim = NA, var = 1, svr = ndf/pdim, log = FALSE)
 \item{log}{A logical value.}
 }
 \description{
-All credit to Iain M. Johnstone, Zongming Ma, Patrick O. Perry and Morteza Shahram (https://cran.r-project.org/web/packages/RMTstat/index.html).
+All credit to Iain M. Johnstone, Zongming Ma,
+ Patrick O. Perry and Morteza Shahram
+ (https://cran.r-project.org/web/packages/RMTstat/index.html).
 }

@@ -4,20 +4,21 @@
 \alias{subspace}
 \title{A constructor function for the "subspace" class}
 \usage{
-subspace(X, rank = NA, basis = c("eigen", "singular"), MP = TRUE,
-  times = NA, verbose = TRUE, ...)
+subspace(x, components = NA, mp = TRUE, times = NA, verbose = TRUE,
+  ...)
 }
 \arguments{
-\item{X}{A numeric real-valued matrix with n number of samples and p number of features. 
-If p>n, a warning message is generated and the transpose of X is used.}
+\item{x}{A numeric real-valued matrix with n number of samples and
+p number of features. If p>n, a warning message is generated and
+the transpose of x is used.}
 
-\item{rank}{A series of right singular vectors to estimate. rank must be smaller or equal to min(nrow(X),ncol(X)).}
+\item{components}{A series of right singular vectors to estimate.
+Components must be smaller or equal to min(nrow(x),ncol(x)).}
 
-\item{basis}{Choose eigenvalue decomposition or singular value decomposition.}
+\item{mp}{A logical value. If true, sample eigenvlaues from random noise
+matrix with mp distribution.}
 
-\item{MP}{A logical value. If true, sample eigenvlaues from random noise matrix with MP distribution.}
-
-\item{times}{Split data into X times for parallel computation.}
+\item{times}{Split data into times-fold for parallel computation.}
 
 \item{verbose}{output message}
 
@@ -26,38 +27,47 @@ If p>n, a warning message is generated and the transpose of X is used.}
 \value{
 Returns a list with entries:
 \describe{
-  \item{ndf:}{ The number of degrees of freedom of X.}
-  \item{pdim:}{ The number of dimensions of X.}
-  \item{rank:}{ A series of right singular vectors estimated.}
-  \item{var_correct:}{ Corrected population variance for Marcenko-Pastur distribution.}
-  \item{transpose_flag:}{ A logical value indicating whether the matrix X is transposed.}
-  \item{irl:}{ A data frame of scaled eigenvalues for specified rank and corresponding dimensions.}
-  \item{sigma_a:}{ A vector of scaled eigenvalues up to max(rank).}
-  \item{MP_irl:}{ A data frame of samped expected eigenvalues from Marcenko-Pastur for specified rank and corresponding dimensions.}
-  \item{sigma_MP:}{ A vector of samped expected eigenvalues from Marcenko-Pastur up to max(rank).}
-  \item{v:}{ Right singular vectors of X matrix for specified rank.}
-  \item{u:}{ Left singular vectors of X matrix or specified rank.}
-  \item{basis:}{ Basis for decomposition.}
+  \item{ndf:}{ The number of degrees of freedom of x.}
+  \item{pdim:}{ The number of dimensions of x.}
+  \item{components:}{ A series of right singular
+   vectors estimated.}
+  \item{var_correct:}{ Corrected population variance
+   for Marcenko-Pastur distribution.}
+  \item{transpose_flag:}{ A logical value indicating
+   whether the matrix x is transposed.}
+  \item{irl:}{ A data frame of scaled eigenvalues for
+   specified components and corresponding dimensions.}
+  \item{sigma_a:}{ A vector of scaled eigenvalues up to max(components).}
+  \item{mp_irl:}{ A data frame of sampled expected eigenvalues from
+   Marcenko-Pastur for specified components and corresponding dimensions.}
+  \item{sigma_mp:}{ A vector of samped expected eigenvalues from
+   Marcenko-Pastur up to max(components).}
+  \item{v:}{ Right singular vectors of x matrix for specified components.}
+  \item{u:}{ Left singular vectors of x matrix or specified components.}
 }
 }
 \description{
-This function calculates scaled eigenvalues and eigenvectors of X matrix, 
-  as well as sampled eigenvalues from a random noise matrix N of the same dimension as X, which follows a 
-  Marcenko-Pastur distribution with package "RMTsata"(https://cran.r-project.org/web/packages/RMTstat/index.html).
+This function calculates scaled eigenvalues
+ and eigenvectors of x matrix, as well as sampled eigenvalues
+ from a random noise matrix N of the same dimension as x,
+ which follows a Marcenko-Pastur distribution with package
+ "RMTsata"(https://cran.r-project.org/web/packages/RMTstat/index.html).
 }
 \examples{
 \donttest{
-X <- Xsim(n = 150, p = 100, ncc = 10, var = 2)
-Subspace <- subspace(X)
-Subspace <- subspace(X, rank = 8:30, basis = "eigen")
-Subspace <- subspace(X, rank = c(2, 3, 6, 16), times = 10, basis = "eigen")
-Subspace <- subspace(X, rank = 1:20, MP= FALSE)
+x <- x_sim(n = 150, p = 100, ncc = 10, var = 2)
+Subspace <- subspace(x)
+Subspace <- subspace(x, components = 8:30)
+Subspace <- subspace(x, components = c(2, 3, 6, 16), times = 10)
+Subspace <- subspace(x, components = 1:20, mp= FALSE)
 Subspace
-plot(Subspace, Changepoint = 0, annotation = 15)
+plot(Subspace, changepoint = 0, annotation = 15)
 }
 }
 \seealso{
-* [MarchenkoPasturPar()] calculates upper and lower limits of Marcenko-Pastur distribution from RMTstat package.
+* [MarchenkoPasturPar()] calculates upper and lower limits
+ of Marcenko-Pastur distribution from RMTstat package.
 
-* [rmp()] sample scaled eigenvalues of random noise matrix from RMTstat package.
+* [rmp()] sample scaled eigenvalues of random noise matrix
+ from RMTstat package.
 }

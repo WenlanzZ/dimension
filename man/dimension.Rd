@@ -2,26 +2,24 @@
 % Please edit documentation in R/dimension.R
 \name{dimension}
 \alias{dimension}
-\title{Signal subspace dimension estimation in high-dimensional matrix
-
-Estimate the dimension of a signal-rich subspace in large high-dimensional data.}
+\title{Signal subspace dimension estimation in high-dimensional matrix}
 \usage{
-dimension(X, subspace_ = NULL, rank = NA, basis = c("eigen",
-  "singular"), times = NA, p = 0.9, verbose = TRUE, ...)
+dimension(x, subspace_ = NULL, components = NA, times = NA,
+  p = 0.9, verbose = TRUE, ...)
 }
 \arguments{
-\item{X}{A numeric real-valued matrix with n number of samples and p number of features. 
-If p>n, a warning message is generated and the transpose of X is used.}
+\item{x}{A numeric real-valued matrix with n number of samples and
+p number of features. If p>n, a warning message is generated and
+the transpose of x is used.}
 
 \item{subspace_}{A subspace class.}
 
-\item{rank}{A series of right singular vectors to estimate. rank must be smaller or equal to min(nrow(X),ncol(X)).}
+\item{components}{A series of right singular vectors to estimate.
+Components must be smaller or equal to min(nrow(x),ncol(x)).}
 
-\item{basis}{Choose eigenvalue decomposition or singular value decomposition.}
+\item{times}{Split data into times-fold for parallel computation.}
 
-\item{times}{Split data into X times for parallel computation.}
-
-\item{p}{Threshold for selecting changepoint. default is 0.90.}
+\item{p}{Threshold for selecting changepoint. Default is 0.90.}
 
 \item{verbose}{output message}
 
@@ -30,46 +28,58 @@ If p>n, a warning message is generated and the transpose of X is used.}
 \value{
 Returns a list with entries:
 \describe{
-  \item{ndf:}{ The number of degrees of freedom of X.}
-  \item{pdim:}{ The number of dimensions of X.}
-  \item{rank:}{ A series of right singular vectors estimated.}
-  \item{var_correct:}{ Corrected population variance for Marcenko-Pastur distribution.}
-  \item{transpose_flag:}{ A logical value indicating whether the matrix X is transposed.}
-  \item{irl:}{ A data frame of scaled eigenvalues for specified rank and corresponding dimensions.}
-  \item{MP_irl:}{ A data frame of samped expected eigenvalues from Marcenko-Pastur for specified rank and corresponding dimensions.}
-  \item{v:}{ Right singular vectors of X matrix for specified rank.}
-  \item{u:}{ Left singular vectors of X matrix or specified rank.}
-  \item{bcp_irl:}{ Probability of change in mean and posterior means of eigenvalue difference between $X$ and $N$.}
-  \item{bcp_post:}{ Probability of change in mean and posterior means of bcp_rirl.}
-  \item{changePoint:}{ Estimated signal subspace dimension.}
+  \item{ndf:}{ The number of degrees of freedom of x.}
+  \item{pdim:}{ The number of dimensions of x.}
+  \item{components:}{ A series of right singular
+   vectors estimated.}
+  \item{var_correct:}{ Corrected population variance
+   for Marcenko-Pastur distribution.}
+  \item{transpose_flag:}{ A logical value indicating
+   whether the matrix x is transposed.}
+  \item{irl:}{ A data frame of scaled eigenvalues for
+   specified rank and corresponding dimensions.}
+  \item{mp_irl:}{ A data frame of sampled expected eigenvalues from
+   Marcenko-Pastur for specified rank and corresponding dimensions.}
+  \item{v:}{ Right singular vectors of x matrix for specified rank.}
+  \item{u:}{ Left singular vectors of x matrix or specified rank.}
+  \item{dimension:}{ Estimated signal subspace dimension.}
+  \item{bcp_irl:}{ Probability of change in mean and posterior means
+   of eigenvalue difference between $x$ and $N$.}
+  \item{bcp_post:}{ Probability of change in mean and posterior means
+   of bcp_rirl.}
 }
 }
 \description{
-Signal subspace dimension estimation in high-dimensional matrix
-
-Estimate the dimension of a signal-rich subspace in large high-dimensional data.
+Estimate the dimension of a signal-rich subspace in large,
+ high-dimensional data.
 }
 \section{Details}{
 
-  We estimate the intrinsic dimension of a signal-rich subspace in large high-dimensional data by decomposing matrix
-  into a signal-plus-noise space and approximate the signal-rich subspace with a rank K approximation
-  \eqn{\hat{X}=\sum_{k=1}^{K}d_ku_k{v_k}^T}. To estimate rank K, we propose a simple procedure assuming that matrix X is composed
-  of a low-rank signal matrix S and an average general noise random matrix \eqn{\bar{N}}. It has been shown that
-  the average eigenvalues of random matrices N follows a universal Marcenko-Pastur (MP) distribution.
-  We hypothesize that the deviation of eigenvalues of X from the MP distribution indicates the intrinsic dimension of signal-rich subspace.
+ We estimate the intrinsic dimension of a signal-rich subspace
+ in large high-dimensional data by decomposing matrix into a
+ signal-plus-noise space and approximate the signal-rich subspace
+ with a rank K approximation \eqn{\hat{x}=\sum_{k=1}^{K}d_ku_k{v_k}^T}.
+ To estimate rank K, we propose a simple procedure assuming that matrix
+ x is composed of a low-rank signal matrix S and an average general noise
+ random matrix \eqn{\bar{N}}. It has been shown that the average eigenvalues
+ of random matrices N follows a universal Marcenko-Pastur (MP) distribution.
+ We hypothesize that the deviation of eigenvalues of x from the MP
+ distribution indicates the intrinsic dimension of signal-rich subspace.
 }
 
 \examples{
 \donttest{
-X <- Xsim(n = 150, p = 100, ncc = 10, var = 2)
-results <- dimension(X, rank = 1:40, times = 10, basis="eigen")
+x <- x_sim(n = 150, p = 100, ncc = 10, var = 2)
+results <- dimension(x, components = 1:40, times = 10)
 
 #equivelantly, if subsapce is calcualted
-Subspace <- subspace(X, rank = 1:40, times = 10,  basis = "eigen")
+Subspace <- subspace(x, components = 1:40, times = 10)
 results <- dimension(subspace_ = Subspace)
 
 str(results)
-plot(results$Subspace, Changepoint = results$Changepoint$dimension, annotation = 10)
+plot(results$Subspace,
+     Changepoint = results$dimension,
+     annotation = 10)
 modified_legacyplot(results$Changepoint$bcp_irl, annotation = 10)
 modified_legacyplot(results$Changepoint$bcp_post, annotation = 10)
 }

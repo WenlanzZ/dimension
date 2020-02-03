@@ -16,32 +16,41 @@ library(dimension)
 setwd("/Users/wz262/Projects/dimension")
 library(devtools)
 load_all()
-?Xsim
-?CheckDimMatrix
+?x_sim
+?check_dim_matrix
 ?subspace
 ?dimension
 ?clipped
 
+#lintr
+setwd("/Users/wz262/Projects/dimension")
+library(devtools)
+a <- lint(".", cache = FALSE)
+library(dplyr)
+a %>% as_tibble()
+
+
 
 #Test on MKDim package
-X <- Xsim(n = 150, p = 100, ncc = 30, var = c(rep(10,5),rep(3,25)))
+# x <- x_sim(n = 150, p = 100, ncc = 30, var = c(rep(10,5),rep(3,25)))
+x <- x_sim(n = 100, p = 150, ncc = 10, var = 10)
 t1 <- proc.time()
-Subspace <- subspace(X, rank = 1:50, times = 10,  basis = "eigen")
+Subspace <- subspace(x, components = 1:30, times = 10)
 print(proc.time() - t1)
 gc()
-
+Subspace$irl$eigen
 ########################################################
-#####test on CheckDimMatrix#########
+#####test on check_dim_matrix#########
 ########################################################
 
-params <- CheckDimMatrix(X, rnk = 50)
-params <- CheckDimMatrix(X)
+params <- check_dim_matrix(x, rnk = 50)
+params <- check_dim_matrix(x)
 str(params)
 
 #test on warning
-params <- CheckDimMatrix(rnk = 30)
-params <- CheckDimMatrix(X, rnk = -1)
-params <- CheckDimMatrix(X, rnk = 2000)
+params <- check_dim_matrix(rnk = 30)
+params <- check_dim_matrix(x, rnk = -1)
+params <- check_dim_matrix(x, rnk = 2000)
 
 
 MarchenkoPasturPar(ndf = 150, pdim = 100, var = 1, svr = params$svr)
@@ -50,44 +59,44 @@ MarchenkoPasturPar(ndf = 150, pdim = 100, var = 1, svr = params$svr)
 #####test on subspace#########
 ########################################################
 
-Subspace <- subspace(X)
-Subspace <- subspace(X, time = 10)
-Subspace <- subspace(X, rank = 11:30, basis = "eigen")
-Subspace <- subspace(X, rank = c(2, 3, 6), times = 10, basis = "eigen")
-Subspace <- subspace(X, rank = 1:20, times = 10, MP= FALSE, basis = "eigen")
+Subspace <- subspace(x)
+Subspace <- subspace(x, time = 10)
+Subspace <- subspace(x, components = 11:30)
+Subspace <- subspace(x, components = c(2, 3, 6), times = 10)
+Subspace <- subspace(x, components = 1:20, times = 10, mp= FALSE)
 Subspace
 str(Subspace)
 
 #test on scree plot
 plot(Subspace)
-plot(Subspace, Changepoint = 0)
+plot(Subspace, changepoint = 0)
 plot(Subspace, annotation = 0)
-plot(Subspace, Changepoint = 0, annotation = 5)
+plot(Subspace, changepoint = 0, annotation = 5)
 
 #test on warning
-Subspace <- subspace(rank = -1, times = 10)
-Subspace <- subspace(X, time = -1)
-Subspace <- subspace(X, rank = -1, times = 10)
+Subspace <- subspace(components = -1, times = 10)
+Subspace <- subspace(x, time = -1)
+Subspace <- subspace(x, components = -1, times = 10)
 
 
 ########################################################
-#####test on OptimumDimension#########
+#####test on dimension#########
 ########################################################
 
-results <- dimension(X)
-results <- dimension(X, rank = 50, times = 10)
-results <- dimension(X, Subspace)
+results <- dimension(x)
+results <- dimension(x, components = 50, times = 10)
+results <- dimension(x, Subspace)
 results <- dimension(subspace_ = Subspace)
-results <- dimension(subspace_ = subspace(X))
-results <- dimension(X, rank = 1:40, times = 10, basis="eigen")
+results <- dimension(subspace_ = subspace(x))
+results <- dimension(x, components = 1:40, times = 10)
 str(results)
-plot(results$Subspace, Changepoint = results$Changepoint$dimension, annotation=10)
+plot(results$Subspace, changepoint = results$dimension, annotation=10)
 
 #test on warning
-results <- dimension(subspace_ = subspace(X, MP= FALSE))
-results <- dimension(X, rank=-1, times = -1, basis="eigen")
-results <- dimension(X, rank=1:40, times = -1, basis="eigen")
-results <- dimension(X, times = 199)
+results <- dimension(subspace_ = subspace(x, mp= FALSE))
+results <- dimension(x, components=-1, times = -1)
+results <- dimension(x, components=1:40, times = -1)
+results <- dimension(x, times = 199)
 
 #test on legacy plot
 modified_legacyplot(results$Changepoint$bcp_irl, annotation = 30)
@@ -99,46 +108,46 @@ legacyplot(results$Changepoint$bcp_post)
 #####test on clipped#########
 ########################################################
 
-X_clp <- clipped(X, rank = 20, method = "threshold", alpha = 0.9, zeroout = TRUE)
-str(X_clp); X_clp$xi_clipped
-X_clp<-clipped(X, rank = 20, method = "hard", zeroout = TRUE)
-str(X_clp);X_clp$xi_clipped
-X_clp<-clipped(X, rank = 20, method = "hard", zeroout = FALSE)
-str(X_clp);X_clp$xi_clipped
-X_clp<-clipped(X, rank = 20, method = "identity", location = c(1:15), zeroout = TRUE)
-str(X_clp);X_clp$xi_clipped
+x_clp <- clipped(x, components = 20, method = "threshold", alpha = 0.9, zeroout = TRUE)
+str(x_clp); x_clp$xi_clipped
+x_clp<-clipped(x, components = 20, method = "hard", zeroout = TRUE)
+str(x_clp);x_clp$xi_clipped
+x_clp<-clipped(x, components = 20, method = "hard", zeroout = FALSE)
+str(x_clp);x_clp$xi_clipped
+x_clp<-clipped(x, components = 20, method = "identity", location = c(1:15), zeroout = TRUE)
+str(x_clp);x_clp$xi_clipped
 
 
-Subspace <- subspace(X, rank = 1:40, times = 10, basis = "eigen")
-X_clp<-clipped(X,Subspace,method="threshold",alpha=0.9,zeroout=TRUE)
-X_clp<-clipped(subspace_=Subspace,method="threshold",alpha=0.9,zeroout=TRUE)
-X_clp<-clipped(subspace_=Subspace,method="hard",zeroout=TRUE)
-X_clp<-clipped(subspace_=Subspace,method="identity",location=c(1:5),zeroout=TRUE)
+Subspace <- subspace(x, components = 1:40, times = 10)
+x_clp<-clipped(x,Subspace,method="threshold",alpha = 0.9,zeroout = TRUE)
+x_clp<-clipped(subspace_ = Subspace,method = "threshold",alpha = 0.9,zeroout = TRUE)
+x_clp<-clipped(subspace_ = Subspace,method = "hard",zeroout = TRUE)
+x_clp<-clipped(subspace_ = Subspace,method = "identity",location = c(1:5),zeroout = TRUE)
 
 #test on warning
-X_clp<-clipped(X,method="threshold",alpha=0,zeroout=TRUE)
-X_clp<-clipped(X,method="threshold",alpha=-1,zeroout=TRUE)
-X_clp<-clipped(X,method="threshold",alpha=1.9,zeroout=TRUE)
-X_clp<-clipped(X,method="threshold",zeroout=TRUE)
+x_clp<-clipped(x,method = "threshold",alpha = 0,zeroout = TRUE)
+x_clp<-clipped(x,method = "threshold",alpha = -1,zeroout = TRUE)
+x_clp<-clipped(x,method = "threshold",alpha = 1.9,zeroout = TRUE)
+x_clp<-clipped(x,method = "threshold",zeroout = TRUE)
 
 
-X_clp<-clipped(X,rank=20,method="hard",alpha=0,zeroout=TRUE)
-X_clp<-clipped(X,rank=20,method="hard",alpha=1.9,zeroout=TRUE)
-X_clp<-clipped(X,rank=20,method="hard",location=c(-1,2),zeroout=FALSE)
+x_clp<-clipped(x,components = 20,method = "hard",alpha = 0,zeroout = TRUE)
+x_clp<-clipped(x,components = 20,method = "hard",alpha = 1.9,zeroout = TRUE)
+x_clp<-clipped(x,components = 20,method = "hard",location = c(-1, 2),zeroout = FALSE)
 
-X_clp<-clipped(X,rank=20,method="identity",location=c(0:5),zeroout=FALSE)
-X_clp<-clipped(X,rank=20,method="identity",location="zero",zeroout=FALSE)
-X_clp<-clipped(X,rank=20,method="identity",zeroout=FALSE)
-
-
+x_clp<-clipped(x,components = 20,method = "identity",location = c(0:5),zeroout = FALSE)
+x_clp<-clipped(x,components = 20,method = "identity",location = "zero",zeroout = FALSE)
+x_clp<-clipped(x,components = 20,method = "identity",zeroout = FALSE)
 
 
-# #relation between cor and crossprod(X)
-# Xstd<-sweep(X, 2L, colMeans(X))
-# dim(X)
-# ec_cov<-cov(X)
+
+
+# #relation between cor and crossprod(x)
+# xstd<-sweep(x, 2L, colMeans(x))
+# dim(x)
+# ec_cov<-cov(x)
 # dim(ec_cov)
-# params = CheckDimMatrix(Xstd)
+# params = check_dim_matrix(xstd)
 # str(params);params$irl$eigen
 # E_clipped = params$eigenvec%*%diag(params$irl$eigen*100)%*%t(params$eigenvec) / (params$ndf - 1L)
 #
@@ -150,20 +159,20 @@ X_clp<-clipped(X,rank=20,method="identity",zeroout=FALSE)
 # V_clipped<-E_clipped / tcrossprod(diag(E_clipped) ^ 0.5)
 # V_clipped[1:10,1:10]
 #
-# ec_cor<-cor(X)
+# ec_cor<-cor(x)
 # ec_cor[1:10,1:10]
 #
-# X_clp<-clipped(X,method="threshold",alpha=1,zeroout=TRUE)
-# str(X_clp)
-# X_clp$E_clipped[1:10,1:10]
+# x_clp<-clipped(x,method="threshold",alpha=1,zeroout=TRUE)
+# str(x_clp)
+# x_clp$E_clipped[1:10,1:10]
 #
-# X_clp<-clipped(X,rnk=20,method="threshold",alpha=1,zeroout=TRUE)
-# str(X_clp)
-# X_clp$E_clipped[1:10,1:10]
+# x_clp<-clipped(x,rnk=20,method="threshold",alpha=1,zeroout=TRUE)
+# str(x_clp)
+# x_clp$E_clipped[1:10,1:10]
 #
 # #relation between cor and svd
-# tmp<-svd(X)
+# tmp<-svd(x)
 # rnk=20
 # d<-c(tmp$d[1:rnk],rep(0,length(tmp$d)-rnk))
-# X_svd<-tmp$u%*%diag(d)%*%t(tmp$v)
-# cor(X_svd)[1:10,1:10]
+# x_svd<-tmp$u%*%diag(d)%*%t(tmp$v)
+# cor(x_svd)[1:10,1:10]

@@ -97,7 +97,10 @@
 \author{Wenlan Zang \\
 wenlan.zang@yale.edu,
 \\[6pt]
-Michael.J.Kane\\
+Jen-hwa Chu \\
+jen-hwa.chu@yale.edu,
+\\[6pt]
+Michael J. Kane \\
 michael.kane@yale.edu
 }
 
@@ -110,7 +113,7 @@ michael.kane@yale.edu
 
 \section{Introduction}
 
-The {\tt dimension} package provides an efficient way to determine the dimension f a signal rich subspace in a large matrix. It also provides a cleaned estimator of the original matrix and correlation matrix. Source code is maintained at \href{https://github.com/WenlanzZ/dimension}{https://github.com/WenlanzZ/dimension}.
+The {\tt dimension} package provides an efficient way to determine the dimension of a signal rich subspace in a large matrix. It also provides a cleaned estimator of the original matrix and correlation matrix. Source code is maintained at \href{https://github.com/WenlanzZ/dimension}{https://github.com/WenlanzZ/dimension}.
 
 The {\tt dimension} package estimates the intrinsic dimension of a signal-rich subspace in large matrix ``real- and complex value dense R matrices and real-valued saprse matrices from the {\tt Matrix} package") by decomposing matrix into a signal-plus-noise space and approximate the signal-rich subspace with a rank $K$ approximation $\hat{X}=\sum_{k=1}^{K}d_ku_k{v_k}^T$. To estimate rank $K$, it follows a simple procedure assuming that matrix $X$ is composed of a low-rank signal matrix $S$ and an average general noise random matrix $\bar{N}$. It has been shown that the average eigenvalues of random matrices $N$ follows a universal Marc\u{e}nko-Pastur (MP) distribution. We hypothesize that the deviation of eigenvalues of $X$ from the MP distribution indicates the intrinsic dimension of signal-rich subspace.
 
@@ -140,7 +143,7 @@ Let $X\in\R^{n\times p}$ be a simulated multivariate normal matrix with $ncc$ co
    user  system elapsed
   0.946   0.293   0.767
 > gc()
-  used  (Mb) gc trigger  (Mb) limit (Mb) max used  (Mb)
+  used  (Mb)    gc      trigger  (Mb) limit (Mb)  max used  (Mb)
 Ncells  9590962 512.3   17937651 958.0         NA 16475288 879.9
 Vcells 16208511 123.7   27151251 207.2      16384 22559284 172.2
 > plot(Subspace, annotation = 30)
@@ -150,7 +153,7 @@ Vcells 16208511 123.7   27151251 207.2      16384 22559284 172.2
 \begin{lstlisting}
 > t1 <- proc.time()
 > results  <- dimension(subspace_ = Subspace)
-# equivelantly, if subsapce has not been calcualted
+# equivalently, if Subspace has not been calculated
 > results <- dimension(X, rank = 1:50, times = 10, basis="eigen")
 > print(proc.time() - t1)
    user  system elapsed

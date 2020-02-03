@@ -9,14 +9,16 @@ rmp(n, ndf = NA, pdim = NA, var = 1, svr = ndf/pdim)
 \arguments{
 \item{n}{Number of observations.}
 
-\item{ndf}{The number of degrees of freedom of X.}
+\item{ndf}{The number of degrees of freedom of x.}
 
-\item{pdim}{The number of dimensions of X.}
+\item{pdim}{The number of dimensions of x.}
 
 \item{var}{Population variance.}
 
-\item{svr}{ndf/pdim.}
+\item{svr}{ndfxpdim.}
 }
 \description{
-All credit to Iain M. Johnstone, Zongming Ma, Patrick O. Perry and Morteza Shahram (https://cran.r-project.org/web/packages/RMTstat/index.html).
+All credit to Iain M. Johnstone, Zongming Ma,
+ Patrick O. Perry and Morteza Shahram
+  (https://cran.r-project.org/web/packages/RMTstat/index.html).
 }

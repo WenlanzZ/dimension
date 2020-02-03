@@ -2,27 +2,30 @@
 % Please edit documentation in R/subspace.R
 \name{plot.subspace}
 \alias{plot.subspace}
-\title{Scree plot of scaled eigenvalues of X and random noise matrix N}
+\title{Scree plot of scaled eigenvalues of x and random noise matrix N}
 \usage{
-\method{plot}{subspace}(x, Changepoint = NULL, annotation = NULL,
+\method{plot}{subspace}(x, changepoint = NULL, annotation = NULL,
   verbose = TRUE, ...)
 }
 \arguments{
 \item{x}{A subsapce class.}
 
-\item{Changepoint}{A number. Estimated changepoint in OptimumDimension function.}
+\item{changepoint}{A number. Estimated changepoint in dimension function.}
 
-\item{annotation}{A number. Choose to label points up to annotation number. Set to 0 with no annotation.}
+\item{annotation}{A number. Choose to label points up to annotation number.
+Set to 0 with no annotation.}
 
 \item{verbose}{output message}
 
 \item{...}{Extra parameters}
 }
 \description{
-This is a generic function for supspace class to plot scree plot of scaled eigenvalues of X and sampled scaled expected eigenvalues from Marcenko-Pastur distribution.
+This is a generic function for supspace class to plot scree
+ plot of scaled eigenvalues of X and sampled scaled expected eigenvalues
+  from Marcenko-Pastur distribution.
 }
 \examples{
 \donttest{
-plot(Subspace, Changepoint = 0, annotation = 15)
+plot(Subspace, changepoint = 0, annotation = 15)
 }
 }

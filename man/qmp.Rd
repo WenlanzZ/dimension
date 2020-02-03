@@ -5,23 +5,25 @@
 \title{qmp within package "RMTsata".}
 \usage{
 qmp(p, ndf = NA, pdim = NA, var = 1, svr = ndf/pdim,
-  lower.tail = TRUE, log.p = FALSE)
+  lower_tail = TRUE, log.p = FALSE)
 }
 \arguments{
 \item{p}{Vector of probabilities.}
 
-\item{ndf}{The number of degrees of freedom of X.}
+\item{ndf}{The number of degrees of freedom of x.}
 
-\item{pdim}{The number of dimensions of X.}
+\item{pdim}{The number of dimensions of x.}
 
 \item{var}{Population variance.}
 
-\item{svr}{ndf/pdim.}
+\item{svr}{ndfxpdim.}
 
-\item{lower.tail}{A logical value.}
+\item{lower_tail}{A logical value.}
 
 \item{log.p}{A logical value.}
 }
 \description{
-All credit to Iain M. Johnstone, Zongming Ma, Patrick O. Perry and Morteza Shahram (https://cran.r-project.org/web/packages/RMTstat/index.html).
+All credit to Iain M. Johnstone,
+ Zongming Ma, Patrick O. Perry and Morteza Shahram
+ (https://cran.r-project.org/web/packages/RMTstat/index.html).
 }
