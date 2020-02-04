@@ -54,7 +54,6 @@ modified_legacyplot <- function(x,
                               label = mark),
                           colour = "black",
                           size = 5)
-
   p2 <- ggplot() +
           theme_minimal() +
           xlab("Dimension") +

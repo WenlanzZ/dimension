@@ -8,7 +8,6 @@ test_that("invalid X input warnings returned", {
 
   expect_warning(
     check_dim_matrix(rnk = 30), regexp = "Invalid input X")
-
 })
 
 
