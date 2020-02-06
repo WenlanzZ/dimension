@@ -6,12 +6,16 @@ vignette: >
   %\VignetteIndexEntry{dimension}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+header-includes:
+  - \usepackage[ruled,vlined,linesnumbered]{algorithm2e}
 ---
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 7, 
+  fig.height = 5
 )
 ```
 
@@ -21,6 +25,103 @@ The `dimension` package provides an efficient way to determine the dimension f a
 
 The `dimension` package estimates the intrinsic dimension of a signal-rich subspace in large matrix "real- and complex value dense R matrices and real-valued saprse matrices from the `Matrix` package by decomposing matrix into a signal-plus-noise space and approximate the signal-rich subspace with a rank $K$ approximation $\hat{X}=\sum_{k=1}^{K}d_ku_k{v_k}^T$. To estimate rank $K$, it follows a simple procedure assuming that matrix $X$ is composed of a low-rank signal matrix $S$ and an average general noise random matrix $\bar{N}$. It has been shown that the average eigenvalues of random matrices $N$ follows a universal Marc\u{e}nko-Pastur (MP) distribution. We hypothesize that the deviation of eigenvalues of $X$ from the MP distribution indicates the intrinsic dimension of signal-rich subspace.
 
-```{r setup}
-library(dimension)
+The package included the following main functions:
+
+* subspace() - Greate a subspace class with scaled eigenvalue and eigenvectors and simulated noise eigenvalues for specified ranks.
+* print.subspace()- Get a brief summary of subspace class.
+* plot.subspace() - Get the scree plot of subspace class.
+* dimension() - Get the dimension of a signal-subspace in a large high-dimensional matrix.
+* clipped() - Get a cleaned estimator of the original matrix, its covairance matrix and correlation matrix.
+* modified\_legacyplot() - Produces modified summary plots of bcp() output.
+
+A demostration of the main functions and with a brief sample is as follow.
+
+# Subspace
+
+For a scaled matrix $x\in R^{n\times p}$ be a simulated multivariate normal matrix with $ncc$ correlated columns. We model it as an unknown perturbed low-rank matrix $S$ plus a random matrices ensemble noise. Without loss of generality, we assume $n > p$ and transpose the matrix if $p > n$. We can represent $S$ via singular value decomposition (SVD) as follow:
+\begin{equation}
+S = U \Sigma V^T
+\end{equation}
+where $U_{n \times p} = [u_1, ..., u_p]$, $V_{p \times p} = [v_1, ..., v_p]$ and $\Sigma_{p \times p} = diag[\sigma_1, ..., \sigma_p]$ when $n > p$. The columns of $U$ and $V$ are orthonormal and the diagonal elements of $\Sigma$ are positive and ordered in a non-increasing order \citep{shen2008sparse,witten2009penalized,hong2013sparse}. We aim to estimate the dimension of signals embedded in an unknown perturbed low-rank matrix. Here in, we will propose an unsupervised method to determine the rank $K$ approximation for $S$ matrix ($K \le p$). Consider the least-square estimator for $S$ \citep{Gabriel,householder1938matrix} as:
+\begin{equation}
+\hat{S}=\sum_{k=1}^{K}d_ku_k{v_k}^T
+\end{equation}
+
+The `subspace()` function will utilize `irlba` to calculate the first few approximate largest singular values and singular vectors. According to `irlba`, it uses about 1/20 elapsed time compared to the `svd` method and less than 1/3 the peak memory. Known that for a matrix $X_{n \times p}$, we can either do singular value decomposition $X=U\Sigma V^T$ or eigenvalue decomposition on $X^TX$ or $X^TX$ since $XX^T=U\Sigma^2U^T$ and $X^TX=V\Sigma^2V^T$. It also returns random generation for the Marc\u{e}nko-Pastur (MP) distribution with \pkg{RMTstat} \citep{MP}. To compare singular values of $X$ to random samples from MP distribution, we scale $\Sigma$ by dividing ${\beta p}$. When $n$ or $p$ is relatively large, it is necessary to speed up computation by splitting into {\tt times}-fold with \pkg{foreach} \citep{foreach}. Sampling from MP distribution, instead of calculating eigenvalues from random Gaussian matrix, is a strategy to avoid computer memory or power limitations. Thus, \pkg{dimension} is more scalable and computational efficient especially for large matrices. 
+
+The following code shows how to simulate $x$ matrix of dimension $100 \times 150$ and construct a subspace with specified compoennts 1 to 50.
+
+```{r}
+library(devtools)
+load_all()
+x <- x_sim(n = 100, p = 150, ncc = 30, var = c(rep(10,5),rep(2,25)))
+t1 <- proc.time()
+Subspace <- subspace(x, components = 1:50, times = 10)
+print(proc.time() - t1)
+gc()
+plot(Subspace, annotation = 30)
 ```
+
+# Dimension determination
+The determination of dimension $K$ depends on the estimation procedure as follows:
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\SetAlgoLined
+\caption{Algorithm for dimension estimation}
+\Input{$X_{n \times p}$}
+  Calculate singular value decomposition for scaled matrix $X$ to dimension $p^'$ (${p^'} \ll p$). Denote eigenvalues as $\Sigma_X$.\;
+  Draw random samples from Marc\u{e}nko-Pastur distribution with a corrected variance. Denote eigenvalues as $\Sigma_{N}$.\;
+  If $\exists \: \Sigma_{N} > \Sigma_X$ $K = 0$;\;
+  Calculate posterior probability of change points for deviation ($\Delta = \Sigma_X-\Sigma_{N}$).\;
+  Calculate posterior probability of probability of change points for $\Delta$. Denote as $bcp\_post$.\;
+  Record all change points with maximum posterior probability in $bcp\_post$ as $post\_max$ and then number of $post\_max$ as   $num\_max$.\;
+\eIf{$num\_max = 1$}{
+  $K$ equals to the dimension with maximum posterior probability of $bcp\_post$ looking reversely.\;
+}{
+  Record the change point with maximum posterior probability in $bcp\_irl$ looking reversely as $irl\_max$.\;
+}
+\eIf{$\exists \: bcp\_irl [post\_max] > p \times \max\{bcp\_irl\}$} {
+  $K$ equals to the dimension with maximum posterior probability in $bcp\_post$ that fulfill the IF statement above.\;
+}{
+  $K = irl\_max$\;
+}
+\end{algorithm}
+Note that $p$ in step 12 is defined as a threshold to accept change points with certain posterior probability and $[ ]$ indicates location in a vector.
+
+After constructing a lower dimensional subspace, we can proceed to estimate dimension of the subspace using the next command:
+
+```{r}
+t2 <- proc.time()
+results  <- dimension(subspace_ = Subspace)
+# equivalently, if Subspace has not been calculated
+results <- dimension(x, components = 1:50, times = 10, p = 0.95)
+print(proc.time() - t2)
+gc()
+str(results)
+plot(results$Subspace, changepoint = results$dimension, annotation = 30)
+modified_legacyplot(results$Changepoint$bcp_irl, annotation = 30)
+modified_legacyplot(results$Changepoint$bcp_post, annotation = 30)
+```
+
+With the estimated $dimension$ output from `dimension()`, we can clip the scaled eigenvalues of $x$ in order to provide a cleaned estimator $e\_clipped$ of the underlying correlation matrix and $x\_clipped$ of the original matrix. Proceeds by keeping the $N * \alpha$ top eigenvalues and shrinking the remaining ones by a trace-preserving constant (i.e. $Tr(E\_clipped) = Tr(E)$) or zeroing out remaining ones. This function `clipped()` is adapted from Python for Random Matrix Theory (GiecoldOuaknin2017).
+```{r}
+x_clp <- clipped(x, components = 20, method = "threshold", alpha = 0.9, zeroout = TRUE)
+x_clp <- clipped(x, components = 20, method = "hard", zeroout = FALSE)
+# equivalently, if Subspace is calculated
+x_clp <- clipped(subspace_ = Subspace, method = "identity", location = c(1:5))
+```
+
+```{r}
+# t3 <- proc.time()
+# TopSubspace <- subspace(x, components = 1:5, times = 10)
+# TopSubspace
+# MidSubspace <- subspace(x, components = 6:40, times = 10)
+# MidSubspace
+# print(proc.time() - t3)
+# gc()
+# plot(TopSubspace, changepoint = results$dimension, annotation = 5)
+# plot(MidSubspace, changepoint = results$dimension, annotation = 40)
+```
+
+

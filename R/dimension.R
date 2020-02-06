@@ -117,23 +117,17 @@ dimension <- function(x,
   #Bayesian Posterior Prob Change Point
   bcp_post  <- bcp(as.vector(c(bcp_irl$posterior.prob[-rnk], 0)), p0 = 0.1)
 
-  prob_post <- c(bcp_post$posterior.prob[-rnk], 0)
-  prob_irl  <- c(bcp_irl$posterior.prob[-rnk], 0)
+  prob_post <- c(bcp_post$posterior.prob[-c(1,rnk)], 0)
+  prob_irl  <- c(bcp_irl$posterior.prob[-c(1,rnk)], 0)
+  
+  #multiple changepoints in bcp_post
+  #1. find all max changepoinst in bcp_post
   post_max  <- which(prob_post == max(prob_post))
-  num_max   <- length(post_max)
-
-  if (num_max == 1) {
-    #unimodal changepoint in bcp_post
-    changepoint <- rnk + 1 - which.max(rev(prob_post))
-  } else {
-    #multiple changepoints in bcp_post
-    #1. find all max changepoinst in bcp_post
-    #2. Any of them in prob_irl >0.90*max(prob_irl)
-    irl_max     <- rnk + 1 - which.max(rev(prob_irl))
-    threshold   <- prob_irl[post_max] > p * max(prob_irl)
-    #3. If none in 2. then choose irl_max
-    changepoint <- switch(2 - any(threshold), max(post_max[threshold]), irl_max)
-  }
+  #2. Any of them in prob_irl >0.90 * irl_max
+  irl_max     <- rnk + 1 - which.max(rev(prob_irl))
+  threshold   <- prob_irl[post_max] > p * max(prob_irl)
+  #3. If none in 2. then choose irl_max
+  changepoint <- switch(2 - any(threshold), max(post_max[threshold])+1, irl_max)
 
   return(list(Subspace    = subspace_,
               dimension  = changepoint,
