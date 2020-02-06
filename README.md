@@ -35,7 +35,6 @@ x_clp <- clipped(x, components = 20, method = "hard", zeroout = FALSE)
 x_clp <- clipped(subspace_ = Subspace, method = "identity", location = c(1:5))
 
 # plot results
-
 plot(Subspace, annotation = 30, changepoint = results$dimension)
 modified_legacyplot(results$Changepoint$bcp_irl, annotation = 30)
 modified_legacyplot(results$Changepoint$bcp_post, annotation = 30)
