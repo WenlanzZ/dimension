@@ -118,6 +118,7 @@ The {\tt dimension} package provides an efficient way to determine the dimension
 The {\tt dimension} package estimates the intrinsic dimension of a signal-rich subspace in large matrix ``real- and complex value dense R matrices and real-valued saprse matrices from the {\tt Matrix} package") by decomposing matrix into a signal-plus-noise space and approximate the signal-rich subspace with a rank $K$ approximation $\hat{X}=\sum_{k=1}^{K}d_ku_k{v_k}^T$. To estimate rank $K$, it follows a simple procedure assuming that matrix $X$ is composed of a low-rank signal matrix $S$ and an average general noise random matrix $\bar{N}$. It has been shown that the average eigenvalues of random matrices $N$ follows a universal Marc\u{e}nko-Pastur (MP) distribution. We hypothesize that the deviation of eigenvalues of $X$ from the MP distribution indicates the intrinsic dimension of signal-rich subspace.
 
 The package included the following main functions:
+
 \begin{itemize}
 \item{subspace() - Greate a subspace class with scaled eigenvalue and eigenvectors and simulated noise eigenvalues for specified ranks.}
 \item{print.subspace()- Get a brief summary of subspace class.}
