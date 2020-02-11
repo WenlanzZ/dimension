@@ -43,8 +43,8 @@ check_dim_matrix <- function(x,
     if (missing(rnk)) {
         rnk <- min(ndf, pdim)
         if (verbose) {
-            cat("No rnk specified.
-                Calculating full singular value decomposition instead.\n")
+            cat(paste0("No component specified. ",
+                "Calculating full singular value decomposition instead.\n"))
         }
     }
 
@@ -59,8 +59,9 @@ check_dim_matrix <- function(x,
     transpose_flag <- FALSE
 
     if (nrow(x) < ncol(x)) {
-        warning("The number of samples of x is smaller than the number of features of x.
-                A transpose of x is used instead.\n")
+        warning(paste0("The number of samples of x is smaller",
+                " than the number of features of x. ",
+                "A transpose of x is used instead.\n"))
         transpose_flag <- TRUE
         ndf <- ncol(x)
         pdim <- nrow(x)

@@ -7,7 +7,10 @@
 #' @param var Population variance.
 #' @param svr ndfxpdim.
 #' @export
-MarchenkoPasturPar <- function(ndf = NA, pdim = NA, var = 1, svr = ndf / pdim) {
+marcenko_pastur_par <- function(ndf = NA,
+                                pdim = NA,
+                                var = 1,
+                                svr = ndf / pdim) {
     gamma          <- svr
 
     inv_gamma_sqrt <- sqrt(gamma)
@@ -33,7 +36,7 @@ dmp <- function(x, ndf = NA, pdim = NA, var = 1, svr = ndf / pdim,
                 log = FALSE) {
     gamma  <- svr
 
-    params <- MarchenkoPasturPar(ndf, pdim, var, svr)
+    params <- marcenko_pastur_par(ndf, pdim, var, svr)
     a      <- params$lower
     b      <- params$upper
 
@@ -74,7 +77,7 @@ dmp <- function(x, ndf = NA, pdim = NA, var = 1, svr = ndf / pdim,
 #' @export
 pmp <- function(q, ndf = NA, pdim = NA, var = 1, svr = ndf / pdim,
                  lower_tail = TRUE, log.p = FALSE) {
-    params <- MarchenkoPasturPar(ndf, pdim, var, svr)
+    params <- marcenko_pastur_par(ndf, pdim, var, svr)
     a <- params$lower
     b <- params$upper
 
@@ -120,7 +123,7 @@ qmp <- function(p, ndf = NA, pdim = NA, var = 1, svr = ndf / pdim,
                  lower_tail = TRUE, log.p = FALSE) {
     p      <- ifelse(log.p, exp(p), p)
     p      <- ifelse(lower_tail, p, 1 - p)
-    params <- MarchenkoPasturPar(ndf, pdim, var, svr)
+    params <- marcenko_pastur_par(ndf, pdim, var, svr)
 
     q      <- NULL
     if (p <= 0) {

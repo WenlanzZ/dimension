@@ -86,6 +86,4 @@ modified_legacyplot <- function(x,
 
   #merge all three plots within one grid (and visualize this)
   grid.arrange(p1, p2, ncol = 1)
-  #save
-  g <- arrangeGrob(p1, p2, ncol = 2) #generates g
 }

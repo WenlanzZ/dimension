@@ -16,12 +16,12 @@ test_that("invalid rnk input warnings returned", {
   expect_warning(
     check_dim_matrix(x, rnk = 300), regexp = "Rnk out of bounds")
 
-    expect_warning(
-      check_dim_matrix(x, rnk = -1), regexp = "Rnk must be positive")
+  expect_warning(
+    check_dim_matrix(x, rnk = -1), regexp = "Rnk must be positive")
 
-    expect_warning(
-      check_dim_matrix(x, rnk = 0), regexp = "Rnk must be positive")
+  expect_warning(
+    check_dim_matrix(x, rnk = 0), regexp = "Rnk must be positive")
 
-  	expect_warning(
-  	  check_dim_matrix(x, rnk = 3.4), regexp = "Rnk must be positive")
+  expect_warning(
+    check_dim_matrix(x, rnk = 3.4), regexp = "Rnk must be positive")
 })

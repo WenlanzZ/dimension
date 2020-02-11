@@ -66,6 +66,7 @@
 #' @seealso [RMTstat] for details of Marcenko-Pastur distribution.
 #' @importFrom bcp bcp
 #' @importFrom  tibble tibble
+#' @importFrom stringr str_locate
 #' @export
 
 dimension <- function(x,
@@ -90,8 +91,8 @@ dimension <- function(x,
       if (missing(components)) {
         components <- 1:min(nrow(x), ncol(x))
         if (verbose) {
-          cat("No rank specified.
-              Calculating full singular value decomposition instead.\n")
+          cat(paste0("No component specified. ",
+              "Calculating full singular value decomposition instead.\n"))
         }
       }
       # Checking for times input
@@ -100,7 +101,6 @@ dimension <- function(x,
       }
       # Calcualte subspace
       subspace_ <- subspace(x, components = components, times = times)
-      cat("Finish calculating subpsace.\n")
     }
   }
 # -----------------------
@@ -109,28 +109,66 @@ dimension <- function(x,
   rnk             <- max(subspace_$components)
   sigma_a         <- subspace_$sigma_a
   sigma_mp        <- subspace_$sigma_mp
+  sigma_a_diff    <- diff(sigma_a / sigma_a[1])
+  sigma_a_diff[abs(sigma_a_diff) < 0.005] <- 0
+  sigma_a_diff[abs(sigma_a_diff) > 0.005] <- 1
+  sigma_a_str     <- toString(sigma_a_diff)
 # --------------------------
 # Rank Estimation procedure
 # --------------------------
-  #Bayesian Change Point
-  bcp_irl   <- bcp(as.vector(sigma_a - sigma_mp), p0 = 0.1)
-  #Bayesian Posterior Prob Change Point
-  bcp_post  <- bcp(as.vector(c(bcp_irl$posterior.prob[-rnk], 0)), p0 = 0.1)
+  #Trim unnecessary components when components large
+  #Detect extreme cases when signal break is obvious or too vague
+  flatstart       <- str_locate(sigma_a_str,
+                                paste0("1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ",
+                                      "0, 0, 0, 0, 0, 0, 0, 0, 0, 0"))
+  flatend         <- str_locate(sigma_a_str,
+                                paste0("0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ",
+                                      "0, 0, 0, 0, 0, 0, 0, 0, 0, 1"))
+  if (!is.na(sum(flatstart))) {
+    cond_num      <- (flatstart[1] - 1) / 3 + 1
+    cor_rnk   <- (flatstart[2] - 1) / 3 + 1
+    if (verbose) {
+      cat("Detecting flat pattern from ",
+          cond_num, " to ", cor_rnk,
+          "and trim out components after ", cor_rnk, "\n")
+    }
+  } else if (!is.na(sum(flatend))) {
+    spike_num     <- (flatend[2] - 1) / 3 + 1
+    cor_rnk   <- (flatend[1] - 1) / 3 + 1
+    if (verbose) {
+      cat("Detecting spike pattern from ",
+          cor_rnk, " to ", spike_num,
+          "and trim out components after ", cor_rnk, "\n")
+    }
+  } else {
+    cor_rnk   <- rnk
+  }
 
-  prob_post <- c(bcp_post$posterior.prob[-c(1,rnk)], 0)
-  prob_irl  <- c(bcp_irl$posterior.prob[-c(1,rnk)], 0)
-  
+  #Bayesian Change Point
+  bcp_irl     <- bcp(as.vector(sigma_a[1:cor_rnk] - sigma_mp[1:cor_rnk]),
+                     p0 = 0.1)
+  #Bayesian Posterior Prob Change Point
+  bcp_post    <- bcp(as.vector(c(bcp_irl$posterior.prob[-cor_rnk], 0)),
+                     p0 = 0.1)
+
+  prob_irl    <- c(bcp_irl$posterior.prob[-cor_rnk], 0)
+  prob_post   <- c(bcp_post$posterior.prob[-cor_rnk], 0)
+
   #multiple changepoints in bcp_post
   #1. find all max changepoinst in bcp_post
-  post_max  <- which(prob_post == max(prob_post))
+  post_max    <- which(prob_post == max(prob_post))
   #2. Any of them in prob_irl >0.90 * irl_max
-  irl_max     <- rnk + 1 - which.max(rev(prob_irl))
+  irl_max     <- cor_rnk + 1 - which.max(rev(prob_irl))
   threshold   <- prob_irl[post_max] > p * max(prob_irl)
   #3. If none in 2. then choose irl_max
-  changepoint <- switch(2 - any(threshold), max(post_max[threshold])+1, irl_max)
+  changepoint <- ifelse(!is.na(sum(flatstart)),
+                        cond_num,
+                        switch(2 - any(threshold),
+                               max(post_max[threshold]),
+                               irl_max))
 
   return(list(Subspace    = subspace_,
-              dimension  = changepoint,
+              dimension   = changepoint,
               Changepoint = list(bcp_irl    = bcp_irl,
                                  bcp_post   = bcp_post)))
 }
