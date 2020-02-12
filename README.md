@@ -39,3 +39,6 @@ x_clp
 plot(Subspace, annotation = 30, changepoint = results$dimension)
 modified_legacyplot(results$Changepoint$bcp_irl, annotation = 30)
 modified_legacyplot(results$Changepoint$bcp_post, annotation = 30)
+
+## IPF single cell altas anlysis
+Click on this [link](dimension.html) to see a workflow to include dimension in single cell RNA-Seq analysis with Seraut.
