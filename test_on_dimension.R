@@ -90,7 +90,7 @@ results <- dimension(subspace_ = Subspace)
 results <- dimension(subspace_ = subspace(x))
 results <- dimension(x, components = 1:40, times = 10)
 str(results)
-plot(results$Subspace, changepoint = results$dimension, annotation=10)
+plot.subspace(results$Subspace, changepoint = results$dimension, annotation=10)
 
 #test on warning
 results <- dimension(subspace_ = subspace(x, mp= FALSE))
@@ -109,16 +109,19 @@ legacyplot(results$Changepoint$bcp_post)
 ########################################################
 
 x_clp <- clipped(x, components = 20, method = "threshold", alpha = 0.9, zeroout = TRUE)
+x_clp
 str(x_clp); x_clp$xi_clipped
 x_clp<-clipped(x, components = 20, method = "hard", zeroout = TRUE)
 str(x_clp);x_clp$xi_clipped
+x_clp
 x_clp<-clipped(x, components = 20, method = "hard", zeroout = FALSE)
 str(x_clp);x_clp$xi_clipped
-x_clp<-clipped(x, components = 20, method = "identity", location = c(1:15), zeroout = TRUE)
+x_clp
+x_clp<-clipped(x, components = 20, method = "identity", location = c(1:15), zeroout = TRUE,verbose = FALSE)
 str(x_clp);x_clp$xi_clipped
+x_clp
 
-
-Subspace <- subspace(x, components = 1:40, times = 10)
+load_allSubspace <- subspace(x, components = 1:40, times = 10)
 x_clp<-clipped(x,Subspace,method="threshold",alpha = 0.9,zeroout = TRUE)
 x_clp<-clipped(subspace_ = Subspace,method = "threshold",alpha = 0.9,zeroout = TRUE)
 x_clp<-clipped(subspace_ = Subspace,method = "hard",zeroout = TRUE)

@@ -75,8 +75,8 @@ subspace <- function(x,
     if (missing(components)) {
       components <- 1:min(nrow(x), ncol(x))
       if (verbose) {
-        cat("No component specified.
-            Calculating full singular value decomposition instead.\n")
+        cat(paste0("No component specified. ",
+            "Calculating full singular value decomposition instead.\n"))
       }
     } else {
       components <- check_comp_input(components, nrow(x), ncol(x), verbose)
@@ -129,7 +129,7 @@ subspace <- function(x,
 # Simulate noise eigenvalues from rmp function
 # --------------------------------------------
   if (mp) {
-    denominator <- MarchenkoPasturPar(ndf, pdim, var = 1, svr = svr)$upper
+    denominator <- marcenko_pastur_par(ndf, pdim, var = 1, svr = svr)$upper
     var_correct <- min(irl$eigen) / denominator
     if (verbose) {
       cat("The corrected variance of mp distribution is ",
@@ -173,6 +173,7 @@ subspace <- function(x,
   attr(value, "class") <- "subspace"
   value
 }
+
 
 #' @title Print subsapce
 #'
@@ -247,8 +248,8 @@ plot.subspace <- function(x,
   }
   if (!is.null(annotation) & annotation > rnk) {
     annotation <- rnk
-    warning("Annotation number must be strictly less or equal
-            to than maximum components.\n")
+    warning(paste0("Annotation number must be strictly less or equal",
+            " to than maximum components.\n"))
   }
   if (annotation == 0) {
     mark <- rep("", length(components))

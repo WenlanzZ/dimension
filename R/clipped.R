@@ -103,8 +103,8 @@ clipped <- function(x,
       }
       subspace_ <- subspace(x, components = components, MP = FALSE)
       if (verbose) {
-      cat("Finish checking dimension of x
-          and calculating eigenvalues of x.\n")
+      cat(paste0("Finish checking dimension of x ",
+          "and calculating eigenvalues of x.\n"))
       }
     }
   }
@@ -124,10 +124,12 @@ clipped <- function(x,
 # ----------------------------------
     switch(method,
         hard = {
-          lambda_min <- MarchenkoPasturPar(ndf, pdim, var = 1, svr = svr)$lower
-          if (verbose) cat("lambda_min = ", lambda_min, "\n")
-          lambda_max <- MarchenkoPasturPar(ndf, pdim, var = 1, svr = svr)$upper
-          if (verbose) cat("lambda_max = ", lambda_max, "\n")
+          lambda_min <- marcenko_pastur_par(ndf, pdim, var = 1, svr = svr)$lower
+          lambda_max <- marcenko_pastur_par(ndf, pdim, var = 1, svr = svr)$upper
+          m <- paste0("Use method ", method, "\n",
+                      "lambda_min = ", round(lambda_min, 4), "\n",
+                      "lambda_max = ", round(lambda_max, 4), "\n")
+          if (verbose) cat(m)
           xi_clipped <- ifelse(irl$eigen >= lambda_max, irl$eigen, NA)
         },
         threshold = {
@@ -140,7 +142,9 @@ clipped <- function(x,
           }
           xi_clipped <- rep(NA, length(components))
           threshold <- ceiling(alpha * length(components))
-          if (verbose) cat("threshold = ", threshold, "\n")
+          m <- paste0("Use method ", method, "\n",
+                      "threshold = ", threshold, "\n")
+          if (verbose) cat(m)
           if (threshold > 0) xi_clipped[1:threshold] <- irl$eigen[1:threshold]
           else (stop("No eigenvalue preserved"))
         },
@@ -158,6 +162,9 @@ clipped <- function(x,
           }
           xi_clipped <- rep(NA, length(components))
           xi_clipped[location] <- irl$eigen[location]
+          m <- paste0("Use method ", method, "\n",
+                      "location = ", toString(location), "\n")
+          if (verbose) cat(m)
         },
         stop("Invalid method input")
         )
@@ -168,8 +175,9 @@ clipped <- function(x,
     denominator <- sum(is.na(xi_clipped))
     gamma <- ifelse(zeroout,
                     0,
-                    numerator / denominator)
-    if (verbose) cat("gamma = ", gamma, "\n")
+                    round(numerator / denominator, 4))
+    mg <- paste0("The averaged clipped eigenvalues = ", gamma, "\n")
+    if (verbose) cat(mg)
     xi_clipped <- ifelse(is.na(xi_clipped), gamma, xi_clipped)
 # ---------------------------------
 # Calculate estimated X, COV, CORR
@@ -181,9 +189,19 @@ clipped <- function(x,
     #symmetric rescaling to correlation matrix
     e_clipped <- v_clipped / tcrossprod(diag(v_clipped)^0.5)
 
-    return(list(xi_clipped = xi_clipped,
+    ret <- list(xi_clipped = xi_clipped,
                 x_clipped  = x_clipped,
                 e_clipped  = e_clipped,
                 v          = v,
-                u          = u))
+                u          = u,
+                message    = list(m, mg))
+    attr(ret, "class") <- "subspace_clipped"
+    ret
+}
+
+print.subspace_clipped <- function(x, ...) {
+  cat(paste0("A denoised estimator of X, ",
+              "correlation matrix and clipped eigenvalues.\n"))
+  cat(x$message[[1]])
+  cat(x$message[[2]])
 }
