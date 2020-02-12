@@ -90,7 +90,7 @@ results <- dimension(subspace_ = Subspace)
 results <- dimension(subspace_ = subspace(x))
 results <- dimension(x, components = 1:40, times = 10)
 str(results)
-plot(results$Subspace, changepoint = results$dimension, annotation=10)
+plot.subspace(results$Subspace, changepoint = results$dimension, annotation=10)
 
 #test on warning
 results <- dimension(subspace_ = subspace(x, mp= FALSE))

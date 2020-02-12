@@ -33,6 +33,7 @@ x_clp <- clipped(x, components = 20, method = "threshold", alpha = 0.9, zeroout 
 x_clp <- clipped(x, components = 20, method = "hard", zeroout = FALSE)
 # equivalently, if Subspace is calculated
 x_clp <- clipped(subspace_ = Subspace, method = "identity", location = c(1:5))
+x_clp
 
 # plot results
 plot(Subspace, annotation = 30, changepoint = results$dimension)
