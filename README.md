@@ -27,7 +27,7 @@ results <- dimension(x, components = 1:50, times = 10, p = 0.95)
 Subspace <- subspace(x, components = 1:50, times = 10)
 results  <- dimension(subspace_ = Subspace)
 str(results)
-
+z
 # clip matrix
 x_clp <- clipped(x, components = 20, method = "threshold", alpha = 0.9, zeroout = TRUE)
 x_clp <- clipped(x, components = 20, method = "hard", zeroout = FALSE)

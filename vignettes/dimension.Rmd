@@ -38,21 +38,14 @@ The package included the following main functions:
 
 A demostration of the main functions with a brief sample is as follow.
 
-## IPF Single Cell Altas 
+## IPF Single Cell Altas
 The IPF Single Cell Altas (`lung`) data can be found on GEO (GSE136831) which was examined  by [Adamset  al.(2019)](https://www.biorxiv.org/content/10.1101/759902v1.full.pdf) to build a single cell atlas of Idiopathic Pulmonary Fibrosis (IPF). It contains the gene expression of 312,928 cells profiled from "distal lung parenchyma samples obtained from 32 IPF, 18 chronic obstructive pulmonary disease (COPD) and 29 control donor lungs" (Adamset al.2019). 
 
+Applying `dimensiion` package to a subgroup of control lung sample "001C", `dimension()` function will first construct a subspace within the ambient space. The `subspace()` function will utilize [`irlba`](https://cran.r-project.org/web/packages/irlba/index.html) to calculate the first few approximate largest singular values and singular vectors. According to `irlba`, it uses about 1/20 elapsed time compared to the `svd` method and less than 1/3 the peak memory. Known that for a matrix $X_{n \times p}$, we can either do singular value decomposition $X=U\Sigma V^T$ or eigenvalue decomposition on $X^TX$ or $X^TX$ since $XX^T=U\Sigma^2U^T$ and $X^TX=V\Sigma^2V^T$. It also returns random generation for the Marc\u{e}nko-Pastur (MP) distribution with [`RMTstat`](https://cran.r-project.org/web/packages/RMTstat/index.html). To compare singular values of $X$ to random samples from MP distribution, we scale $\Sigma$ by dividing ${\beta p}$. When $n$ or $p$ is relatively large, it is necessary to speed up computation by splitting into {\tt times}-fold with [`foreach`](https://cran.r-project.org/web/packages/foreach/index.html). Sampling from MP distribution, instead of calculating eigenvalues from random Gaussian matrix, is a strategy to avoid computer memory or power limitations. Thus, `dimension` is more scalable and computational efficient especially for large matrices. 
 
+The following code demonstrates the incorporation of `dimension` in single-cell RNA-Seq anlysis as a powerful tool for signal extraction and cell type identification.
 
-
-
-
-
-When applied to a subgroup of control lung sample "001C", `dimension` estimated a signal dimension of 12. Figure 1 shows that the majority of signals can be captured up to dimension 12 and there are some sub signals up to dimension 18 and 28. Figure 2 further confirmed that major features for cell type clustering depends on dimension 1 to 12 and there is no cluster formed from dimension 13 to 50. 
-
-The `subspace()` function will utilize `irlba` to calculate the first few approximate largest singular values and singular vectors. According to `irlba`, it uses about 1/20 elapsed time compared to the `svd` method and less than 1/3 the peak memory. Known that for a matrix $X_{n \times p}$, we can either do singular value decomposition $X=U\Sigma V^T$ or eigenvalue decomposition on $X^TX$ or $X^TX$ since $XX^T=U\Sigma^2U^T$ and $X^TX=V\Sigma^2V^T$. It also returns random generation for the Marc\u{e}nko-Pastur (MP) distribution with \pkg{RMTstat} \citep{MP}. To compare singular values of $X$ to random samples from MP distribution, we scale $\Sigma$ by dividing ${\beta p}$. When $n$ or $p$ is relatively large, it is necessary to speed up computation by splitting into {\tt times}-fold with \pkg{foreach} \citep{foreach}. Sampling from MP distribution, instead of calculating eigenvalues from random Gaussian matrix, is a strategy to avoid computer memory or power limitations. Thus, \pkg{dimension} is more scalable and computational efficient especially for large matrices. 
-
-The following code shows how to simulate $x$ matrix of dimension $100 \times 150$ and construct a subspace with specified compoennts 1 to 50.
-
+### dimension
 ```{r}
 setwd("/Users/wz262/Projects/dimension")
 devtools::load_all()
@@ -61,32 +54,39 @@ devtools::load_all()
 data(lung)
 system.time({results <- dimension(lung, components = 1:50, times = 10)})
 plot(results$Subspace, changepoint = results$dimension, annotation = 30)
+```
 
+The verbose message from `dimension()` function includes the specified components calculated in the function, the variance parameter used to generate random samples from Marc\u{e}nko-Pastur distribution, the cutoff value for a "zero" difference of eigenvalues, and a detecting flat or spike pattern to speed up calculation and avoid systematic error. Scree plot of scaled eigenvalues of $X$ matrix and random matrices can be exmained visually by the `plot()` function with a `subsapce` class as the argument.
+
+```{r}
 # double check with Bayesian change point probability and posterior of change point probability
 modified_legacyplot(results$Changepoint$bcp_irl)
 modified_legacyplot(results$Changepoint$bcp_post)
+```
 
-# ladle estimator don't run - wait time long
-# system.time({test1 <- ladle(x = lung, method = "pca")})
-# ggplot() + geom_line(aes(x = 1:length(test1$gn), y = test1$gn), colour="black") +
-#   geom_point(aes(x = 1:length(test1$gn), y = test1$gn), color = "red") +
-#   ggtitle(paste0("The Ladle Plot", "\n", "n_", n, "_p_", p, "_d_", d, "_est d_", test1$d)) +
-#   theme(plot.title = element_text(hjust = 0.5)) +
-#   geom_text_repel(aes(x = 1:length(test1$gn), y = test1$gn, label = 1:length(test1$gn)), colour="black", size = 5) 
+Output from `modified_legacyplot()` shows the the posterior means and posterior probability of a change point in the given sequence. The first plot given scaled eigenvalues as the argument shows that there is a high posterior probaility of change points at dimension 1, 2, 3, 4 and 6 and smaller poeterior probability of change points at 10 and 12. The second plot given posterior probability of change points as argument shows that there is high posterior probability of probability of change points at 4, 5, 6 and a relatively lower posterior probability at 9 and 13. `dimension()` function basically look at the second plot from right to left for the highest posteior probability (6 in this example) and look into the first plot for its posterior probability of change point. If the posterior probability of change point at 6 is not smaller than 90% of the largest posterior probability of all change points, then dimension 6 will be the estimated changepoint. Othervise, the dimension corresponding to the largest posterior probability in the first plot will be the estimated changepoint.
 
+## Seruat JackStraw
+[`Seurat`](https://satijalab.org/seurat/v3.1/pbmc3k_tutorial.html) is currently the most popular platform to analylize single-cell RNA-Seq data. Here we use the `lung` daaset as an exmaple to walk you through the use of `dimension` in cell type identification and compare its performance to `JackStraw`.
+
+```{r}
 # Single cell RNA-Seq analysis with Seurat
 library(Seurat)
 lung <- CreateSeuratObject(counts = lung)
 lung <- ScaleData(lung, do.scale = TRUE, do.center = TRUE)
-lung <- FindVariableFeatures(lung)
-lung <- RunPCA(lung, npcs = 50)
+lung <- suppressWarnings(FindVariableFeatures(lung))
+lung <- RunPCA(lung, npcs = 50, verbose = FALSE)
 
-PCHeatmap(lung)
 system.time({lung <- suppressWarnings(JackStraw(lung))})
-head(lung@reductions$pca@jackstraw@empirical.p.values)
+# head(lung@reductions$pca@jackstraw@empirical.p.values)
 lung <- ScoreJackStraw(object = lung, dims = 1:20, reduction = "pca")
 JackStrawPlot(object = lung, dims = 1:20, reduction = "pca")
+```
 
+"The JackStrawPlot function provides a visualization tool for comparing the distribution of p-values for each PC with a uniform distribution (dashed line) ‘Significant’ PCs will show a strong enrichment of features with low p-values (solid curve above the dashed line)." (`Seurat`) In the `lung` dataset, there is a sharp drop-off in significance after the first 1-7 PCs.
+
+## Seruat Louvain clustering
+```{r}
 lung <- RunUMAP(lung, method = 'umap-learn', reduction = "pca", dims = 1:50)
 
 # louvain cluster based on features 1:50
@@ -96,6 +96,11 @@ DimPlot(lung, reduction = "umap",label = TRUE)
 
 # louvain cluster based on features 7:50
 lung <- FindNeighbors(lung, dims = 7:50)
+lung <- FindClusters(lung, resolution = 0.8)
+DimPlot(lung, reduction = "umap",label = TRUE)
+
+# louvain cluster based on features 8:50
+lung <- FindNeighbors(lung, dims = 8:50)
 lung <- FindClusters(lung, resolution = 0.8)
 DimPlot(lung, reduction = "umap",label = TRUE)
 
@@ -114,15 +119,47 @@ rownames(marker0[order(marker0$avg_logFC, decreasing = T),][1:20,])
 rownames(marker1[order(marker1$avg_logFC, decreasing = T),][1:20,])
 rownames(marker2[order(marker2$avg_logFC, decreasing = T),][1:20,])
 rownames(marker3[order(marker3$avg_logFC, decreasing = T),][1:20,])
-
 ```
 
-macrophage: "CCL4”,   "CCL4L2”, "CCL3L1”,  "IFNG”,   "CD69”,   "IL32”,   "GNLY”,   "GZMB”,   "KLRB1”,  "CCL3" 
+We applied the clustering method implemented in `Seruat` pacakge (see [details](https://satijalab.org/seurat/v3.1/pbmc3k_tutorial.html)) for PCs from 1:50, 7:50 and 1:6. The umap for each of them confirmed that major features for cell type clustering depends on dimension 1 to 6 and there is no cluster formed from dimension 7 to 50. Clustering from denoised signal subspace identified an additional cluster that is masked in the whole space. With `FindMarkers()` function, we identify markers genes in each cluster via differential expression and further match the clustering results to known cell types with identified marker genes. 
 
-Epithelial type 2 and club cell: "SCGB3A1”,  "SCGB1A1”,  "SFTPC”,    "SCGB3A2”,  "APOD”,  "SLPI”,  "DCN" ,  "SAA2”, "SFTPB" , "SFTPA2" 
+```{r table2, echo=FALSE, message=FALSE, warnings=FALSE, results='asis'}
+tabl <- "
+| Cluster ID |    Markers   |   |Cell type
+|----------- |:------------:|------------------:|
+| 0          |  NKG7, GZMB  |  NK cells         |
+| 1          |  SCGB1A1     |  Club cells       |
+| 2          |  AGER, HOPX  |  Epithelial type 1|
+| 3          |  FTL, APOC1  |  Macrophage       |
+"
+cat(tabl)
+```
 
-Epithelial type 1: "AGER”,   "EMP2”,   "KRT7”,   "CAV1”,   "HOPX”,   "KRT19”,  "CLDN18”,  "CYP4B1”,  "DSTN”,   "CD55"
+## Extreme cases in simulation
 
+In a exreme simulated case, we have a high dimensional matrix $X$ simulated via model: $X = S + \epsilon, S[ . , 1:d] \sim N(0, \Sigma), S[ . , d+1:p] = 0$ and 
+$$
+\Sigma = \left(\begin{array}{cc} 
+  6&0&0&0&0&0&0&0&0&0 \\
+  0&6&0&0&0&0&0&0&0&0 \\
+  0&0&6&0&0&0&0&0&0&0
+\end{array}\right)
+$$ 
+
+```{r}
+x <- x_sim(n = 100, p = 50000, ncc = 10, var = 6)
+stime <- system.time(test <- dimension(x))
+plot(test$Subspace, changepoint = test$dimension, annotation = 10)
+bcp_irl <- bcp(as.vector(test$Subspace$sigma_a - test$Subspace$sigma_mp), p0 = 0.1)
+bcp_post <- bcp(as.vector(c(bcp_irl$posterior.prob[-100], 0)), p0 = 0.1)
+modified_legacyplot(bcp_irl)
+modified_legacyplot(bcp_post)
+```
+The signal inside this setting is extremely low ($100*10$ vs. $100*(50000-10)$) and `bcp` is performs less stable on the edges of the sequences. Thus, when there is a small drop between 96 and 97, the posterior probability of a change point at 97 will be extremely high. Thus, we have an alarm system for this kind of spike pattern in `bcp` plots for sudden drop at the edges. When it detects a sudden spike in the sequence, it will trim of the sequnce right before the spike, so that the estimation from `bcp` will be accurate and robust to extreme cases.
+
+In an other extreme simulated case when the signal pattern is very obvious, we can detect the flat pattern quickly and reduce the time of calculation for more components.
+
+## denoised estimation of X
 
 With the estimated $dimension$ output from `dimension()`, we can clip the scaled eigenvalues of $x$ in order to provide a cleaned estimator $e\_clipped$ of the underlying correlation matrix and $x\_clipped$ of the original matrix. Proceeds by keeping the $N * \alpha$ top eigenvalues and shrinking the remaining ones by a trace-preserving constant (i.e. $Tr(E\_clipped) = Tr(E)$) or zeroing out remaining ones. This function `clipped()` is adapted from Python for Random Matrix Theory (GiecoldOuaknin2017).
 ```{r}
