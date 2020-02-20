@@ -168,5 +168,3 @@ With the estimated $dimension$ output from `dimension()`, we can clip the scaled
 # # equivalently, if Subspace is calculated
 # x_clp <- clipped(subspace_ = Subspace, method = "identity", location = c(1:5))
 ```
-
-
