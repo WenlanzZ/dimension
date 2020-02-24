@@ -27,8 +27,8 @@ results <- dimension(x, components = 1:50, times = 10, p = 0.95)
 Subspace <- subspace(x, components = 1:50, times = 10)
 results  <- dimension(subspace_ = Subspace)
 str(results)
-z
-# clip matrix
+
+# truncate matrix
 x_denoised <- truncate(x, components = 20, method = "threshold", alpha = 0.9, zeroout = TRUE)
 x_denoised <- truncate(x, components = 20, method = "hard", zeroout = FALSE)
 # equivalently, if Subspace is calculated
@@ -42,4 +42,4 @@ modified_legacyplot(results$Changepoint$bcp_post, annotation = 30)
 ```
 
 ## IPF single cell altas anlysis
-Click on this [link](dimension.html) to see a workflow to include dimension in single cell RNA-Seq analysis with Seraut.
+Click on this [link](https://rpubs.com/WenlanzZ/578132) to see a workflow to include dimension in single cell RNA-Seq analysis with Seraut.

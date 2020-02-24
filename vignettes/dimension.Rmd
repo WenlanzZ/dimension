@@ -7,8 +7,6 @@ vignette: >
   %\VignetteIndexEntry{Using the dimension package}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-header-includes:
-  - \usepackage[ruled,vlined,linesnumbered]{algorithm2e}
 ---
 
 ```{r setup, include = FALSE}
