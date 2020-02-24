@@ -246,15 +246,24 @@ plot.subspace <- function(x,
       cat("Anotating for all points. Set annotation = 0 to stop annotation.\n")
     }
   }
-  if (!is.null(annotation) & annotation > rnk) {
-    annotation <- rnk
-    warning(paste0("Annotation number must be strictly less or equal",
+  if (!is.numeric(annotation)) {
+    stop("Anotation must be numbers.\n")
+  }
+  if (!is.null(annotation) & min(annotation) < 0) {
+    stop("Annotation number must be positive numbers.\n")
+  }
+  if (!is.null(annotation) & max(annotation) > rnk) {
+    stop(paste0("Annotation number must be strictly less or equal",
             " to than maximum components.\n"))
   }
-  if (annotation == 0) {
-    mark <- rep("", length(components))
+  if (length(annotation) > 1) {
+    mark <- rep("", rnk)
+    mark[annotation] <- annotation
   } else {
     mark <- ifelse(annotation >= components, components, "")
+    if (annotation == 0) {
+      mark <- rep("", rnk)
+    }
   }
 # -----------------------------------------------------------------------
 # Scree plot for both eigenvalues of X and simulated eigenvalues of noise

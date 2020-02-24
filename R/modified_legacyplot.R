@@ -24,14 +24,21 @@ modified_legacyplot <- function(x,
     annotation <- nrow(x$data)
     cat("Anotating for all point. Set annotation = 0 to stop annotation.\n")
   }
-  if (!is.null(annotation) & annotation > nrow(x$data)) {
+  if (!is.numeric(annotation)) {
+    stop("Anotation must be numbers.\n")
+  }
+  if (!is.null(annotation) & max(annotation) > nrow(x$data)) {
     stop("Annotation number must be strictly less or equal to than
          rows of x.\n")
   }
-  if (annotation == 0) {
+  if (length(annotation) > 1) {
     mark <- rep("", nrow(x$data))
+    mark[annotation] <- annotation
   } else {
     mark <- c(1:annotation, rep("", nrow(x$data) - annotation))
+    if (annotation == 0) {
+      mark <- rep("", nrow(x$data))
+    }
   }
 
   p1 <- ggplot() +
@@ -44,7 +51,7 @@ modified_legacyplot <- function(x,
             panel.grid.minor = element_blank(),
             panel.background = element_rect(colour = "black", size = 0.5)) +
           ggtitle(paste0("Posterior Means and Probabilities of a Change\n")) +
-          scale_x_continuous(breaks = seq(0, nrow(x$data), 1)) +
+          #scale_x_continuous(breaks = seq(0, nrow(x$data), 1)) +
           geom_point(aes(x = x$data[, 1], y = x$data[, 2]),
                      colour = "red") +
           geom_line(aes(x = x$data[, 1], y = x$posterior.mean),
@@ -64,7 +71,7 @@ modified_legacyplot <- function(x,
             panel.grid.major = element_blank(),
             panel.grid.minor = element_blank(),
             panel.background = element_rect(colour = "black", size = 0.5)) +
-          scale_x_continuous(breaks = seq(0, nrow(x$data), 1)) +
+          #scale_x_continuous(breaks = seq(0, nrow(x$data), 1)) +
           geom_point(aes(x = x$data[, 1],
                          y = switch(2 - medianfilter,
                                     runmed(x$posterior.prob, 3),

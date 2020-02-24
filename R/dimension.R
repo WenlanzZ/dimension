@@ -64,6 +64,9 @@
 #' modified_legacyplot(results$Changepoint$bcp_post, annotation = 10)
 #' }
 #' @seealso [RMTstat] for details of Marcenko-Pastur distribution.
+#' @seealso https://dracodoc.wordpress.com/2014/07/21/
+#' a-simple-algorithm-to-detect-flat-segments-in-noisy-signals/ for detection
+#' of flat and spike in noisy signals
 #' @importFrom bcp bcp
 #' @importFrom  tibble tibble
 #' @importFrom stringr str_locate

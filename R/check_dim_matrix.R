@@ -59,8 +59,7 @@ check_dim_matrix <- function(x,
     transpose_flag <- FALSE
 
     if (nrow(x) < ncol(x)) {
-        warning(paste0("The number of samples of x is smaller",
-                " than the number of features of x. ",
+        warning(paste0("\n nrow(x) < ncol(x). ",
                 "A transpose of x is used instead.\n"))
         transpose_flag <- TRUE
         ndf <- ncol(x)

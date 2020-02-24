@@ -29,11 +29,11 @@ results  <- dimension(subspace_ = Subspace)
 str(results)
 z
 # clip matrix
-x_clp <- clipped(x, components = 20, method = "threshold", alpha = 0.9, zeroout = TRUE)
-x_clp <- clipped(x, components = 20, method = "hard", zeroout = FALSE)
+x_denoised <- truncate(x, components = 20, method = "threshold", alpha = 0.9, zeroout = TRUE)
+x_denoised <- truncate(x, components = 20, method = "hard", zeroout = FALSE)
 # equivalently, if Subspace is calculated
-x_clp <- clipped(subspace_ = Subspace, method = "identity", location = c(1:5))
-x_clp
+x_denoised <- truncate(subspace_ = Subspace, method = "identity", location = c(1:5))
+x_denoised
 
 # plot results
 plot(Subspace, annotation = 30, changepoint = results$dimension)

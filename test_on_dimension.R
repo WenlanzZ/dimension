@@ -69,10 +69,11 @@ str(Subspace)
 
 #test on scree plot
 plot(Subspace)
-plot(Subspace, changepoint = 0)
 plot(Subspace, annotation = 0)
-plot(Subspace, changepoint = 0, annotation = 5)
-
+plot(Subspace, changepoint = 0, annotation = "0")
+plot(Subspace, annotation = -1)
+plot(Subspace, annotation = 110)
+plot(Subspace, annotation = 1:10)
 #test on warning
 Subspace <- subspace(components = -1, times = 10)
 Subspace <- subspace(x, time = -1)
@@ -104,45 +105,50 @@ modified_legacyplot(results$Changepoint$bcp_post, annotation = 30)
 legacyplot(results$Changepoint$bcp_post)
 
 
+#test on legacy plot warning
+modified_legacyplot(results$Changepoint$bcp_irl)
+modified_legacyplot(results$Changepoint$bcp_irl, annotation = 0)
+modified_legacyplot(results$Changepoint$bcp_irl, annotation = "0")
+modified_legacyplot(results$Changepoint$bcp_irl, annotation = 160)
+modified_legacyplot(results$Changepoint$bcp_irl, annotation = 1:2)
+modified_legacyplot(results$Changepoint$bcp_irl, annotation = c(1:5, 55:60))
 ########################################################
 #####test on clipped#########
 ########################################################
 
-x_clp <- clipped(x, components = 20, method = "threshold", alpha = 0.9, zeroout = TRUE)
-x_clp
-str(x_clp); x_clp$xi_clipped
-x_clp<-clipped(x, components = 20, method = "hard", zeroout = TRUE)
-str(x_clp);x_clp$xi_clipped
-x_clp
-x_clp<-clipped(x, components = 20, method = "hard", zeroout = FALSE)
-str(x_clp);x_clp$xi_clipped
-x_clp
-x_clp<-clipped(x, components = 20, method = "identity", location = c(1:15), zeroout = TRUE,verbose = FALSE)
-str(x_clp);x_clp$xi_clipped
-x_clp
+x_denoised <- truncate(x, components = 20, method = "threshold", alpha = 0.9, zeroout = TRUE)
+x_denoised
+str(x_denoised); x_denoised$xi_denoised
+x_denoised<-truncate(x, components = 20, method = "hard", zeroout = TRUE)
+str(x_denoised);x_denoised$xi_denoised
+x_denoised
+x_denoised<-truncate(x, components = 20, method = "hard", zeroout = FALSE)
+str(x_denoised);x_denoised$xi_denoised
+x_denoised
+x_denoised<-truncate(x, components = 20, method = "identity", location = c(1:15), zeroout = TRUE,verbose = FALSE)
+str(x_denoised);x_denoised$xi_denoised
+x_denoised
 
-load_allSubspace <- subspace(x, components = 1:40, times = 10)
-x_clp<-clipped(x,Subspace,method="threshold",alpha = 0.9,zeroout = TRUE)
-x_clp<-clipped(subspace_ = Subspace,method = "threshold",alpha = 0.9,zeroout = TRUE)
-x_clp<-clipped(subspace_ = Subspace,method = "hard",zeroout = TRUE)
-x_clp<-clipped(subspace_ = Subspace,method = "identity",location = c(1:5),zeroout = TRUE)
+Subspace <- subspace(x, components = 1:40, times = 10)
+x_denoised<-truncate(x, Subspace,method="threshold",alpha = 0.9,zeroout = TRUE)
+x_denoised<-truncate(subspace_ = Subspace,method = "threshold",alpha = 0.9,zeroout = TRUE)
+x_denoised<-truncate(subspace_ = Subspace,method = "hard",zeroout = TRUE)
+x_denoised<-truncate(subspace_ = Subspace,method = "identity",location = c(1:5),zeroout = TRUE)
 
 #test on warning
-x_clp<-clipped(x,method = "threshold",alpha = 0,zeroout = TRUE)
-x_clp<-clipped(x,method = "threshold",alpha = -1,zeroout = TRUE)
-x_clp<-clipped(x,method = "threshold",alpha = 1.9,zeroout = TRUE)
-x_clp<-clipped(x,method = "threshold",zeroout = TRUE)
+x_denoised<-truncate(x,method = "threshold",alpha = 0,zeroout = TRUE)
+x_denoised<-truncate(x,method = "threshold",alpha = -1,zeroout = TRUE)
+x_denoised<-truncate(x,method = "threshold",alpha = 1.9,zeroout = TRUE)
+x_denoised<-truncate(x,method = "threshold",zeroout = TRUE)
 
 
-x_clp<-clipped(x,components = 20,method = "hard",alpha = 0,zeroout = TRUE)
-x_clp<-clipped(x,components = 20,method = "hard",alpha = 1.9,zeroout = TRUE)
-x_clp<-clipped(x,components = 20,method = "hard",location = c(-1, 2),zeroout = FALSE)
+x_denoised<-truncate(x, components = 20,method = "hard",alpha = 0,zeroout = TRUE)
+x_denoised<-truncate(x, components = 20,method = "hard",alpha = 1.9,zeroout = TRUE)
+x_denoised<-truncate(x, components = 20,method = "hard",location = c(-1, 2),zeroout = FALSE)
 
-x_clp<-clipped(x,components = 20,method = "identity",location = c(0:5),zeroout = FALSE)
-x_clp<-clipped(x,components = 20,method = "identity",location = "zero",zeroout = FALSE)
-x_clp<-clipped(x,components = 20,method = "identity",zeroout = FALSE)
-
-
+x_denoised<-truncate(x, components = 20,method = "identity",location = c(0:5),zeroout = FALSE)
+x_denoised<-truncate(x, components = 20,method = "identity",location = "zero",zeroout = FALSE)
+x_denoised<-truncate(x, components = 20,method = "identity",zeroout = FALSE)
 
 
 # #relation between cor and crossprod(x)
@@ -152,26 +158,26 @@ x_clp<-clipped(x,components = 20,method = "identity",zeroout = FALSE)
 # dim(ec_cov)
 # params = check_dim_matrix(xstd)
 # str(params);params$irl$eigen
-# E_clipped = params$eigenvec%*%diag(params$irl$eigen*100)%*%t(params$eigenvec) / (params$ndf - 1L)
+# E_truncate = params$eigenvec%*%diag(params$irl$eigen*100)%*%t(params$eigenvec) / (params$ndf - 1L)
 #
-# dim(E_clipped)
-# E_clipped[1:10,1:10]
+# dim(E_truncate)
+# E_truncate[1:10,1:10]
 # ec_cov[1:10,1:10]
 #
 # ## symmetric rescaling
-# V_clipped<-E_clipped / tcrossprod(diag(E_clipped) ^ 0.5)
-# V_clipped[1:10,1:10]
+# V_truncate<-E_truncate / tcrossprod(diag(E_truncate) ^ 0.5)
+# V_truncate[1:10,1:10]
 #
 # ec_cor<-cor(x)
 # ec_cor[1:10,1:10]
 #
-# x_clp<-clipped(x,method="threshold",alpha=1,zeroout=TRUE)
-# str(x_clp)
-# x_clp$E_clipped[1:10,1:10]
+# x_denoised<-clipped(x,method="threshold",alpha=1,zeroout=TRUE)
+# str(x_denoised)
+# x_denoised$E_clipped[1:10,1:10]
 #
-# x_clp<-clipped(x,rnk=20,method="threshold",alpha=1,zeroout=TRUE)
-# str(x_clp)
-# x_clp$E_clipped[1:10,1:10]
+# x_denoised<-clipped(x,rnk=20,method="threshold",alpha=1,zeroout=TRUE)
+# str(x_denoised)
+# x_denoised$E_clipped[1:10,1:10]
 #
 # #relation between cor and svd
 # tmp<-svd(x)

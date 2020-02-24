@@ -1,13 +1,18 @@
-#' @title Eigenvalue clipping Procedure
+#' @title Eigenvalue truncation
 #'
-#' @description This function clips the scaled eigenvalues
-#'  of x in order to provide a cleaned estimator e_clipped
-#'  of the underlying correlation matrix. Proceeds by keeping
-#'  the [N * alpha] top eigenvalues and shrinking the remaining
-#'  ones by a trace-preserving constant (i.e. Tr(e_clipped)
-#'  = Tr(e)) or zero out remaining ones. This function is
-#'  adapted from "Python for Random Matrix Theory"
-#'  credit to J.-P. Bouchaud and M. Potters.
+#' @description This function truncates the scaled eigenvalues
+#'  of x in order to provide a denoised estimator e_denoised
+#'  of the underlying correlation matrix. There are three methods
+#' to chose from. The threshold method returns $(1-alpha)*rnk$
+#' proportion of eigenvalues above threshold; the hard method returns
+#' all the empirical eigenvalues greater than the upper limit of the
+#' support to the Marchenko-Pastur spectrum; the identity method
+#' returns eigenvalues specified in a location vector. While we
+#' keep a proportion of eigenvalues, we can either shrink the
+#' remaining ones by a trace-preserving constant (i.e.
+#' $Tr(E\_denoised) = Tr(E)$) or set them all to zero.
+#' This function is adapted from "Python for Random Matrix Theory"
+#' credit to J.-P. Bouchaud and M. Potters.
 #' @param x A numeric real-valued matrix with n number
 #'  of samples and p number of features. If p>n,
 #'  a warning message is generated and the transpose of
@@ -32,11 +37,14 @@
 #' @return
 #' Returns a list with entries:
 #' \describe{
-#'   \item{xi_clipped:}{ A cleaned estimator of eigenvalues
-#'    through a simple eigenvalue clipping procedure (cf. reference below).}
-#'   \item{x_clipped:}{ A cleaned estimator of the true sigmal
+#'   \item{xi_denoised:}{ A denoised estimator of eigenvalues
+#'    through a simple eigenvalue truncation procedure (cf. reference below).}
+#'   \item{x_denoised:}{ A denoised estimator of the true sigmal
 #'    matrix underlying a noisy high dimensional matrix x.}
-#'   \item{e_clipped:}{ A cleaned estimator of the true correlation
+#'   \item{v_denoised:}{ A denoised estimator of the true covariance
+#'    matrix underlying a noisy, in-sample estimate empirical
+#'    correaltion matrix estimated from x (cf. reference below).}
+#'   \item{e_denoised:}{ A denoised estimator of the true correlation
 #'    matrix underlying a noisy, in-sample estimate empirical
 #'    correaltion matrix estimated from x (cf. reference below).}
 #'   \item{v:}{ Right singular vectors of x matrix for specified rank.}
@@ -45,26 +53,26 @@
 #' @examples
 #' \donttest{
 #' x <- x_sim(n = 150, p = 100, ncc = 10, var = 2)
-#' x_clp <- clipped(x,
+#' x_denoised <- truncate(x,
 #'                  components = 20,
 #'                  method = "threshold",
 #'                  alpha = 0.9,
 #'                  zeroout = TRUE)
-#' x_clp <- clipped(x,
+#' x_denoised <- truncate(x,
 #'                  components = 20,
 #'                  method = "hard",
 #'                  zeroout = FALSE)
-#' x_clp <- clipped(x,
+#' x_denoised <- truncate(x,
 #'                  components = 20,
 #'                  method = "identity",
 #'                  location = c(1:15),
 #'                  zeroout = FALSE)
 #'
 #' # equivalently, if subspace is calculated
-#' Subspace <- subspace(x,
+#' Subspace  <- subspace(x,
 #'                      components = 1:40,
 #'                      times = 10)
-#' x_clp <- clipped(subspace_ = Subspace,
+#' x_denoised <- truncate(subspace_ = Subspace,
 #'                  method = "identity",
 #'                  location = c(1:5),
 #'                  zeroout = TRUE)
@@ -75,7 +83,7 @@
 #' limits of Marcenko-Pastur distribution from RMTstat package.
 #' @export
 
-clipped <- function(x,
+truncate <- function(x,
                     subspace_ = NULL,
                     components = NA,
                     method = c("threshold", "hard", "identity"),
@@ -130,7 +138,7 @@ clipped <- function(x,
                       "lambda_min = ", round(lambda_min, 4), "\n",
                       "lambda_max = ", round(lambda_max, 4), "\n")
           if (verbose) cat(m)
-          xi_clipped <- ifelse(irl$eigen >= lambda_max, irl$eigen, NA)
+          xi_denoised <- ifelse(irl$eigen >= lambda_max, irl$eigen, NA)
         },
         threshold = {
           if (missing(alpha)) {
@@ -140,12 +148,12 @@ clipped <- function(x,
           } else if (alpha > 1) {
             stop("Alpha must be less or equal to 1")
           }
-          xi_clipped <- rep(NA, length(components))
+          xi_denoised <- rep(NA, length(components))
           threshold <- ceiling(alpha * length(components))
           m <- paste0("Use method ", method, "\n",
                       "threshold = ", threshold, "\n")
           if (verbose) cat(m)
-          if (threshold > 0) xi_clipped[1:threshold] <- irl$eigen[1:threshold]
+          if (threshold > 0) xi_denoised[1:threshold] <- irl$eigen[1:threshold]
           else (stop("No eigenvalue preserved"))
         },
         identity = {
@@ -160,8 +168,8 @@ clipped <- function(x,
           } else if (min(location) <= 0) {
             stop("Location out of bounds")
           }
-          xi_clipped <- rep(NA, length(components))
-          xi_clipped[location] <- irl$eigen[location]
+          xi_denoised <- rep(NA, length(components))
+          xi_denoised[location] <- irl$eigen[location]
           m <- paste0("Use method ", method, "\n",
                       "location = ", toString(location), "\n")
           if (verbose) cat(m)
@@ -171,37 +179,38 @@ clipped <- function(x,
 # ----------------------------------------
 # Zero out or average clipped eigenvalues
 # ----------------------------------------
-    numerator <- sum(irl$eigen) - sum(na.omit(xi_clipped))
-    denominator <- sum(is.na(xi_clipped))
+    numerator <- sum(irl$eigen) - sum(na.omit(xi_denoised))
+    denominator <- sum(is.na(xi_denoised))
     gamma <- ifelse(zeroout,
                     0,
                     round(numerator / denominator, 4))
-    mg <- paste0("The averaged clipped eigenvalues = ", gamma, "\n")
+    mg <- paste0("The averaged truncated eigenvalues = ", gamma, "\n")
     if (verbose) cat(mg)
-    xi_clipped <- ifelse(is.na(xi_clipped), gamma, xi_clipped)
+    xi_denoised <- ifelse(is.na(xi_denoised), gamma, xi_denoised)
 # ---------------------------------
 # Calculate estimated X, COV, CORR
 # ---------------------------------
     #calculate estimated X
-    x_clipped <- u %*% diag(xi_clipped * pdim) %*% t(v)
+    x_denoised <- u %*% diag(xi_denoised * pdim) %*% t(v)
     #calculate empirical covariance
-    v_clipped <- v %*% diag(xi_clipped * pdim) %*% t(v) / (ndf - 1L)
+    v_denoised <- v %*% diag(xi_denoised * pdim) %*% t(v) / (ndf - 1L)
     #symmetric rescaling to correlation matrix
-    e_clipped <- v_clipped / tcrossprod(diag(v_clipped)^0.5)
+    e_denoised <- v_denoised / tcrossprod(diag(v_denoised)^0.5)
 
-    ret <- list(xi_clipped = xi_clipped,
-                x_clipped  = x_clipped,
-                e_clipped  = e_clipped,
+    ret <- list(xi_denoised = xi_denoised,
+                x_denoised  = x_denoised,
+                v_denoised  = v_denoised,
+                e_denoised  = e_denoised,
                 v          = v,
                 u          = u,
                 message    = list(m, mg))
-    attr(ret, "class") <- "subspace_clipped"
+    attr(ret, "class") <- "subspace_denoised"
     ret
 }
 
-print.subspace_clipped <- function(x, ...) {
+print.subspace_denoised <- function(x, ...) {
   cat(paste0("A denoised estimator of X, ",
-              "correlation matrix and clipped eigenvalues.\n"))
+              "correlation matrix and truncated eigenvalues.\n"))
   cat(x$message[[1]])
   cat(x$message[[2]])
 }

@@ -22,41 +22,44 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-The R `dimension` package provides an efficient way to determine the dimension of a signal rich subspace in a large matrix. It also provides a cleaned estimator of the original matrix and correlation matrix. Source code is maintained at [https://github.com/WenlanzZ/dimension](https://github.com/WenlanzZ/dimension).
+The R `dimension` package provides an efficient way to determine the dimension of a signal-rich subspace in a large, high-dimensional matrix. It also provides a denoised estimator of the original matrix and correlation matrix. Source code is maintained at [https://github.com/WenlanzZ/dimension](https://github.com/WenlanzZ/dimension).
 
-The `dimension` package estimates the intrinsic dimension of a signal-rich subspace in large, high-dimensional matrix "real- and complex value dense R matrices and real-valued saprse matrices from the `Matrix` package by decomposing matrix into a signal-plus-noise space and approximate the signal-rich subspace with a rank $K$ approximation $\hat{X}=\sum_{k=1}^{K}d_ku_k{v_k}^T$. We propose a procedure to estimate the rank $K$ of a matrix thereby retaining components whose variation is greater than that of random matrices, whose eigenvalues follow a universal Marc\u{e}nko-Pastur distribution.
+The `dimension` package constructs a signal-rich subspace within a large, high-dimensional matrix by decomposing it into a signal-plus-noise space and estimate the signal-rich subspace with a rank $K$ approximation $\hat{X}=\sum_{k=1}^{K}d_ku_k{v_k}^T$. We propose a procedure to estimate the rank $K$ of the matrix, thereby retaining components whose variation is greater than that of random matrices, whose eigenvalues follow an universal Marchenko-Pastur distribution.
 
-The package included the following main functions:
+The package includes the following main functions:
 
-- subspace() - Greate a subspace class with scaled eigenvalue and eigenvectors and simulated noise eigenvalues for specified ranks.
-- print.subspace()- Get a brief summary of subspace class.
-- plot.subspace() - Get the scree plot of subspace class.
-- dimension() - Get the dimension of a signal-subspace in a large, high-dimensional matrix.
-- clipped() - Get a cleaned estimator of the original matrix, its covairance matrix and correlation matrix.
-- print.subspace_clipped() - Get a brief summary of the subspace_clipped class.
+- subspace() - Create a subspace class with scaled eigenvalues and eigenvectors and simulated noise eigenvalues for specified ranks.
+- print.subspace()- Get a brief summary of a subspace class.
+- plot.subspace() - Get the scree plot of a subspace class.
+- dimension() - Get the dimension of a signal-rich subspace in a large, high-dimensional matrix.
+- clipped() - Get a cleaned estimator of the original matrix, its covariance matrix and correlation matrix.
+- print.subspace_clipped() - Get a brief summary of a subspace_clipped class.
 - modified\_legacyplot() - Produces modified summary plots of bcp() output.
 
-A demostration of the main functions with a brief sample is as follow.
+A demonstration of the main functions with a brief example follows.
 
-## IPF Single Cell Altas
-The IPF Single Cell Altas (`lung`) data can be found on GEO (GSE136831) which was examined  by [Adamset  al.(2019)](https://www.biorxiv.org/content/10.1101/759902v1.full.pdf) to build a single cell atlas of Idiopathic Pulmonary Fibrosis (IPF). It contains the gene expression of 312,928 cells profiled from "distal lung parenchyma samples obtained from 32 IPF, 18 chronic obstructive pulmonary disease (COPD) and 29 control donor lungs" (Adamset al.2019). 
+## IPF Single Cell Atlas
 
-Applying `dimensiion` package to a subgroup of control lung sample "001C", `dimension()` function will first construct a subspace within the ambient space. The `subspace()` function will utilize [`irlba`](https://cran.r-project.org/web/packages/irlba/index.html) to calculate the first few approximate largest singular values and singular vectors. According to `irlba`, it uses about 1/20 elapsed time compared to the `svd` method and less than 1/3 the peak memory. Known that for a matrix $X_{n \times p}$, we can either do singular value decomposition $X=U\Sigma V^T$ or eigenvalue decomposition on $X^TX$ or $X^TX$ since $XX^T=U\Sigma^2U^T$ and $X^TX=V\Sigma^2V^T$. It also returns random generation for the Marc\u{e}nko-Pastur (MP) distribution with [`RMTstat`](https://cran.r-project.org/web/packages/RMTstat/index.html). To compare singular values of $X$ to random samples from MP distribution, we scale $\Sigma$ by dividing ${\beta p}$. When $n$ or $p$ is relatively large, it is necessary to speed up computation by splitting into {\tt times}-fold with [`foreach`](https://cran.r-project.org/web/packages/foreach/index.html). Sampling from MP distribution, instead of calculating eigenvalues from random Gaussian matrix, is a strategy to avoid computer memory or power limitations. Thus, `dimension` is more scalable and computational efficient especially for large matrices. 
+The IPF Single Cell Atlas (`lung`) data can be found on Gene Expression Omnibus (GSE136831). This data was examined by [Adams et  al.(2019)](https://www.biorxiv.org/content/10.1101/759902v1.full.pdf) to build a single cell atlas of Idiopathic Pulmonary Fibrosis (IPF). It contains the gene expression of 312,928 cells profiled from 32 IPF patient lung samples, 18 chronic obstructive pulmonary disease (COPD) lung samples and 29 control donor lung samples.
 
-The following code demonstrates the incorporation of `dimension` in single-cell RNA-Seq anlysis as a powerful tool for signal extraction and cell type identification.
+Applying `dimension` package to a subgroup of control lung sample with id 001C, the `dimension()` function will first construct a `Subspace` within the ambient space. The `subspace()` function will utilize [`irlba`](https://cran.r-project.org/web/packages/irlba/index.html) to calculate the first few approximate largest eigenvalues and eigenvectors of a matrix $X$. The `irlba()` function uses about 1/20 elapsed time compared to the standard `svd()` method and less than 1/3 the peak memory. The `subspace()` function also returns random generation for the Marchenko-Pastur (MP) distribution with [`RMTstat`](https://cran.r-project.org/web/packages/RMTstat/index.html). To compare eigenvalues of $X$ to random samples from the MP distribution, we scale eigenvalues dividing by ${\beta p}$ ($\beta = 1$ for real value entries). When $n$ or $p$ is relatively large, it is necessary to speed up computation by splitting into {\tt times}-fold with [`foreach`](https://cran.r-project.org/web/packages/foreach/index.html). Sampling from the MP distribution, instead of calculating eigenvalues from a random Gaussian matrix, is a strategy to avoid computer memory or power limitations. Thus, `dimension` is more scalable and computationally efficient, especially for large matrices.
 
-### dimension
+The following code demonstrates the incorporation of `dimension` in single-cell RNA-Seq analysis  as a powerful tool for signal extraction and cell type identification.
+
+### Dimension
+
 ```{r}
 setwd("/Users/wz262/Projects/dimension")
 devtools::load_all()
+set.seed(1234)
 
-#load matrix from Adamset al.2019
+#load matrix from Adams et al.2019
 data(lung)
 system.time({results <- dimension(lung, components = 1:50, times = 10)})
-plot(results$Subspace, changepoint = results$dimension, annotation = 30)
+plot(results$Subspace, changepoint = results$dimension, annotation = 10)
 ```
 
-The verbose message from `dimension()` function includes the specified components calculated in the function, the variance parameter used to generate random samples from Marc\u{e}nko-Pastur distribution, the cutoff value for a "zero" difference of eigenvalues, and a detecting flat or spike pattern to speed up calculation and avoid systematic error. Scree plot of scaled eigenvalues of $X$ matrix and random matrices can be exmained visually by the `plot()` function with a `subsapce` class as the argument.
+The output message from the `dimension()` function includes the specified components calculated in the function, the variance parameter used to generate random samples from Marchenko-Pastur distribution, the cutoff value to define "zero" differences between eigenvalues, and detecting flat or spike pattern to speed up calculation and avoid systematic errors. A scree plot of scaled eigenvalues of $X$ matrix and random matrices can be examined visually by the `plot()` function with a `Subsapce` class as the argument.
 
 ```{r}
 # double check with Bayesian change point probability and posterior of change point probability
@@ -64,10 +67,11 @@ modified_legacyplot(results$Changepoint$bcp_irl)
 modified_legacyplot(results$Changepoint$bcp_post)
 ```
 
-Output from `modified_legacyplot()` shows the the posterior means and posterior probability of a change point in the given sequence. The first plot given scaled eigenvalues as the argument shows that there is a high posterior probaility of change points at dimension 1, 2, 3, 4 and 6 and smaller poeterior probability of change points at 10 and 12. The second plot given posterior probability of change points as argument shows that there is high posterior probability of probability of change points at 4, 5, 6 and a relatively lower posterior probability at 9 and 13. `dimension()` function basically look at the second plot from right to left for the highest posteior probability (6 in this example) and look into the first plot for its posterior probability of change point. If the posterior probability of change point at 6 is not smaller than 90% of the largest posterior probability of all change points, then dimension 6 will be the estimated changepoint. Othervise, the dimension corresponding to the largest posterior probability in the first plot will be the estimated changepoint.
+Output from `modified_legacyplot()` shows the posterior means and posterior probabilities of change points in a given sequence. The first plot, which uses the scaled eigenvalues as the argument, shows that there are high posterior probabilities of change points at dimension 1, 2, 3, 4 and 6 and smaller posterior probabilities of change points at 10,11 and 12. The second plot, which uses the posterior probabilities of change points as the argument, shows that there are high posterior probabilities of probabilities of change points at 4, 5, 6, 7, 9, 10, 11, 12 and 15. The `dimension()` function looks at the second plot from right to left for the highest posteior probability (15 in this example) and then looks at the first plot from right to left for the maximum posterior probability of change point (6 in this example). In the first plot, if the posterior probability of change point at 15 is not smaller than 90% of the posterior probability of change point at 6, then dimension 15 will be the estimated changepoint. Otherwise, the dimension corresponding to the maximum posterior probability in the first plot (6 in this example) will be the estimated changepoint.
 
 ## Seruat JackStraw
-[`Seurat`](https://satijalab.org/seurat/v3.1/pbmc3k_tutorial.html) is currently the most popular platform to analylize single-cell RNA-Seq data. Here we use the `lung` daaset as an exmaple to walk you through the use of `dimension` in cell type identification and compare its performance to `JackStraw`.
+
+[`Seurat`](https://satijalab.org/seurat/v3.1/pbmc3k_tutorial.html) is currently the most popular platform to analyze single-cell RNA-Seq data. Here we use the `lung` dataset as an example to demonstrate the use of `dimension` in cell type identification and compare its performance to the builtin `JackStraw()` function.
 
 ```{r}
 # Single cell RNA-Seq analysis with Seurat
@@ -83,7 +87,7 @@ lung <- ScoreJackStraw(object = lung, dims = 1:20, reduction = "pca")
 JackStrawPlot(object = lung, dims = 1:20, reduction = "pca")
 ```
 
-"The JackStrawPlot function provides a visualization tool for comparing the distribution of p-values for each PC with a uniform distribution (dashed line) ‘Significant’ PCs will show a strong enrichment of features with low p-values (solid curve above the dashed line)." (`Seurat`) In the `lung` dataset, there is a sharp drop-off in significance after the first 1-7 PCs.
+We compare the distribution of p-values for PCs to a uniform distribution (dashed line). A low p-value for the PC suggests that there is a strong enrichment for features and it shows as solid curve above the dashed line in the output of `JackStrawPlot()` function. In the `lung` dataset, there is a sharp drop-off in significance after the first 1-7 PCs.
 
 ## Seruat Louvain clustering
 ```{r}
@@ -95,12 +99,7 @@ lung <- FindClusters(lung, resolution = 0.8)
 DimPlot(lung, reduction = "umap",label = TRUE)
 
 # louvain cluster based on features 7:50
-lung <- FindNeighbors(lung, dims = 7:50)
-lung <- FindClusters(lung, resolution = 0.8)
-DimPlot(lung, reduction = "umap",label = TRUE)
-
-# louvain cluster based on features 8:50
-lung <- FindNeighbors(lung, dims = 8:50)
+lung <- FindNeighbors(lung, dims = 40:50)
 lung <- FindClusters(lung, resolution = 0.8)
 DimPlot(lung, reduction = "umap",label = TRUE)
 
@@ -121,7 +120,7 @@ rownames(marker2[order(marker2$avg_logFC, decreasing = T),][1:20,])
 rownames(marker3[order(marker3$avg_logFC, decreasing = T),][1:20,])
 ```
 
-We applied the clustering method implemented in `Seruat` pacakge (see [details](https://satijalab.org/seurat/v3.1/pbmc3k_tutorial.html)) for PCs from 1:50, 7:50 and 1:6. The umap for each of them confirmed that major features for cell type clustering depends on dimension 1 to 6 and there is no cluster formed from dimension 7 to 50. Clustering from denoised signal subspace identified an additional cluster that is masked in the whole space. With `FindMarkers()` function, we identify markers genes in each cluster via differential expression and further match the clustering results to known cell types with identified marker genes. 
+We applied the clustering method implemented in the `Seruat` package (see [details](https://satijalab.org/seurat/v3.1/pbmc3k_tutorial.html)) for PCs from 1:50, 7:50 and 1:6. The umap for each of plot confirmed that major features for cell type clustering depend on dimension 1 to 6 and there is no cluster formed from dimension 7 to 50. Clustering from denoised signal subspace identified an additional cluster that is masked in the whole space. With the `FindMarkers()` function, we identify marker genes in each cluster via differential expression and further match the clustering results to known cell types with identified marker genes. 
 
 ```{r table2, echo=FALSE, message=FALSE, warnings=FALSE, results='asis'}
 tabl <- "
@@ -137,12 +136,15 @@ cat(tabl)
 
 ## Extreme cases in simulation
 
-In a exreme simulated case, we have a high dimensional matrix $X$ simulated via model: $X = S + \epsilon, S[ . , 1:d] \sim N(0, \Sigma), S[ . , d+1:p] = 0$ and 
+In an extreme simulated case, we have a high dimensional matrix $X$ simulated via model: $X = S + \epsilon$ with
 $$
+S[ . , 1:d] \sim N(0, \Sigma)\\ 
+S[ . , (d+1):p] = 0\\
 \Sigma = \left(\begin{array}{cc} 
-  6&0&0&0&0&0&0&0&0&0 \\
-  0&6&0&0&0&0&0&0&0&0 \\
-  0&0&6&0&0&0&0&0&0&0
+  6 & 0 & \dots & 0 \\
+  0 & 6 & \dots & 0 \\
+  \vdots & \vdots & \ddots & \vdots \\
+  0 & 0 & \dots & 6
 \end{array}\right)
 $$ 
 
@@ -155,16 +157,18 @@ bcp_post <- bcp(as.vector(c(bcp_irl$posterior.prob[-100], 0)), p0 = 0.1)
 modified_legacyplot(bcp_irl)
 modified_legacyplot(bcp_post)
 ```
-The signal inside this setting is extremely low ($100*10$ vs. $100*(50000-10)$) and `bcp` is performs less stable on the edges of the sequences. Thus, when there is a small drop between 96 and 97, the posterior probability of a change point at 97 will be extremely high. Thus, we have an alarm system for this kind of spike pattern in `bcp` plots for sudden drop at the edges. When it detects a sudden spike in the sequence, it will trim of the sequnce right before the spike, so that the estimation from `bcp` will be accurate and robust to extreme cases.
 
-In an other extreme simulated case when the signal pattern is very obvious, we can detect the flat pattern quickly and reduce the time of calculation for more components.
+The signal inside this setting is extremely low ($100*10$ vs. $100*(50000-10)$) and the `bcp` performs less stably on the edges of the sequences. As a result, when there is a small drop between 96 and 97, the posterior probability of a change point at 97 will be extremely high. Thus, we adopt an alarm system for this kind of spike pattern posted at [dracodoc](https://dracodoc.wordpress.com/2014/07/21/a-simple-algorithm-to-detect-flat-segments-in-noisy-signals/) on `bcp` plots at the edges. When it detects a sudden spike in the sequence, it will trim off the sequence right before the spike, so that the estimation from `bcp` will be accurate and robust in extreme cases.
 
-## denoised estimation of X
+In another extreme simulated case when the signal pattern is very obvious, we can detect the flat pattern quickly and reduce the time of calculation on unnecessary components.
 
-With the estimated $dimension$ output from `dimension()`, we can clip the scaled eigenvalues of $x$ in order to provide a cleaned estimator $e\_clipped$ of the underlying correlation matrix and $x\_clipped$ of the original matrix. Proceeds by keeping the $N * \alpha$ top eigenvalues and shrinking the remaining ones by a trace-preserving constant (i.e. $Tr(E\_clipped) = Tr(E)$) or zeroing out remaining ones. This function `clipped()` is adapted from Python for Random Matrix Theory (GiecoldOuaknin2017).
+## Denoised estimation of X
+
+With the estimated dimension from `dimension()` function, we can truncate the scaled eigenvalues of $x$ in order to provide a denoised estimator $e\_denoised$ of the underlying correlation matrix and $x\_denoised$ of the original matrix. There are three methods to chose from. The threshold method returns $(1-alpha)*rnk$ proportion of eigenvalues above threshold; the hard method returns all the empirical eigenvalues greater than the upper limit of the support to the Marchenko-Pastur spectrum; the identity method returns eigenvalues specified in a location vector. While we keep a proportion of eigenvalues, we can either shrink the remaining ones by a trace-preserving constant (i.e. $Tr(E\_denoised) = Tr(E)$) or set them all to zero. This function `truncate()` is adapted from Python for Random Matrix Theory (GiecoldOuaknin2017).
+
 ```{r}
-# x_clp <- clipped(x, components = 20, method = "threshold", alpha = 0.9, zeroout = TRUE)
-# x_clp <- clipped(x, components = 20, method = "hard", zeroout = FALSE)
-# # equivalently, if Subspace is calculated
-# x_clp <- clipped(subspace_ = Subspace, method = "identity", location = c(1:5))
+x_denoised <- truncate(x, components = 20, method = "threshold", alpha = 0.9, zeroout = TRUE)
+x_denoised <- truncate(x, components = 20, method = "hard", zeroout = FALSE)
+x_denoised <- truncate(x, method = "identity", location = c(1:5))
+x_denoised
 ```
