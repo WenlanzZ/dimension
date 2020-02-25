@@ -20,8 +20,8 @@ load_all()
 ?check_dim_matrix
 ?subspace
 ?dimension
-?clipped
-
+?truncate
+?lung
 #lintr
 setwd("/Users/wz262/Projects/dimension")
 library(devtools)

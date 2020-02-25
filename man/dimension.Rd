@@ -4,8 +4,15 @@
 \alias{dimension}
 \title{Signal subspace dimension estimation in high-dimensional matrix}
 \usage{
-dimension(x, subspace_ = NULL, components = NA, times = NA,
-  p = 0.9, verbose = TRUE, ...)
+dimension(
+  x,
+  subspace_ = NULL,
+  components = NA,
+  times = NA,
+  p = 0.9,
+  verbose = TRUE,
+  ...
+)
 }
 \arguments{
 \item{x}{A numeric real-valued matrix with n number of samples and
@@ -77,8 +84,7 @@ Subspace <- subspace(x, components = 1:40, times = 10)
 results <- dimension(subspace_ = Subspace)
 
 str(results)
-plot(results$Subspace,
-     Changepoint = results$dimension,
+plot(results$Subspace, Changepoint = results$dimension,
      annotation = 10)
 modified_legacyplot(results$Changepoint$bcp_irl, annotation = 10)
 modified_legacyplot(results$Changepoint$bcp_post, annotation = 10)

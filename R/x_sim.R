@@ -9,7 +9,6 @@
 #' @param seed The random number seed.
 #' @examples
 #' \donttest{
-#' # 3 baskets, each with enrollement size 5
 #' x <- x_sim(n = 150, p = 100, ncc = 10, var = 2)
 #' }
 #' @importFrom mvtnorm rmvnorm

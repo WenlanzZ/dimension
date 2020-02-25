@@ -4,9 +4,17 @@
 \alias{truncate}
 \title{Eigenvalue truncation}
 \usage{
-truncate(x, subspace_ = NULL, components = NA,
-  method = c("threshold", "hard", "identity"), alpha = NA,
-  location = NA, zeroout = FALSE, verbose = TRUE, ...)
+truncate(
+  x,
+  subspace_ = NULL,
+  components = NA,
+  method = c("threshold", "hard", "identity"),
+  alpha = NA,
+  location = NA,
+  zeroout = FALSE,
+  verbose = TRUE,
+  ...
+)
 }
 \arguments{
 \item{x}{A numeric real-valued matrix with n number
@@ -75,28 +83,28 @@ credit to J.-P. Bouchaud and M. Potters.
 \donttest{
 x <- x_sim(n = 150, p = 100, ncc = 10, var = 2)
 x_denoised <- truncate(x,
-                 components = 20,
-                 method = "threshold",
-                 alpha = 0.9,
-                 zeroout = TRUE)
+                       components = 20,
+                       method = "threshold",
+                       alpha = 0.9,
+                       zeroout = TRUE)
 x_denoised <- truncate(x,
-                 components = 20,
-                 method = "hard",
-                 zeroout = FALSE)
+                       components = 20,
+                       method = "hard",
+                       zeroout = FALSE)
 x_denoised <- truncate(x,
-                 components = 20,
-                 method = "identity",
-                 location = c(1:15),
-                 zeroout = FALSE)
+                       components = 20,
+                       method = "identity",
+                       location = c(1:15),
+                       zeroout = FALSE)
 
 # equivalently, if subspace is calculated
 Subspace  <- subspace(x,
-                     components = 1:40,
+                      components = 1:40,
                      times = 10)
 x_denoised <- truncate(subspace_ = Subspace,
-                 method = "identity",
-                 location = c(1:5),
-                 zeroout = TRUE)
+                       method = "identity",
+                       location = c(1:5),
+                       zeroout = TRUE)
 }
 }
 \seealso{

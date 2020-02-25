@@ -1,4 +1,4 @@
-#' @title A constructor function for the "subspace" class
+#' @title A constructor function for the subspace class
 #'
 #' @description This function calculates scaled eigenvalues
 #'  and eigenvectors of x matrix, as well as sampled eigenvalues
@@ -6,10 +6,10 @@
 #'  which follows a Marcenko-Pastur distribution with package
 #'  "RMTsata"(https://cran.r-project.org/web/packages/RMTstat/index.html).
 #' @param x A numeric real-valued matrix with n number of samples and
-#'  p number of features. If p>n, a warning message is generated and
+#'  p number of features. If p > n, a warning message is generated and
 #'  the transpose of x is used.
 #' @param components A series of right singular vectors to estimate.
-#'  Components must be smaller or equal to min(nrow(x),ncol(x)).
+#'  Components must be smaller or equal to min(nrow(x), ncol(x)).
 #' @param mp A logical value. If true, sample eigenvlaues from random noise
 #'  matrix with mp distribution.
 #' @param times Split data into times-fold for parallel computation.
@@ -75,7 +75,7 @@ subspace <- function(x,
     if (missing(components)) {
       components <- 1:min(nrow(x), ncol(x))
       if (verbose) {
-        cat(paste0("No component specified. ",
+        message(paste0("No component specified. ",
             "Calculating full singular value decomposition instead.\n"))
       }
     } else {
@@ -110,8 +110,8 @@ subspace <- function(x,
     tryCatch({
       x_std <- sweep(x, 2L, colMeans(x))
     }, warning = function(w) {
-      message("Cann't allocate matrix in memory, try transforming matrix
-              or a smaller proportion of eigenvalues.\n")
+      message(paste0("Cann't allocate matrix in memory, try transforming matrix",
+              " or a smaller proportion of eigenvalues.\n"))
     }, error = function(e) {
       message("Caught an error!\n")
     }

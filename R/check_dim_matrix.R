@@ -34,7 +34,7 @@ check_dim_matrix <- function(x,
 # Check input parameters
 # --------------------------------
     if (is.null(x)) {
-        stop("Invalid input x")
+        stop("Invalid input x.\n")
     }
 
     ndf  <- nrow(x)
@@ -43,15 +43,15 @@ check_dim_matrix <- function(x,
     if (missing(rnk)) {
         rnk <- min(ndf, pdim)
         if (verbose) {
-            cat(paste0("No component specified. ",
+            message(paste0("No component specified. ",
                 "Calculating full singular value decomposition instead.\n"))
         }
     }
 
     if (rnk <= 0) {
-        stop("Rnk must be positive")
+        stop("Rnk must be positive.\n")
     } else if (rnk > min(ndf, pdim)) {
-        stop("Rnk out of bounds")
+        stop("Rnk out of bounds.\n")
     }
 # --------------------------------
 # Transpose matrix when p > n
@@ -59,8 +59,7 @@ check_dim_matrix <- function(x,
     transpose_flag <- FALSE
 
     if (nrow(x) < ncol(x)) {
-        warning(paste0("\n nrow(x) < ncol(x). ",
-                "A transpose of x is used instead.\n"))
+        warning("nrow(x) < ncol(x). A transpose of x is used instead.\n")
         transpose_flag <- TRUE
         ndf <- ncol(x)
         pdim <- nrow(x)

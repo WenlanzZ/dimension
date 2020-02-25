@@ -4,8 +4,15 @@
 \alias{pmp}
 \title{pmp within package "RMTsata".}
 \usage{
-pmp(q, ndf = NA, pdim = NA, var = 1, svr = ndf/pdim,
-  lower_tail = TRUE, log.p = FALSE)
+pmp(
+  q,
+  ndf = NA,
+  pdim = NA,
+  var = 1,
+  svr = ndf/pdim,
+  lower_tail = TRUE,
+  log.p = FALSE
+)
 }
 \arguments{
 \item{q}{Vector of quantiles.}

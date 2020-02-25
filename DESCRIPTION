@@ -18,6 +18,7 @@ License: LGPL-2
 Maintainer: Wenlan Zang <wenlan.zang@yale.edu>
 Imports:
     bcp,
+    irlba,
     doParallel,
     foreach,
     ggplot2,
@@ -26,6 +27,7 @@ Imports:
     mvtnorm,
     parallel,
     stats,
+    stringr,
     tibble
 LazyData: true
 Encoding: UTF-8
@@ -33,7 +35,6 @@ RoxygenNote: 7.0.2
 URL: https://github.com/WenlanzZ/dimension
 BugReports: https://github.com/WenlanzZ/dimension
 Suggests: 
-    Sweave,
     rmarkdown,
     testthat (>= 2.1.0),
     knitr

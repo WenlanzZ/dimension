@@ -2,18 +2,17 @@
 % Please edit documentation in R/subspace.R
 \name{subspace}
 \alias{subspace}
-\title{A constructor function for the "subspace" class}
+\title{A constructor function for the subspace class}
 \usage{
-subspace(x, components = NA, mp = TRUE, times = NA, verbose = TRUE,
-  ...)
+subspace(x, components = NA, mp = TRUE, times = NA, verbose = TRUE, ...)
 }
 \arguments{
 \item{x}{A numeric real-valued matrix with n number of samples and
-p number of features. If p>n, a warning message is generated and
+p number of features. If p > n, a warning message is generated and
 the transpose of x is used.}
 
 \item{components}{A series of right singular vectors to estimate.
-Components must be smaller or equal to min(nrow(x),ncol(x)).}
+Components must be smaller or equal to min(nrow(x), ncol(x)).}
 
 \item{mp}{A logical value. If true, sample eigenvlaues from random noise
 matrix with mp distribution.}

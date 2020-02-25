@@ -57,8 +57,7 @@
 #' results <- dimension(subspace_ = Subspace)
 #'
 #' str(results)
-#' plot(results$Subspace,
-#'      Changepoint = results$dimension,
+#' plot(results$Subspace, Changepoint = results$dimension,
 #'      annotation = 10)
 #' modified_legacyplot(results$Changepoint$bcp_irl, annotation = 10)
 #' modified_legacyplot(results$Changepoint$bcp_post, annotation = 10)
