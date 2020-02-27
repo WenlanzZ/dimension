@@ -17,11 +17,8 @@
 #'   matrix x is transposed.}
 #' }
 #' @examples
-#' \donttest{
-#' x <- x_sim(n = 150, p = 100, ncc = 10, var = 2)
+#' x <- x_sim(n = 100, p = 150, ncc = 10, var = c(rep(10, 5), rep(1, 5)))
 #' params <- check_dim_matrix(x, rnk = 40)
-#' }
-#'
 #' @seealso [checkDesignMatrix()] from Random Matrix Theory pacakge
 #' credit to Gregory Giecold and Lionel Ouaknin.
 #' @importFrom  tibble tibble

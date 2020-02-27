@@ -28,7 +28,9 @@ Imports:
     parallel,
     stats,
     stringr,
-    tibble
+    tibble,
+    shiny,
+    dr
 LazyData: true
 Encoding: UTF-8
 RoxygenNote: 7.0.2
@@ -37,6 +39,8 @@ BugReports: https://github.com/WenlanzZ/dimension
 Suggests: 
     rmarkdown,
     testthat (>= 2.1.0),
-    knitr
+    knitr,
+    Seurat,
+    dr
 VignetteBuilder: 
     knitr

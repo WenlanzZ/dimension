@@ -8,9 +8,7 @@
 #' @param var Varaince.
 #' @param seed The random number seed.
 #' @examples
-#' \donttest{
 #' x <- x_sim(n = 150, p = 100, ncc = 10, var = 2)
-#' }
 #' @importFrom mvtnorm rmvnorm
 #' @importFrom stats rnorm
 #' @export

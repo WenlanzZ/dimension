@@ -37,15 +37,13 @@
 #'   \item{u:}{ Left singular vectors of x matrix or specified components.}
 #' }
 #' @examples
-#' \donttest{
-#' x <- x_sim(n = 150, p = 100, ncc = 10, var = 2)
+#' x <- x_sim(n = 100, p = 150, ncc = 10, var = c(rep(10, 5), rep(1, 5)))
 #' Subspace <- subspace(x)
 #' Subspace <- subspace(x, components = 8:30)
-#' Subspace <- subspace(x, components = c(2, 3, 6, 16), times = 10)
+#' Subspace <- subspace(x, components = c(2, 3, 6, 16))
 #' Subspace <- subspace(x, components = 1:20, mp= FALSE)
 #' Subspace
-#' plot(Subspace, changepoint = 0, annotation = 15)
-#' }
+#' plot(Subspace, changepoint = 0, annotation = 1:10)
 #' @seealso
 #' * [MarchenkoPasturPar()] calculates upper and lower limits
 #'  of Marcenko-Pastur distribution from RMTstat package.
@@ -110,8 +108,9 @@ subspace <- function(x,
     tryCatch({
       x_std <- sweep(x, 2L, colMeans(x))
     }, warning = function(w) {
-      message(paste0("Cann't allocate matrix in memory, try transforming matrix",
-              " or a smaller proportion of eigenvalues.\n"))
+      message(paste0("Cannot allocate matrix in memory,
+                     try transforming matrix",
+                      " or a smaller proportion of eigenvalues.\n"))
     }, error = function(e) {
       message("Caught an error!\n")
     }
@@ -294,6 +293,7 @@ plot.subspace <- function(x,
   }
 
   if (!missing(changepoint)) {
+    check_changepoint_input(changepoint, ndf, pdim, verbose)
     scree <- scree +
               ggtitle(
                 paste0("Scree Plot\n",
@@ -378,5 +378,26 @@ check_times_input <- function(times, ndf, pdim, verbose = TRUE) {
   }
   else if (times > min(ndf - 1, pdim - 1)) {
     stop("Times must be strictly less than min(nrow(x), ncol(x))")
+  }
+}
+
+#' @title Check changepoint Input
+#'
+#' A generic function.
+#'
+#' @param changepoint estimated changepoint in dimension function
+#' @param ndf The number of degrees of freedom of x.
+#' @param pdim The number of dimensions of x.
+#' @param verbose output message
+#' @export
+check_changepoint_input <- function(changepoint, ndf, pdim, verbose = TRUE) {
+  stopifnot(is.numeric(changepoint))
+  stopifnot(changepoint %% 1 == 0)
+  stopifnot(length(changepoint) == 1)
+  if (changepoint < 0) {
+    stop("Changepoint must be positive")
+  }
+  else if (changepoint > min(ndf - 1, pdim - 1)) {
+    stop("Changepoint must be strictly less than min(nrow(x), ncol(x))")
   }
 }

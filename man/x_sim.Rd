@@ -22,7 +22,5 @@ These functions provide multivariate normal
  distributed x matrix.
 }
 \examples{
-\donttest{
 x <- x_sim(n = 150, p = 100, ncc = 10, var = 2)
-}
 }

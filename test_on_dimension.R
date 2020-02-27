@@ -16,6 +16,8 @@ library(dimension)
 setwd("/Users/wz262/Projects/dimension")
 library(devtools)
 load_all()
+devtools::test()
+devtools::check()
 ?x_sim
 ?check_dim_matrix
 ?subspace
@@ -33,7 +35,7 @@ a %>% as_tibble()
 
 #Test on MKDim package
 # x <- x_sim(n = 150, p = 100, ncc = 30, var = c(rep(10,5),rep(3,25)))
-x <- x_sim(n = 100, p = 150, ncc = 10, var = 10)
+x <- x_sim(n = 100, p = 500, ncc = 10, var = 6)
 t1 <- proc.time()
 Subspace <- subspace(x, components = 1:30, times = 10)
 print(proc.time() - t1)
@@ -42,18 +44,18 @@ Subspace$irl$eigen
 ########################################################
 #####test on check_dim_matrix#########
 ########################################################
-
-params <- check_dim_matrix(x, rnk = 50)
-params <- check_dim_matrix(x)
-str(params)
-
-#test on warning
-params <- check_dim_matrix(rnk = 30)
-params <- check_dim_matrix(x, rnk = -1)
-params <- check_dim_matrix(x, rnk = 2000)
-
-
-MarchenkoPasturPar(ndf = 150, pdim = 100, var = 1, svr = params$svr)
+#
+# params <- check_dim_matrix(x, rnk = 50)
+# params <- check_dim_matrix(x)
+# str(params)
+#
+# #test on warning
+# params <- check_dim_matrix(rnk = 30)
+# params <- check_dim_matrix(x, rnk = -1)
+# params <- check_dim_matrix(x, rnk = 2000)
+#
+#
+# MarchenkoPasturPar(ndf = 150, pdim = 100, var = 1, svr = params$svr)
 
 ########################################################
 #####test on subspace#########
@@ -74,9 +76,15 @@ plot(Subspace, changepoint = 0, annotation = "0")
 plot(Subspace, annotation = -1)
 plot(Subspace, annotation = 110)
 plot(Subspace, annotation = 1:10)
+
+plot(Subspace, changepoint = "0")
+plot(Subspace, changepoint = 1.1)
+plot(Subspace, changepoint = 1:5)
+plot(Subspace, changepoint = 110)
+
 #test on warning
 Subspace <- subspace(components = -1, times = 10)
-Subspace <- subspace(x, time = -1)
+Subspace <- subspace(x, times = -1)
 Subspace <- subspace(x, components = -1, times = 10)
 
 

@@ -20,7 +20,6 @@ This function produces summary plots of bcp() output.
  It is adapted from the default legacyplot function in pacakge bcp.
 }
 \examples{
-\donttest{
-modified_legacyplot(bcp(as.vector(c(rep(0,9),100,rep(0,10))),p0=0.1))
-}
+library(bcp)
+modified_legacyplot(bcp(as.vector(c(rep(10, 10), 9.5, rep(0, 10))), p0 = 0.1))
 }

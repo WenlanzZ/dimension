@@ -1,7 +1,7 @@
 library("dimension")
 
 # Tests for check_dim_matrix default settting
-# --------------------------------------------------------------------------------
+# --------------------------------------------
 context("Valid check_dim_matrix input")
 
 x1 <- x_sim(n = 150, p = 100, ncc = 10, var = 5)
@@ -13,15 +13,15 @@ time_taken <- system.time({
 })
 
 test_that("invalid rnk input warnings returned", {
+
+  expect_error(
+    check_dim_matrix(rnk = 300), regexp = "missing")
   expect_error(
     check_dim_matrix(x1, rnk = 300), regexp = "bounds")
-
   expect_error(
     check_dim_matrix(x1, rnk = -1), regexp = "positive")
-
   expect_error(
     check_dim_matrix(x1, rnk = 0), regexp = "positive")
-
   expect_message(
     check_dim_matrix(x1), regexp = paste0("No component specified. ",
                     "Calculating full singular value decomposition instead.\n"))

@@ -1,4 +1,9 @@
-
+#' @title stand
+#' @description All credit to Luo, W. and Li, B. (2016),
+#' Combining Eigenvalues and Variation of Eigenvectors for Order
+#' Determination, Biometrika, 103, 875–887. <doi:10.1093/biomet/asw051>
+#' @param x numbers.
+#' @export
 stand <- function(x) {
   n   <- nrow(x)
   p   <- ncol(x)
@@ -13,13 +18,28 @@ stand <- function(x) {
   return(t(z))
 }
 
-# a is original matrix, alpha is the power
+#' @title matpower
+#' @description All credit to Luo, W. and Li, B. (2016),
+#' Combining Eigenvalues and Variation of Eigenvectors for Order
+#' Determination, Biometrika, 103, 875–887. <doi:10.1093/biomet/asw051>
+#' @param a an original matrix
+#' @param alpha power
+#' @export
 matpower <- function(a, alpha) {
   a   <- (a + t(a)) / 2
   tmp <- eigen(a)
   return(tmp$vectors %*% diag((tmp$values)^alpha) %*%
            t(tmp$vectors))
 }
+
+#' @title mhat_cca
+#' @description All credit to Luo, W. and Li, B. (2016),
+#' Combining Eigenvalues and Variation of Eigenvectors for Order
+#' Determination, Biometrika, 103, 875–887. <doi:10.1093/biomet/asw051>
+#' @param x numbers.
+#' @param y numbers.
+#' @importFrom stats cov
+#' @export
 mhat_cca <- function(x, y) {
   n   <- nrow(x)
   p   <- ncol(x)
@@ -30,6 +50,13 @@ mhat_cca <- function(x, y) {
   m   <- nsx %*% cxy %*% nvy %*% t(cxy) %*% nsx
   return(m)
 }
+
+#' @title mhat_ica
+#' @description All credit to Luo, W. and Li, B. (2016),
+#' Combining Eigenvalues and Variation of Eigenvectors for Order
+#' Determination, Biometrika, 103, 875–887. <doi:10.1093/biomet/asw051>
+#' @param x numbers.
+#' @export
 mhat_ica <- function(x) {
   n <- nrow(x)
   p <- ncol(x)
@@ -38,9 +65,18 @@ mhat_ica <- function(x) {
   m <- t(z) %*% diag(w) %*% z / n - (p + 2) * diag(p)
   return(m %*% m)
 }
-# In the output, y_tilde gives the margins of the slices,
-# and prop gives the sample proportion of each slice.
-slicing <- function(y, h) {
+
+#' @title slicing
+#' @description All credit to Luo, W. and Li, B. (2016),
+#' Combining Eigenvalues and Variation of Eigenvectors for Order
+#' Determination, Biometrika, 103, 875–887. <doi:10.1093/biomet/asw051>
+#' @param y numbers.
+#' @param h numbers.
+#' @param n numbers.
+#' @importFrom stats quantile
+#' @importFrom stats quantile
+#' @export
+slicing <- function(y, h, n) {
   if (length(levels(as.factor(y))) > h) {
     y_tilde <- rep(0, h + 1)
     y_tilde[1] <- min(y)
@@ -68,6 +104,14 @@ slicing <- function(y, h) {
   return(res)
 }
 
+#' @title mhat_dr
+#' @description All credit to Luo, W. and Li, B. (2016),
+#' Combining Eigenvalues and Variation of Eigenvectors for Order
+#' Determination, Biometrika, 103, 875–887. <doi:10.1093/biomet/asw051>
+#' @param x numbers.
+#' @param y numbers.
+#' @param h numbers.
+#' @export
 mhat_dr <- function(x, y, h) {
   n <- nrow(x)
   p <- ncol(x)
@@ -100,8 +144,17 @@ mhat_dr <- function(x, y, h) {
   m <- 2 * a + 2 * (b %*% b) + 2 * b * c
   return(m)
 }
-# phi is the feature mapping of X, and is optional.
-# by default, it is the quadratic polynomial.
+
+#' @title mhat_ksir
+#' @description All credit to Luo, W. and Li, B. (2016),
+#' Combining Eigenvalues and Variation of Eigenvectors for Order
+#' Determination, Biometrika, 103, 875–887. <doi:10.1093/biomet/asw051>
+#' @param x numbers.
+#' @param phi numbers.
+#' @param y numbers.
+#' @param nslices nslices is needed for sufficient dimension reduction.
+#' @importFrom stats var
+#' @export
 mhat_ksir <- function(x = x, phi = phi, y = y, nslices = nslices) {
   n <- length(y)
   h <- nslices
@@ -136,21 +189,33 @@ mhat_ksir <- function(x = x, phi = phi, y = y, nslices = nslices) {
   return(res)
 }
 
-# In the input,
-#   1. nslices=h, and is needed for sufficient dimension reduction,
-#   2. nboot is the bootstrap sample size.
-#   3. options for method include: "pca", "cca", "ica", "sir",
+#' @title ladle
+#' @description All credit to Luo, W. and Li, B. (2016),
+#' Combining Eigenvalues and Variation of Eigenvectors for Order
+#' Determination, Biometrika, 103, 875–887. <doi:10.1093/biomet/asw051>
+#' @param x A numeric real-valued matrix with n number of samples and
+#'  p number of features (n > p).
+#' @param y numbers.
+#' @param nslices nslices is needed for sufficient dimension reduction.
+#' @param nboot bootstrap sample size.
+#' @param method options for method include: "pca", "cca", "ica", "sir",
 #      "save", "dr" and "kernel sir", in which "pca" includes
 #     (polynomial) kernel principal component analysis.
-#   4. order is the order of the polynomial in polynomial
+#' @param order the order of the polynomial in polynomial
 #      principal component analysis.
-# In the output,
-#   1. fn0 is the bootstrap eigenvector variability
-#   2. fn is the renormalized fn0
-#   3. lam is the sample eigenvalues
-#   4. phin is the renormalized and shifted sample eigenvalues
-#   5. gn is the objective function ("y" in ladle plot)
-#   6. d is the ladle estimator
+#' @return
+#' Returns a list with entries:
+#' \describe{
+#'   \item{fn0:}{ fn0 is the bootstrap eigenvector variability.}
+#'   \item{fn:}{ fn is the renormalized fn0.}
+#'   \item{lam:}{ lam is the sample eigenvalues.}
+#'   \item{phin:}{ phin is the renormalized and shifted sample eigenvalues.}
+#'   \item{gn:}{ gn is the objective function ("y" in ladle plot).}
+#'   \item{d:}{ d is the ladle estimator.}
+#' }
+#' @importFrom stats var
+#' @importFrom dr dr
+#' @export
 ladle <- function(x = x, y = y, nslices = nslices, nboot = nboot,
                 method = method, order = order) {
   p <- ncol(x)

@@ -48,20 +48,18 @@
 #'  We hypothesize that the deviation of eigenvalues of x from the MP
 #'  distribution indicates the intrinsic dimension of signal-rich subspace.
 #' @examples
-#' \donttest{
-#' x <- x_sim(n = 150, p = 100, ncc = 10, var = 2)
-#' results <- dimension(x, components = 1:40, times = 10)
+#' x <- x_sim(n = 100, p = 150, ncc = 10, var = c(rep(10, 5), rep(1, 5)))
+#' results <- dimension(x, components = 1:40)
 #'
 #' #equivelantly, if subsapce is calcualted
-#' Subspace <- subspace(x, components = 1:40, times = 10)
+#' Subspace <- subspace(x, components = 1:40)
 #' results <- dimension(subspace_ = Subspace)
 #'
 #' str(results)
-#' plot(results$Subspace, Changepoint = results$dimension,
+#' plot(results$Subspace, changepoint = results$dimension,
 #'      annotation = 10)
 #' modified_legacyplot(results$Changepoint$bcp_irl, annotation = 10)
 #' modified_legacyplot(results$Changepoint$bcp_post, annotation = 10)
-#' }
 #' @seealso [RMTstat] for details of Marcenko-Pastur distribution.
 #' @seealso https://dracodoc.wordpress.com/2014/07/21/
 #' a-simple-algorithm-to-detect-flat-segments-in-noisy-signals/ for detection
@@ -83,7 +81,7 @@ dimension <- function(x,
 # -----------------------
   if (!missing(subspace_) & !is.null(subspace_$mp_irl)) {
     if (verbose) {
-        cat("Subspace have already been calculated.\n")
+        message("Subspace have already been calculated.\n")
     }
   } else {
     if (is.null(x)) {
@@ -93,7 +91,7 @@ dimension <- function(x,
       if (missing(components)) {
         components <- 1:min(nrow(x), ncol(x))
         if (verbose) {
-          cat(paste0("No component specified. ",
+          message(paste0("No component specified. ",
               "Calculating full singular value decomposition instead.\n"))
         }
       }
@@ -119,7 +117,7 @@ dimension <- function(x,
     sigma_a_diff    <- diff(sigma_a / sigma_a[1])
     cutoff          <- min(min(sigma_a / sigma_a[1]), 0.005)
     if (verbose) {
-      cat("Cutoff value = ", cutoff, "\n")
+      message("Cutoff value = ", cutoff, "\n")
     }
     sigma_a_diff[abs(sigma_a_diff) < cutoff] <- 0
     sigma_a_diff[abs(sigma_a_diff) > cutoff] <- 1
@@ -135,7 +133,7 @@ dimension <- function(x,
       cond_num      <- (flatstart[1] - 1) / 3 + 1
       cor_rnk   <- (flatstart[2] - 1) / 3 + 1
       if (verbose) {
-        cat("Detecting flat pattern from ",
+        message("Detecting flat pattern from ",
             cond_num, " to ", cor_rnk,
             "and trim out components after ", cor_rnk, "\n")
       }
@@ -143,14 +141,16 @@ dimension <- function(x,
       spike_num     <- (flatend[2] - 1) / 3 + 1
       cor_rnk   <- (flatend[1] - 1) / 3 + 1
       if (verbose) {
-        cat("Detecting spike pattern from ",
+        message("Detecting spike pattern from ",
             cor_rnk, " to ", spike_num,
             "and trim out components after ", cor_rnk, "\n")
       }
-    }
     } else {
       cor_rnk   <- rnk
     }
+  } else {
+      cor_rnk   <- rnk
+  }
 
   #Bayesian Change Point
   bcp_irl     <- bcp(as.vector(sigma_a[1:cor_rnk] - sigma_mp[1:cor_rnk]),
@@ -174,9 +174,7 @@ dimension <- function(x,
                         switch(2 - any(threshold),
                                max(post_max[threshold]),
                                irl_max))
-  if (verbose) {
-      cat("Dimension estimation = ", changepoint, "\n")
-    }
+  message("Dimension estimation = ", changepoint, "\n")
   return(list(Subspace    = subspace_,
               dimension   = changepoint,
               Changepoint = list(bcp_irl    = bcp_irl,

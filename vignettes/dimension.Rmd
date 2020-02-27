@@ -47,13 +47,13 @@ The following code demonstrates the incorporation of `dimension` in single-cell 
 ### Dimension
 
 ```{r}
-setwd("/Users/wz262/Projects/dimension")
-devtools::load_all()
+library(dimension)
 set.seed(1234)
 
 #load matrix from Adams et al.2019
 data(lung)
-system.time({results <- dimension(lung, components = 1:50, times = 10)})
+options(mc.cores=2)
+system.time({results <- dimension(lung, components = 1:50)})
 plot(results$Subspace, changepoint = results$dimension, annotation = 10)
 ```
 

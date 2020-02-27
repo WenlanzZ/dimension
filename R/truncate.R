@@ -31,7 +31,7 @@
 #' @param location Indicate the location of eigenvalues
 #'  to keep in identity method.
 #' @param zeroout A logical value to zero out eigenvalues
-#'  when clipping. default is to set to FALSE.
+#'  when truncating. default is to set to FALSE.
 #' @param verbose output message
 #' @param ... Extra parameters
 #' @return
@@ -51,8 +51,7 @@
 #'   \item{u:}{ Left singular vectors of x matrix or specified rank.}
 #' }
 #' @examples
-#' \donttest{
-#' x <- x_sim(n = 150, p = 100, ncc = 10, var = 2)
+#' x <- x_sim(n = 100, p = 150, ncc = 10, var = c(rep(10, 5), rep(1, 5)))
 #' x_denoised <- truncate(x,
 #'                        components = 20,
 #'                        method = "threshold",
@@ -70,13 +69,11 @@
 #'
 #' # equivalently, if subspace is calculated
 #' Subspace  <- subspace(x,
-#'                       components = 1:40,
-#'                      times = 10)
+#'                       components = 1:20)
 #' x_denoised <- truncate(subspace_ = Subspace,
 #'                        method = "identity",
-#'                        location = c(1:5),
-#'                        zeroout = TRUE)
-#' }
+#'                        location = c(1:15),
+#'                        zeroout = FALSE)
 #' @importFrom stats na.omit
 #' @seealso
 #' * [MarchenkoPasturPar()] calculates upper and lower
@@ -97,7 +94,7 @@ truncate <- function(x,
 # ------------------------
 
   if (!missing(subspace_)) {
-    cat("Subspace have already been calculated.\n")
+    message("Subspace have already been calculated.\n")
   } else {
     if (is.null(x)) {
       stop("Invalid input x")
@@ -105,15 +102,11 @@ truncate <- function(x,
       if (missing(components)) {
         components <- 1:min(nrow(x), ncol(x))
         if (verbose) {
-          cat("No component specified.
+          message("No component specified.
               Calculating full singular value decomposition instead.\n")
         }
       }
       subspace_ <- subspace(x, components = components, MP = FALSE)
-      if (verbose) {
-      cat(paste0("Finish checking dimension of x ",
-          "and calculating eigenvalues of x.\n"))
-      }
     }
   }
 # -----------------------
@@ -177,7 +170,7 @@ truncate <- function(x,
         stop("Invalid method input")
         )
 # ----------------------------------------
-# Zero out or average clipped eigenvalues
+# Zero out or average truncated eigenvalues
 # ----------------------------------------
     numerator <- sum(irl$eigen) - sum(na.omit(xi_denoised))
     denominator <- sum(is.na(xi_denoised))

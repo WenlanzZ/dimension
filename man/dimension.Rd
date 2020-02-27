@@ -75,20 +75,18 @@ Estimate the dimension of a signal-rich subspace in large,
 }
 
 \examples{
-\donttest{
-x <- x_sim(n = 150, p = 100, ncc = 10, var = 2)
-results <- dimension(x, components = 1:40, times = 10)
+x <- x_sim(n = 100, p = 150, ncc = 10, var = c(rep(10,5),rep(1,5)))
+results <- dimension(x, components = 1:40)
 
 #equivelantly, if subsapce is calcualted
-Subspace <- subspace(x, components = 1:40, times = 10)
+Subspace <- subspace(x, components = 1:40)
 results <- dimension(subspace_ = Subspace)
 
 str(results)
-plot(results$Subspace, Changepoint = results$dimension,
+plot(results$Subspace, changepoint = results$dimension,
      annotation = 10)
 modified_legacyplot(results$Changepoint$bcp_irl, annotation = 10)
 modified_legacyplot(results$Changepoint$bcp_post, annotation = 10)
-}
 }
 \seealso{
 [RMTstat] for details of Marcenko-Pastur distribution.

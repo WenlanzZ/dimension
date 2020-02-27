@@ -41,7 +41,7 @@ eigenvalues in threshold method.}
 to keep in identity method.}
 
 \item{zeroout}{A logical value to zero out eigenvalues
-when clipping. default is to set to FALSE.}
+when truncating. default is to set to FALSE.}
 
 \item{verbose}{output message}
 
@@ -80,8 +80,7 @@ This function is adapted from "Python for Random Matrix Theory"
 credit to J.-P. Bouchaud and M. Potters.
 }
 \examples{
-\donttest{
-x <- x_sim(n = 150, p = 100, ncc = 10, var = 2)
+x <- x_sim(n = 100, p = 150, ncc = 10, var = c(rep(10,5),rep(1,5)))
 x_denoised <- truncate(x,
                        components = 20,
                        method = "threshold",
@@ -99,13 +98,11 @@ x_denoised <- truncate(x,
 
 # equivalently, if subspace is calculated
 Subspace  <- subspace(x,
-                      components = 1:40,
-                     times = 10)
+                      components = 1:20)
 x_denoised <- truncate(subspace_ = Subspace,
                        method = "identity",
-                       location = c(1:5),
-                       zeroout = TRUE)
-}
+                       location = c(1:15),
+                       zeroout = FALSE)
 }
 \seealso{
 * [MarchenkoPasturPar()] calculates upper and lower
