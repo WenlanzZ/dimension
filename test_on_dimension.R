@@ -2,10 +2,13 @@ rm(list=lsf.str())
 gc()
 
 #auto generating documents after changing fxns
-setwd("/Users/wz262/Projects/dimension")
+setwd("/Users/zangwenlan/Projects/dimension")
 library(roxygen2)
 library(devtools)
 document()
+
+library(usethis)
+use_build_ignore("./data-raw")
 
 #library
 setwd("/Users/wz262/Projects")

@@ -53,7 +53,7 @@ This function calculates scaled eigenvalues
  "RMTsata"(https://cran.r-project.org/web/packages/RMTstat/index.html).
 }
 \examples{
-x <- x_sim(n = 100, p = 150, ncc = 10, var = c(rep(10,5),rep(1,5)))
+x <- x_sim(n = 100, p = 150, ncc = 10, var = c(rep(10, 5), rep(1, 5)))
 Subspace <- subspace(x)
 Subspace <- subspace(x, components = 8:30)
 Subspace <- subspace(x, components = c(2, 3, 6, 16))

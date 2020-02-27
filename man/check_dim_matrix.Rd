@@ -31,7 +31,7 @@ Returns a list with entries:
 Return parameter setting for subspace function
 }
 \examples{
-x <- x_sim(n = 100, p = 150, ncc = 10, var = c(rep(10,5),rep(1,5)))
+x <- x_sim(n = 100, p = 150, ncc = 10, var = c(rep(10, 5), rep(1, 5)))
 params <- check_dim_matrix(x, rnk = 40)
 }
 \seealso{

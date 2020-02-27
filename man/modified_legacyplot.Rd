@@ -21,5 +21,6 @@ This function produces summary plots of bcp() output.
 }
 \examples{
 library(bcp)
-modified_legacyplot(bcp(as.vector(c(rep(10, 10), 9.5, rep(0, 10))), p0 = 0.1))
+modified_legacyplot(bcp(as.vector(c(rep(10, 10), 9.5, rep(0, 10))),
+p0 = 0.1))
 }

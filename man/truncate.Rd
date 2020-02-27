@@ -80,7 +80,7 @@ This function is adapted from "Python for Random Matrix Theory"
 credit to J.-P. Bouchaud and M. Potters.
 }
 \examples{
-x <- x_sim(n = 100, p = 150, ncc = 10, var = c(rep(10,5),rep(1,5)))
+x <- x_sim(n = 100, p = 150, ncc = 10, var = c(rep(10, 5), rep(1, 5)))
 x_denoised <- truncate(x,
                        components = 20,
                        method = "threshold",

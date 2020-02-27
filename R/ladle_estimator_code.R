@@ -256,14 +256,12 @@ ladle <- function(x = x, y = y, nslices = nslices, nboot = nboot,
   }
   if (method == "ica") mhat <- mhat_ica(x)
   if (method == "sir") {
-    library(dr)
     obs <- cbind(y, z)
     sdr <- dr(y ~ z, method = method, nslices = h, numdir = r)
     mhat <- sdr$evectors %*% diag(sdr$evalues) %*% t(sdr$evectors)
     r <- min(r, h - 1)
   }
   if (method == "save") {
-    library(dr)
     obs <- cbind(y, z)
     sdr <- dr(y ~ z, method = method, nslices = h, numdir = r)
     mhat <- sdr$evectors %*% diag(sdr$evalues) %*% t(sdr$evectors)
