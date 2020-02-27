@@ -1,0 +1,162 @@
+> devtools::check()
+Updating dimension documentation
+Writing NAMESPACE
+Loading dimension
+Writing NAMESPACE
+── Building ─────────────────────────────────────────────────────── dimension ──
+Setting env vars:
+● CFLAGS    : -Wall -pedantic -fdiagnostics-color=always
+● CXXFLAGS  : -Wall -pedantic -fdiagnostics-color=always
+● CXX11FLAGS: -Wall -pedantic -fdiagnostics-color=always
+────────────────────────────────────────────────────────────────────────────────
+✓  checking for file ‘/Users/wz262/Projects/dimension/DESCRIPTION’ ...
+─  preparing ‘dimension’: (8.3s)
+✓  checking DESCRIPTION meta-information ...
+   Warning: bad markup (extra space?) at lung.Rd:9:65
+   Warning: bad markup (extra space?) at lung.Rd:18:65
+   Warning: bad markup (extra space?) at lung.Rd:32:66
+─  installing the package to build vignettes
+✓  creating vignettes (1m 30.7s)
+─  checking for LF line-endings in source and make files and shell scripts
+─  checking for empty or unneeded directories
+─  looking to see if a ‘data/datalist’ file should be added
+─  building ‘dimension_0.1.0.tar.gz’ (1.3s)
+   Warning: invalid uid value replaced by that for user 'nobody'
+   Warning: invalid gid value replaced by that for user 'nobody'
+   
+── Checking ─────────────────────────────────────────────────────── dimension ──
+Setting env vars:
+● _R_CHECK_CRAN_INCOMING_REMOTE_: FALSE
+● _R_CHECK_CRAN_INCOMING_       : FALSE
+● _R_CHECK_FORCE_SUGGESTS_      : FALSE
+● NOT_CRAN                      : true
+── R CMD check ─────────────────────────────────────────────────────────────────
+─  using log directory ‘/private/var/folders/_l/1ltth4kx7rs97p28g8p3fkjs_c6gb_/T/Rtmp0A9H1H/dimension.Rcheck’ (666ms)
+─  using R version 3.5.0 (2018-04-23)
+─  using platform: x86_64-apple-darwin15.6.0 (64-bit)
+─  using session charset: UTF-8
+─  using options ‘--no-manual --as-cran’ (455ms)
+✓  checking for file ‘dimension/DESCRIPTION’
+─  checking extension type ... Package
+─  this is package ‘dimension’ version ‘0.1.0’
+─  package encoding: UTF-8
+✓  checking package namespace information
+✓  checking package dependencies (1000ms)
+N  checking if this is a source package
+   Found the following apparent object files/libraries:
+     Hoff/svd.o Hoff/svd.so
+   Object files/libraries should not be included in a source package.
+✓  checking if there is a namespace
+✓  checking for executable files ...
+✓  checking for hidden files and directories
+✓  checking for portable file names ...
+✓  checking for sufficient/correct file permissions
+W  checking whether package ‘dimension’ can be installed (9.3s)
+   Found the following significant warnings:
+     Warning: bad markup (extra space?) at lung.Rd:9:65
+     Warning: bad markup (extra space?) at lung.Rd:18:65
+     Warning: bad markup (extra space?) at lung.Rd:32:66
+   See ‘/private/var/folders/_l/1ltth4kx7rs97p28g8p3fkjs_c6gb_/T/Rtmp0A9H1H/dimension.Rcheck/00install.out’ for details.
+N  checking installed package size ...
+     installed size is 18.0Mb
+     sub-directories of 1Mb or more:
+       data   9.8Mb
+       doc    8.0Mb
+✓  checking package directory (1.1s)
+✓  checking ‘build’ directory
+N  checking DESCRIPTION meta-information ...
+   Package listed in more than one of Depends, Imports, Suggests, Enhances:
+     ‘dr’
+   A package should be listed in only one of these fields.
+N  checking top-level files
+   Non-standard files/directories found at top level:
+     ‘Hoff’ ‘test_on_dimension.R’
+✓  checking for left-over files ...
+✓  checking index information ...
+✓  checking package subdirectories ...
+✓  checking R files for non-ASCII characters ...
+✓  checking R files for syntax errors ...
+✓  checking whether the package can be loaded (1.1s)
+✓  checking whether the package can be loaded with stated dependencies (986ms)
+✓  checking whether the package can be unloaded cleanly (953ms)
+✓  checking whether the namespace can be loaded with stated dependencies (959ms)
+✓  checking whether the namespace can be unloaded cleanly (1.1s)
+✓  checking loading without being on the library search path (1.2s)
+N  checking dependencies in R code (1.1s)
+   'library' or 'require' call to ‘dr’ in package code.
+     Please use :: or requireNamespace() instead.
+     See section 'Suggested packages' in the 'Writing R Extensions' manual.
+✓  checking S3 generic/method consistency (1.9s)
+✓  checking replacement functions (971ms)
+✓  checking foreign function calls (1.1s)
+✓  checking R code for possible problems (5.3s)
+W  checking Rd files ...
+   prepare_Rd: bad markup (extra space?) at lung.Rd:9:65
+   prepare_Rd: bad markup (extra space?) at lung.Rd:18:65
+   prepare_Rd: bad markup (extra space?) at lung.Rd:32:66
+   checkRd: (3) lung.Rd:8-10: Empty section \source
+✓  checking Rd metadata ...
+✓  checking Rd line widths ...
+✓  checking Rd cross-references (444ms)
+✓  checking for missing documentation entries (1.5s)
+✓  checking for code/documentation mismatches (3.5s)
+✓  checking Rd \usage sections (2.1s)
+✓  checking Rd contents ...
+✓  checking for unstated dependencies in examples ...
+✓  checking contents of ‘data’ directory
+✓  checking data for non-ASCII characters (1.4s)
+✓  checking data for ASCII and uncompressed saves ...
+✓  checking installed files from ‘inst/doc’ ...
+✓  checking files in ‘vignettes’ ...
+✓  checking examples (4.9s)
+   ** found \donttest examples: check also with --run-donttest
+✓  checking for unstated dependencies in ‘tests’ ...
+─  checking tests ...
+✓  Running ‘testthat.R’ (3.6s)
+✓  checking for unstated dependencies in vignettes (3.8s)
+✓  checking package vignettes in ‘inst/doc’
+✓  checking re-building of vignette outputs (1m 35.8s)
+   
+   See
+     ‘/private/var/folders/_l/1ltth4kx7rs97p28g8p3fkjs_c6gb_/T/Rtmp0A9H1H/dimension.Rcheck/00check.log’
+   for details.
+   
+   
+── R CMD check results ──────────────────────────────────── dimension 0.1.0 ────
+Duration: 2m 24.8s
+
+> checking whether package ‘dimension’ can be installed ... WARNING
+  See below...
+
+> checking Rd files ... WARNING
+  prepare_Rd: bad markup (extra space?) at lung.Rd:9:65
+  prepare_Rd: bad markup (extra space?) at lung.Rd:18:65
+  prepare_Rd: bad markup (extra space?) at lung.Rd:32:66
+  checkRd: (3) lung.Rd:8-10: Empty section \source
+
+> checking if this is a source package ... NOTE
+  Found the following apparent object files/libraries:
+    Hoff/svd.o Hoff/svd.so
+  Object files/libraries should not be included in a source package.
+
+> checking installed package size ... NOTE
+    installed size is 18.0Mb
+    sub-directories of 1Mb or more:
+      data   9.8Mb
+      doc    8.0Mb
+
+> checking DESCRIPTION meta-information ... NOTE
+  Package listed in more than one of Depends, Imports, Suggests, Enhances:
+    ‘dr’
+  A package should be listed in only one of these fields.
+
+> checking top-level files ... NOTE
+  Non-standard files/directories found at top level:
+    ‘Hoff’ ‘test_on_dimension.R’
+
+> checking dependencies in R code ... NOTE
+  'library' or 'require' call to ‘dr’ in package code.
+    Please use :: or requireNamespace() instead.
+    See section 'Suggested packages' in the 'Writing R Extensions' manual.
+
+0 errors ✓ | 2 warnings x | 5 notes x
