@@ -49,10 +49,10 @@
 #'  distribution indicates the intrinsic dimension of signal-rich subspace.
 #' @examples
 #' x <- x_sim(n = 100, p = 150, ncc = 10, var = c(rep(10, 5), rep(1, 5)))
-#' results <- dimension(x, components = 1:40)
+#' results <- dimension(x, components = 1:50)
 #'
 #' #equivelantly, if subsapce is calcualted
-#' Subspace <- subspace(x, components = 1:40)
+#' Subspace <- subspace(x, components = 1:50)
 #' results <- dimension(subspace_ = Subspace)
 #'
 #' str(results)

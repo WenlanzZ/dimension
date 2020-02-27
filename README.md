@@ -20,11 +20,11 @@ This is a basic example which shows you how to use this package:
 ``` r
 library(dimension)
 # dimension estimation
-x <- x_sim(n = 100, p = 150, ncc = 30, var = c(rep(10,5),rep(2,25)))
-results <- dimension(x, components = 1:50, times = 10, p = 0.95)
+x <- x_sim(n = 100, p = 150, ncc = 10, var = c(rep(10, 5), rep(1, 5)))
+results <- dimension(x, components = 1:50)
 
 ## equivelantly, if subsapce is calcualted
-Subspace <- subspace(x, components = 1:50, times = 10)
+Subspace <- subspace(x, components = 1:50)
 results  <- dimension(subspace_ = Subspace)
 str(results)
 
@@ -36,9 +36,9 @@ x_denoised <- truncate(subspace_ = Subspace, method = "identity", location = c(1
 x_denoised
 
 # plot results
-plot(Subspace, annotation = 30, changepoint = results$dimension)
-modified_legacyplot(results$Changepoint$bcp_irl, annotation = 30)
-modified_legacyplot(results$Changepoint$bcp_post, annotation = 30)
+plot(results$Subspace, changepoint = results$dimension, annotation = 10)
+modified_legacyplot(results$Changepoint$bcp_irl, annotation = 10)
+modified_legacyplot(results$Changepoint$bcp_post, annotation = 10)
 ```
 
 ## IPF single cell altas anlysis
