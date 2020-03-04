@@ -53,6 +53,7 @@ set.seed(1234)
 
 #load matrix from Adams et al.2019
 data(lung)
+dim(lung)
 options(mc.cores=2)
 system.time({results <- dimension(lung, components = 1:50)})
 plot(results$Subspace, changepoint = results$dimension, annotation = 10)
@@ -68,11 +69,67 @@ modified_legacyplot(results$Changepoint$bcp_post)
 
 Output from `modified_legacyplot()` shows the posterior means and posterior probabilities of change points in a given sequence. The first plot, which uses the scaled eigenvalues as the argument, shows that there are highest posterior probabilities of change points at dimension 1, 2, 3, 4 and smaller posterior probabilities of change points at 7, 8, and 16. The second plot, which uses the posterior probabilities of change points as the argument, shows that there are highest posterior probabilities of probabilities of change points ("candidates"") at 4, 6, 8, 10, 11, and 13 to 18. The `dimension()` function looks at the second plot from right to left for "candidates" and then looks at the first plot from right to left for the maximum posterior probability of change point (4 in this example). In the first plot, if the posterior probability of change point at any of the "candidates" is not smaller than 90% of the posterior probability of change point at 4, then largest dimension that passed the threshold ("p" in `dimension` function) will be the estimated changepoint. Otherwise, the dimension corresponding to the maximum posterior probability in the first plot (4 in this example) will be the estimated changepoint.
 
-We followed the suggested pipeline in the `Seruat` package (see [details](https://satijalab.org/seurat/v3.1/pbmc3k_tutorial.html)) and determined the signal dimension of 5 using the `JackStraw()` function. We then applied the louvain clustering method implemented `Seruat` for PCs from 1:50, 9:50, 1:5 and 1:8 (see [details](https://rpubs.com/WenlanzZ/578132)). The umap for each of plot confirmed that major features for cell type clustering depend on dimension 1 to 8 and there is no new cluster formed from dimension 9 to 50. Clustering from `dimension` estimated signal subspace identified two additional cluster that is masked in the whole space, while clustering from `JackStraw()` estimated signal subsapce failed to seperate cluster 0. 
+## Seruat JackStraw
 
-![Visualization with UMAP](umap.png)
+[`Seurat`](https://satijalab.org/seurat/v3.1/pbmc3k_tutorial.html) is currently the most popular platform to analyze single-cell RNA-Seq data. Here we use the `lung` dataset as an example to demonstrate the use of `dimension` in cell type identification and compare its performance to the builtin `JackStraw()` function.
 
-To validate the clustering results, we identify marker genes in each cluster via differential expression and further match the clustering results to known cell types with identified marker genes.
+```{r}
+# Single cell RNA-Seq analysis with Seurat
+library(Seurat)
+lung <- CreateSeuratObject(counts = lung)
+lung <- ScaleData(lung, do.scale = TRUE, do.center = TRUE)
+lung <- suppressWarnings(FindVariableFeatures(lung))
+lung <- RunPCA(lung, npcs = 50, verbose = FALSE)
+
+system.time({lung <- suppressWarnings(JackStraw(lung))})
+lung <- ScoreJackStraw(object = lung, dims = 1:20, reduction = "pca")
+JackStrawPlot(object = lung, dims = 1:20, reduction = "pca")
+```
+
+We compare the distribution of p-values for PCs to a uniform distribution (dashed line). A low p-value for the PC suggests that there is a strong enrichment for features and it shows as solid curve above the dashed line in the output of `JackStrawPlot()` function. In the `lung` dataset, there is a sharp drop-off in significance after the first 1-5 PCs, which is the same estimation as the `dimension()` function.
+
+## Seruat Louvain clustering
+```{r}
+lung <- RunUMAP(lung, method = 'umap-learn', reduction = "pca", dims = 1:50, verbose = FALSE)
+
+# louvain cluster based on features 1:50
+lung <- FindNeighbors(lung, dims = 1:50, k.param = 10)
+lung <- FindClusters(lung, resolution = 0.8)
+p1 <- DimPlot(lung, reduction = "umap", label = TRUE) + ggtitle("a) PCs 1:50")
+
+# louvain cluster based on features 9:50
+lung <- FindNeighbors(lung, dims = 9:50, k.param = 10)
+lung <- FindClusters(lung, resolution = 0.8)
+p2 <- DimPlot(lung, reduction = "umap", label = TRUE) + ggtitle("b) PCs 9:50")
+
+# louvain cluster based on features 1:5
+lung <- FindNeighbors(lung, dims = 1:5, k.param = 10)
+lung <- FindClusters(lung, resolution = 0.8)
+p3 <- DimPlot(lung, reduction = "umap", label = TRUE) + ggtitle("c) PCs 1:5")
+
+# louvain cluster based on features 1:8
+lung <- FindNeighbors(lung, dims = 1:8, k.param = 10)
+lung <- FindClusters(lung, resolution = 0.8)
+p4 <- DimPlot(lung, reduction = "umap", label = TRUE) + ggtitle("d) PCs 1:8")
+
+grid.arrange(p1, p2, p3, p4, ncol = 2)
+# find marker genes for clusters
+marker0 <- FindMarkers(lung, ident.1 = 0, only.pos = T, min.pct = 0.25)
+marker1 <- FindMarkers(lung, ident.1 = 1, only.pos = T, min.pct = 0.25)
+marker2 <- FindMarkers(lung, ident.1 = 2, only.pos = T, min.pct = 0.25)
+marker3 <- FindMarkers(lung, ident.1 = 3, only.pos = T, min.pct = 0.25)
+marker4 <- FindMarkers(lung, ident.1 = 4, only.pos = T, min.pct = 0.25)
+marker5 <- FindMarkers(lung, ident.1 = 5, only.pos = T, min.pct = 0.25)
+
+rownames(marker0[order(marker0$avg_logFC, decreasing = T),][1:20,])
+rownames(marker1[order(marker1$avg_logFC, decreasing = T),][1:20,])
+rownames(marker2[order(marker2$avg_logFC, decreasing = T),][1:20,])
+rownames(marker3[order(marker3$avg_logFC, decreasing = T),][1:20,])
+rownames(marker4[order(marker4$avg_logFC, decreasing = T),][1:20,])
+rownames(marker5[order(marker5$avg_logFC, decreasing = T),][1:20,])
+```
+
+We applied the clustering method implemented in the `Seruat` package (see [details](https://satijalab.org/seurat/v3.1/pbmc3k_tutorial.html)) for PCs from 1:50, 9:50, 1:5 and 1:8. The umap for each of plot confirmed that major features for cell type clustering depend on dimension 1 to 8 and there is no new cluster formed from dimension 9 to 50. Clustering from denoised signal subspace identified two additional cluster that is masked in the whole space. To validate the clustering results, we use the `FindMarkers()` function to identify marker genes in each cluster via differential expression and further match the clustering results to known cell types with identified marker genes. 
 
 ```{r table2, echo=FALSE, message=FALSE, warnings=FALSE, results='asis'}
 tabl <- "
@@ -87,20 +144,33 @@ tabl <- "
 "
 cat(tabl)
 ```
+```{r}
+# Mark cell types with our identification
+new.cluster.ids <- c("NK cells", "Macrophage & Mac_Alv", "AT1 ", "Club cells & Basal cells", "Mac_Alv", "Fibroblast")
+names(new.cluster.ids) <- levels(lung)
+lung <- RenameIdents(lung, new.cluster.ids)
+p5 <- DimPlot(lung, reduction = "umap", label = TRUE, pt.size = 0.5, label.size = 5) + NoLegend() + ggtitle("a) Cell Type Identification")
 
-With the identified marker genes, we can match unsupervised clusters to known cell types.
+# Mark cell types with publication identification
+subset_origin_ident <- read.table("/Users/wz262/Projects/dimension/data-raw/subset_origin_ident.txt", sep="\t", header=TRUE)
+lung@meta.data$orig_label <- subset_origin_ident$cell.type.ident
+p6 <- DimPlot(lung, reduction = "umap",label = TRUE, group.by = "orig_label", label.size = 5) + NoLegend() + ggtitle("b) Public Cell Types")
 
-![Cell Type Identification](cell_type.png)
+# pdf("/Users/wz262/Projects/dimension/vignettes/cell_type.pdf", width = 15, height = 6)
+grid.arrange(p5, p6, ncol = 2)
+# dev.off()
+```
 
-Comparing to the original identification published by [Adams et  al.(2019)](https://www.biorxiv.org/content/10.1101/759902v1.full.pdf)), we cluster T cells together with NK cells and Basal cells with Club cells for dimension 1:6. Given that we used a subset of the original data and the fact that these cells regulate and differiate into each other, the cell type identification result makes sense biologically. By contrast, if we include noisy PCs all together from 1 to 50 will misclassify T cells, Fibroblast, Basal cells, and Club cells together. Similarly, if we truncate signals as suggested by Jackstraw from 1 to 5, we will miss the important PCs that seperate Basal & Club cells from AT1 cells.
+
+Comparing to the original identification published by [Adams et  al.(2019)](https://www.biorxiv.org/content/10.1101/759902v1.full.pdf)), we cluster T cells together with NK cells and Basal cells with Club cells for dimension 1:6. Given that we used a subset of the original data and the fact that these cells regulate and differiate into each other, the cell type identification result makes sense biologically. By contrast, if we include noisy PCs all together from 1 to 50 will misclassify T cells, Fibroblast, Basal cells, and Club cells together. Similarly, if we truncate signals as suggested by Jackstraw from 1 to 5, we will miss the important PCs that seperate Basal & Club cells from AT1 cells. 
 
 ## Extreme cases in simulation
 
 In an extreme simulated case, we have a high dimensional matrix $X$ simulated via model: $X = S + \epsilon$ with
 $$
-S[ . , 1:d] \sim N(0, \Sigma)\\ 
-S[ . , (d+1):p] = 0\\
-\Sigma = \left(\begin{array}{cc} 
+S[ . , 1:K] \sim N(0, \Sigma)\\ 
+S[ . , (K+1):p] = 0\\
+\Sigma_{K \times K} = \left(\begin{array}{cc} 
   6 & 0 & \dots & 0 \\
   0 & 6 & \dots & 0 \\
   \vdots & \vdots & \ddots & \vdots \\
@@ -118,13 +188,13 @@ modified_legacyplot(bcp_irl)
 modified_legacyplot(bcp_post)
 ```
 
-The signal inside this setting is extremely low ($100*10$ vs. $100*(50000-10)$) and the `bcp` performs less stably on the edges of the sequences. As a result, when there is a small drop between 96 and 97, the posterior probability of a change point at 97 will be extremely high. Thus, we adopt an alarm system for this kind of spike pattern posted at [dracodoc](https://dracodoc.wordpress.com/2014/07/21/a-simple-algorithm-to-detect-flat-segments-in-noisy-signals/) on `bcp` plots at the edges. When it detects a sudden spike in the sequence, it will trim off the sequence right before the spike, so that the estimation from `bcp` will be accurate and robust in extreme cases.
+The signal inside this setting is extremely low ($100*10$ vs. $100*(50000-10)$) and the `bcp` performs less stably on the edges of the sequences. As a result, when there is a small drop between 96 and 97, the posterior probability of a change point at 97 is extremely high. Thus, we adopt an alarm system posted at [dracodoc](https://dracodoc.wordpress.com/2014/07/21/a-simple-algorithm-to-detect-flat-segments-in-noisy-signals/) for this kind of spike pattern in `bcp` plots at the edges. When it detects a spike after a long flat pattern in the sequence, it will trim off the sequence right before the spike, so that the estimation from `bcp` will be accurate and robust in extreme cases.
 
 In another extreme simulated case when the signal pattern is very obvious, we can detect the flat pattern quickly and reduce the time of calculation on unnecessary components.
 
 ## Denoised estimation of X
 
-With the estimated dimension from `dimension()` function, we can truncate the scaled eigenvalues of $x$ in order to provide a denoised estimator $e\_denoised$ of the underlying correlation matrix and $x\_denoised$ of the original matrix. There are three methods to chose from. The threshold method returns $(1-alpha)*rnk$ proportion of eigenvalues above threshold; the hard method returns all the empirical eigenvalues greater than the upper limit of the support to the Marchenko-Pastur spectrum; the identity method returns eigenvalues specified in a location vector. While we keep a proportion of eigenvalues, we can either shrink the remaining ones by a trace-preserving constant (i.e. $Tr(E\_denoised) = Tr(E)$) or set them all to zero. This function `truncate()` is adapted from Python for Random Matrix Theory (GiecoldOuaknin2017).
+With the estimated dimension from `dimension()` function, we can truncate the scaled eigenvalues of $x$ in order to provide a denoised estimator $e\_denoised$ of the underlying correlation matrix and $x\_denoised$ of the original matrix. There are three methods in the `truncate()` function to chose from. The threshold method returns $(1-alpha)*rnk$ proportion of eigenvalues above threshold; the hard method returns all the empirical eigenvalues greater than the upper limit of the support to the Marchenko-Pastur spectrum; the identity method returns eigenvalues specified in the location argument. While we keep a proportion of eigenvalues, we can either shrink the remaining ones by a trace-preserving constant (i.e. $Tr(E\_denoised) = Tr(E)$) or set them all to zero. This function `truncate()` is adapted from Python for Random Matrix Theory (GiecoldOuaknin2017).
 
 ```{r}
 x_denoised <- truncate(x, components = 20, method = "threshold", alpha = 0.9, zeroout = TRUE)

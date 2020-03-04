@@ -20,8 +20,8 @@ test_that("Default settings work as expected", {
   expect_equal(subspace1$pdim, 100)
   expect_equal(subspace1$components, 1:100)
   expect_equivalent(subspace1$var_correct,
-	                  subspace1_ref$var_correct,
-	                  tolerance = 5e-2)
+                    subspace1_ref$var_correct,
+                    tolerance = 5e-2)
   expect_equal(subspace1$transpose_flag, TRUE)
   expect_equivalent(subspace1$irl$eigen,
                     subspace1_ref$irl$eigen,
@@ -51,18 +51,18 @@ test_that("components input error", {
 })
 
 test_that("times input error", {
-  expect_error(subspace(x1, times = "1"), "is.numeric")
-	expect_error(subspace(x1, times = 1.1), "%%")
-	expect_error(subspace(x1, times = 1:5), "length")
-	expect_error(subspace(x1, times = -1), "positive")
-	expect_error(subspace(x1, times = 200), "less")
+ expect_error(subspace(x1, times = "1"), "is.numeric")
+ expect_error(subspace(x1, times = 1.1), "%%")
+ expect_error(subspace(x1, times = 1:5), "length")
+ expect_error(subspace(x1, times = -1), "positive")
+ expect_error(subspace(x1, times = 200), "less")
 })
 
 context("plot subspace input error")
 
 test_that("plot subspace annotation error", {
-	expect_true(inherits(plot(subspace1), "ggplot"))
-	expect_error(plot(subspace1, annotation = "0"), "numbers")
-	expect_error(plot(subspace1, annotation = -1), "positive")
-	expect_error(plot(subspace1, annotation = 110), "less")
+ expect_true(inherits(plot(subspace1), "ggplot"))
+ expect_error(plot(subspace1, annotation = "0"), "numbers")
+ expect_error(plot(subspace1, annotation = -1), "positive")
+ expect_error(plot(subspace1, annotation = 110), "less")
 })

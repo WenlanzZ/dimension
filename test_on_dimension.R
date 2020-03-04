@@ -19,7 +19,7 @@ library(dimension)
 setwd("/Users/wz262/Projects/dimension")
 library(devtools)
 load_all()
-devtools::test()
+sourcdevtools::test()
 devtools::check()
 ?x_sim
 ?check_dim_matrix
@@ -196,3 +196,4 @@ x_denoised<-truncate(x, components = 20,method = "identity",zeroout = FALSE)
 # d<-c(tmp$d[1:rnk],rep(0,length(tmp$d)-rnk))
 # x_svd<-tmp$u%*%diag(d)%*%t(tmp$v)
 # cor(x_svd)[1:10,1:10]
+

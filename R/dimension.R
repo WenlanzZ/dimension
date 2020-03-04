@@ -135,7 +135,7 @@ dimension <- function(x,
       if (verbose) {
         message("Detecting flat pattern from ",
             cond_num, " to ", cor_rnk,
-            "and trim out components after ", cor_rnk, "\n")
+            " and trim out components after ", cor_rnk, "\n")
       }
     } else if (!is.na(sum(flatend))) {
       spike_num     <- (flatend[2] - 1) / 3 + 1
@@ -143,7 +143,7 @@ dimension <- function(x,
       if (verbose) {
         message("Detecting spike pattern from ",
             cor_rnk, " to ", spike_num,
-            "and trim out components after ", cor_rnk, "\n")
+            " and trim out components after ", cor_rnk, "\n")
       }
     } else {
       cor_rnk   <- rnk

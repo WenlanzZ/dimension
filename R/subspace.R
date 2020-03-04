@@ -112,7 +112,7 @@ subspace <- function(x,
                      try transforming matrix",
                       " or a smaller proportion of eigenvalues.\n"))
     }, error = function(e) {
-      message("Caught an error!\n")
+      message("Caught an error in scaling matrix!\n")
     }
     )
       tmp <- svd(x_std)
@@ -333,7 +333,7 @@ check_comp_input <- function(components, ndf, pdim, verbose = TRUE) {
       stop("Components out of bounds.\n")
     }
     if (verbose) {
-      cat("Calculating components from 1 to", components, ".\n")
+      cat("Calculating components from 1 to", components, "\n")
     }
     return(1:components)
   } else if (length(components) > 1) {
