@@ -21,13 +21,13 @@
 #'   \item{components:}{ A series of right singular
 #'    vectors estimated.}
 #'   \item{var_correct:}{ Corrected population variance
-#'    for Marcenko-Pastur distribution.}
+#'    for Marchenko-Pastur distribution.}
 #'   \item{transpose_flag:}{ A logical value indicating
 #'    whether the matrix x is transposed.}
 #'   \item{irl:}{ A data frame of scaled eigenvalues for
 #'    specified rank and corresponding dimensions.}
 #'   \item{mp_irl:}{ A data frame of sampled expected eigenvalues from
-#'    Marcenko-Pastur for specified rank and corresponding dimensions.}
+#'    Marchenko-Pastur for specified rank and corresponding dimensions.}
 #'   \item{v:}{ Right singular vectors of x matrix for specified rank.}
 #'   \item{u:}{ Left singular vectors of x matrix or specified rank.}
 #'   \item{dimension:}{ Estimated signal subspace dimension.}
@@ -44,7 +44,7 @@
 #'  To estimate rank K, we propose a simple procedure assuming that matrix
 #'  x is composed of a low-rank signal matrix S and an average general noise
 #'  random matrix \eqn{\bar{N}}. It has been shown that the average eigenvalues
-#'  of random matrices N follows a universal Marcenko-Pastur (MP) distribution.
+#'  of random matrices N follows a universal Marchenko-Pastur (MP) distribution.
 #'  We hypothesize that the deviation of eigenvalues of x from the MP
 #'  distribution indicates the intrinsic dimension of signal-rich subspace.
 #' @examples
@@ -60,7 +60,7 @@
 #'      annotation = 10)
 #' modified_legacyplot(results$Changepoint$bcp_irl, annotation = 10)
 #' modified_legacyplot(results$Changepoint$bcp_post, annotation = 10)
-#' @seealso [RMTstat] for details of Marcenko-Pastur distribution.
+#' @seealso [RMTstat] for details of Marchenko-Pastur distribution.
 #' @seealso https://dracodoc.wordpress.com/2014/07/21/
 #' a-simple-algorithm-to-detect-flat-segments-in-noisy-signals/ for detection
 #' of flat and spike in noisy signals

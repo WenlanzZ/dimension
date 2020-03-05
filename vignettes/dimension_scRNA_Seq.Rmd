@@ -65,6 +65,7 @@ The output message from the `dimension()` function includes the specified compon
 # double check with Bayesian change point probability and posterior of change point probability
 modified_legacyplot(results$Changepoint$bcp_irl)
 modified_legacyplot(results$Changepoint$bcp_post)
+
 ```
 
 Output from `modified_legacyplot()` shows the posterior means and posterior probabilities of change points in a given sequence. The first plot, which uses the scaled eigenvalues as the argument, shows that there are highest posterior probabilities of change points at dimension 1, 2, 3, 4 and smaller posterior probabilities of change points at 7, 8, and 16. The second plot, which uses the posterior probabilities of change points as the argument, shows that there are highest posterior probabilities of probabilities of change points ("candidates"") at 4, 6, 8, 10, 11, and 13 to 18. The `dimension()` function looks at the second plot from right to left for "candidates" and then looks at the first plot from right to left for the maximum posterior probability of change point (4 in this example). In the first plot, if the posterior probability of change point at any of the "candidates" is not smaller than 90% of the posterior probability of change point at 4, then largest dimension that passed the threshold ("p" in `dimension` function) will be the estimated changepoint. Otherwise, the dimension corresponding to the maximum posterior probability in the first plot (4 in this example) will be the estimated changepoint.
@@ -83,33 +84,33 @@ lung <- RunPCA(lung, npcs = 50, verbose = FALSE)
 
 system.time({lung <- suppressWarnings(JackStraw(lung))})
 lung <- ScoreJackStraw(object = lung, dims = 1:20, reduction = "pca")
-JackStrawPlot(object = lung, dims = 1:20, reduction = "pca")
+suppressWarnings(JackStrawPlot(object = lung, dims = 1:20, reduction = "pca"))
 ```
 
 We compare the distribution of p-values for PCs to a uniform distribution (dashed line). A low p-value for the PC suggests that there is a strong enrichment for features and it shows as solid curve above the dashed line in the output of `JackStrawPlot()` function. In the `lung` dataset, there is a sharp drop-off in significance after the first 1-5 PCs, which is the same estimation as the `dimension()` function.
 
 ## Seruat Louvain clustering
-```{r}
-lung <- RunUMAP(lung, method = 'umap-learn', reduction = "pca", dims = 1:50, verbose = FALSE)
+```{r message=FALSE}
+suppressWarnings(lung <- RunUMAP(lung, reduction = "pca", dims = 1:50, verbose = FALSE))
 
 # louvain cluster based on features 1:50
 lung <- FindNeighbors(lung, dims = 1:50, k.param = 10)
-lung <- FindClusters(lung, resolution = 0.8)
+lung <- FindClusters(lung, resolution = 0.8, verbose = FALSE)
 p1 <- DimPlot(lung, reduction = "umap", label = TRUE) + ggtitle("a) PCs 1:50")
 
 # louvain cluster based on features 9:50
 lung <- FindNeighbors(lung, dims = 9:50, k.param = 10)
-lung <- FindClusters(lung, resolution = 0.8)
+lung <- FindClusters(lung, resolution = 0.8, verbose = FALSE)
 p2 <- DimPlot(lung, reduction = "umap", label = TRUE) + ggtitle("b) PCs 9:50")
 
 # louvain cluster based on features 1:5
 lung <- FindNeighbors(lung, dims = 1:5, k.param = 10)
-lung <- FindClusters(lung, resolution = 0.8)
+lung <- FindClusters(lung, resolution = 0.8, verbose = FALSE)
 p3 <- DimPlot(lung, reduction = "umap", label = TRUE) + ggtitle("c) PCs 1:5")
 
 # louvain cluster based on features 1:8
 lung <- FindNeighbors(lung, dims = 1:8, k.param = 10)
-lung <- FindClusters(lung, resolution = 0.8)
+lung <- FindClusters(lung, resolution = 0.8, verbose = FALSE)
 p4 <- DimPlot(lung, reduction = "umap", label = TRUE) + ggtitle("d) PCs 1:8")
 
 grid.arrange(p1, p2, p3, p4, ncol = 2)
@@ -144,21 +145,22 @@ tabl <- "
 "
 cat(tabl)
 ```
-```{r}
+```{r fig1, fig.height = 5, fig.width = 9}
 # Mark cell types with our identification
-new.cluster.ids <- c("NK cells", "Macrophage & Mac_Alv", "AT1 ", "Club cells & Basal cells", "Mac_Alv", "Fibroblast")
+new.cluster.ids <- c("NK cells", "   Mac & Mac_Alv", "AT1 ", "Club & Basal", "Mac_Alv", "Fibroblast")
 names(new.cluster.ids) <- levels(lung)
 lung <- RenameIdents(lung, new.cluster.ids)
-p5 <- DimPlot(lung, reduction = "umap", label = TRUE, pt.size = 0.5, label.size = 5) + NoLegend() + ggtitle("a) Cell Type Identification")
+p5 <- DimPlot(lung, reduction = "umap", label = TRUE, pt.size = 0.5, label.size = 6) + NoLegend() + ggtitle("a) Cell Type Identification")
 
 # Mark cell types with publication identification
 subset_origin_ident <- read.table("/Users/wz262/Projects/dimension/data-raw/subset_origin_ident.txt", sep="\t", header=TRUE)
+library(plyr)
+subset_origin_ident$cell.type.ident <- revalue(subset_origin_ident$cell.type.ident, c("Macrophage_Alveolar"="Mac_Alv"))
 lung@meta.data$orig_label <- subset_origin_ident$cell.type.ident
-p6 <- DimPlot(lung, reduction = "umap",label = TRUE, group.by = "orig_label", label.size = 5) + NoLegend() + ggtitle("b) Public Cell Types")
+p6 <- DimPlot(lung, reduction = "umap",label = TRUE, group.by = "orig_label", label.size = 6) + NoLegend() + ggtitle("b) Public Cell Types")
 
-# pdf("/Users/wz262/Projects/dimension/vignettes/cell_type.pdf", width = 15, height = 6)
 grid.arrange(p5, p6, ncol = 2)
-# dev.off()
+
 ```
 
 
