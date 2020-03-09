@@ -46,4 +46,4 @@ Click on this [link](https://rpubs.com/WenlanzZ/578132) to the vignettes for det
 
 
 ## IPF single cell altas anlysis
-Click on this [link](https://rpubs.com/WenlanzZ/581839) to see a workflow to include dimension in single cell RNA-Seq analysis with Seraut.
+Click on this [link](https://rpubs.com/WenlanzZ/581839) to see a workflow to include dimension in single cell RNA-Seq analysis with Seurat.

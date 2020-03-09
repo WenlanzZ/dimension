@@ -1,5 +1,5 @@
 ---
-title: "Using the dimension package"
+title: "Using the dimension package in scRNA-Seq analysis"
 author: "Wenlan Zang and Michael J. Kane"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -13,7 +13,7 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.width = 7, 
+  fig.width = 7.5, 
   fig.height = 5
 )
 ```
@@ -38,9 +38,9 @@ A demonstration of the main functions with a brief example follows.
 
 ## IPF Single Cell Atlas
 
-The IPF Single Cell Atlas (`lung`) data can be found on Gene Expression Omnibus (GSE136831). This data was examined by [Adams et  al.(2019)](https://www.biorxiv.org/content/10.1101/759902v1.full.pdf) to build a single cell atlas of Idiopathic Pulmonary Fibrosis (IPF). It contains the gene expression of 312,928 cells profiled from 32 IPF patient lung samples, 18 chronic obstructive pulmonary disease (COPD) lung samples and 29 control donor lung samples.
+The IPF Single Cell Atlas (`lung`) data can be found on Gene Expression Omnibus (GSE136831). This data was examined by [Adams et  al.(2019)](https://www.biorxiv.org/content/10.1101/759902v1.full.pdf) to build a single cell atlas of Idiopathic Pulmonary Fibrosis (IPF). It contains the gene expression of 312,928 cells profiled from 32 IPF patient lung samples, 18 chronic obstructive pulmonary disease (COPD) lung samples and 28 control donor lung samples.
 
-Applying `dimension` package to a subgroup of control lung sample (id 001C) with 2000 genes and 127 cells, the `dimension()` function will first construct a `Subspace` within the ambient space. The `subspace()` function will utilize [`irlba`](https://cran.r-project.org/web/packages/irlba/index.html) to calculate the first few approximate largest eigenvalues and eigenvectors of a matrix $X$. The `irlba()` function uses about 1/20 elapsed time compared to the standard `svd()` method and less than 1/3 the peak memory. The `subspace()` function also returns random generation for the Marchenko-Pastur (MP) distribution with [`RMTstat`](https://cran.r-project.org/web/packages/RMTstat/index.html). To compare eigenvalues of $X$ to random samples from the MP distribution, we scale eigenvalues dividing by ${\beta p}$ ($\beta = 1$ for real value entries). When $n$ or $p$ is relatively large, it is necessary to speed up computation by splitting into {\tt times}-fold with [`foreach`](https://cran.r-project.org/web/packages/foreach/index.html). Sampling from the MP distribution, instead of calculating eigenvalues from a random Gaussian matrix, is a strategy to avoid computer memory or power limitations. Thus, `dimension` is more scalable and computationally efficient, especially for large matrices.
+Applying `dimension` package to a small subgroup of control lung sample (id 001C) with 2000 genes and 127 cells (due to CRAN limitation on data size), the `dimension()` function will first construct a `Subspace` within the ambient space. The `subspace()` function will utilize [`irlba`](https://cran.r-project.org/web/packages/irlba/index.html) to calculate the first few approximate largest eigenvalues and eigenvectors of a matrix $X$. The `irlba()` function uses about 1/20 elapsed time compared to the standard `svd()` method and less than 1/3 the peak memory. The `subspace()` function also returns random generation for the Marchenko-Pastur (MP) distribution with [`RMTstat`](https://cran.r-project.org/web/packages/RMTstat/index.html). To compare eigenvalues of $X$ to random samples from the MP distribution, we scale eigenvalues dividing by ${\beta p}$ ($\beta = 1$ for real value entries). When $n$ or $p$ is relatively large, it is necessary to speed up computation by splitting into {\tt times}-fold with [`foreach`](https://cran.r-project.org/web/packages/foreach/index.html). Sampling from the MP distribution, instead of calculating eigenvalues from a random Gaussian matrix, is a strategy to avoid computer memory or power limitations. Thus, `dimension` is more scalable and computationally efficient, especially for large matrices.
 
 The following code demonstrates the incorporation of `dimension` in single-cell RNA-Seq analysis  as a powerful tool for signal extraction and cell type identification.
 
@@ -59,7 +59,7 @@ system.time({results <- dimension(lung, components = 1:50)})
 plot(results$Subspace, changepoint = results$dimension, annotation = 10)
 ```
 
-The output message from the `dimension()` function includes the specified components calculated in the function, the variance parameter used to generate random samples from Marchenko-Pastur distribution, the cutoff value to define "zero" differences between eigenvalues, and detecting flat or spike pattern to speed up calculation and avoid systematic errors. A scree plot of scaled eigenvalues of $X$ matrix and random matrices can be examined visually by the `plot()` function with a `Subsapce` class as the argument.
+The output message from the `dimension()` function includes the specified components calculated in the function, the variance parameter used to generate random samples from Marchenko-Pastur distribution, the cutoff value to define "zero" differences between eigenvalues, and detecting flat or spike pattern to speed up calculation and avoid systematic errors. A scree plot of scaled eigenvalues of $X$ matrix and random matrices can be examined visually by the `plot()` function with a `Subspace` class as the argument.
 
 ```{r}
 # double check with Bayesian change point probability and posterior of change point probability
@@ -68,11 +68,11 @@ modified_legacyplot(results$Changepoint$bcp_post)
 
 ```
 
-Output from `modified_legacyplot()` shows the posterior means and posterior probabilities of change points in a given sequence. The first plot, which uses the scaled eigenvalues as the argument, shows that there are highest posterior probabilities of change points at dimension 1, 2, 3, 4 and smaller posterior probabilities of change points at 7, 8, and 16. The second plot, which uses the posterior probabilities of change points as the argument, shows that there are highest posterior probabilities of probabilities of change points ("candidates"") at 4, 6, 8, 10, 11, and 13 to 18. The `dimension()` function looks at the second plot from right to left for "candidates" and then looks at the first plot from right to left for the maximum posterior probability of change point (4 in this example). In the first plot, if the posterior probability of change point at any of the "candidates" is not smaller than 90% of the posterior probability of change point at 4, then largest dimension that passed the threshold ("p" in `dimension` function) will be the estimated changepoint. Otherwise, the dimension corresponding to the maximum posterior probability in the first plot (4 in this example) will be the estimated changepoint.
+Output from `modified_legacyplot()` shows the posterior means and posterior probabilities of change points in a given sequence. The first plot, which uses the scaled eigenvalues as the argument, shows that there are high posterior probabilities of change points at dimension 1, 2, 3, 4 and smaller posterior probabilities of change points at 7, 8, and 16. The second plot, which uses the posterior probabilities of change points as the argument, shows that there are high posterior probabilities of probabilities of change points ("candidates"") at 4, 6, 8, 10, 11, and 13 to 18. The `dimension()` function looks at the second plot from right to left for "candidates" and then looks at the first plot from right to left for the maximum posterior probability of change point (4 in this example). In the first plot, if the posterior probability of change point at any of the "candidates" is not smaller than 90% of the posterior probability of change point at 4, then largest dimension that passed the threshold ("p" in `dimension` function) will be the estimated changepoint. Otherwise, the dimension corresponding to the maximum posterior probability in the first plot (4 in this example) will be the estimated changepoint.
 
-## Seruat JackStraw
+## Seurat JackStraw
 
-[`Seurat`](https://satijalab.org/seurat/v3.1/pbmc3k_tutorial.html) is currently the most popular platform to analyze single-cell RNA-Seq data. Here we use the `lung` dataset as an example to demonstrate the use of `dimension` in cell type identification and compare its performance to the builtin `JackStraw()` function.
+[`Seurat`](https://satijalab.org/seurat/v3.1/pbmc3k_tutorial.html) is currently the most popular platform to analyze single-cell RNA-Seq data. Here we use the `lung` dataset as an example to demonstrate the use of `dimension` in cell type identification and compares its performance to the builtin `JackStraw()` function,  which tests on each gene's association with each principal component (PC).
 
 ```{r}
 # Single cell RNA-Seq analysis with Seurat
@@ -84,36 +84,54 @@ lung <- RunPCA(lung, npcs = 50, verbose = FALSE)
 
 system.time({lung <- suppressWarnings(JackStraw(lung))})
 lung <- ScoreJackStraw(object = lung, dims = 1:20, reduction = "pca")
-suppressWarnings(JackStrawPlot(object = lung, dims = 1:20, reduction = "pca"))
+JackStrawPlot(object = lung, dims = 1:20, reduction = "pca")
 ```
 
-We compare the distribution of p-values for PCs to a uniform distribution (dashed line). A low p-value for the PC suggests that there is a strong enrichment for features and it shows as solid curve above the dashed line in the output of `JackStrawPlot()` function. In the `lung` dataset, there is a sharp drop-off in significance after the first 1-5 PCs, which is the same estimation as the `dimension()` function.
+We compare the distribution of p-values for PCs to a uniform distribution (dashed line). A low p-value for the PC suggests that there is a strong enrichment for features and it shows as solid curve above the dashed line in the output of `JackStrawPlot()` function. In the `lung` dataset, there is a sharp drop-off in significance after the first 1-5 PCs, which is smaller than the estimation of 1-8 PCs in the `dimension()` function. The elapsed time to estimate dimension for this small dataset is 0.713 for the `dimension()` function, whereas, it takes the `JackStraw()` function 4.864 to compute it. We showed in the paper that the `dimension()` function is very scalable comparing to other methods when applying to genomics or transcriptomics data with 60, 000 genes and 300 cells. We will compare the results of louvain clustering based on the suggested PCs to retain by each method in the next section.
 
-## Seruat Louvain clustering
+## Seurat Louvain clustering
 ```{r message=FALSE}
+library(plyr)
 suppressWarnings(lung <- RunUMAP(lung, reduction = "pca", dims = 1:50, verbose = FALSE))
 
 # louvain cluster based on features 1:50
 lung <- FindNeighbors(lung, dims = 1:50, k.param = 10)
 lung <- FindClusters(lung, resolution = 0.8, verbose = FALSE)
-p1 <- DimPlot(lung, reduction = "umap", label = TRUE) + ggtitle("a) PCs 1:50")
+p1 <- DimPlot(lung, reduction = "umap", label = TRUE, label.size = 6) + ggtitle("a) PCs 1:50")
 
-# louvain cluster based on features 9:50
-lung <- FindNeighbors(lung, dims = 9:50, k.param = 10)
+# louvain cluster based on features 6:50
+lung <- FindNeighbors(lung, dims = 6:50, k.param = 10)
 lung <- FindClusters(lung, resolution = 0.8, verbose = FALSE)
-p2 <- DimPlot(lung, reduction = "umap", label = TRUE) + ggtitle("b) PCs 9:50")
+p2 <- DimPlot(lung, reduction = "umap", label = TRUE, label.size = 6) + ggtitle("b) PCs 6:50")
 
 # louvain cluster based on features 1:5
 lung <- FindNeighbors(lung, dims = 1:5, k.param = 10)
 lung <- FindClusters(lung, resolution = 0.8, verbose = FALSE)
-p3 <- DimPlot(lung, reduction = "umap", label = TRUE) + ggtitle("c) PCs 1:5")
+p3 <- DimPlot(lung, reduction = "umap", label = TRUE, label.size = 6) + ggtitle("c) PCs 1:5")
+
+# Annotated cell types by Adams et al.
+subset_origin_ident <- read.table("../data-raw/subset_origin_ident.txt", sep="\t", header=TRUE)
+lung@meta.data$orig_label <- subset_origin_ident$cell.type.ident
+p0 <- DimPlot(lung, reduction = "umap",label = TRUE, group.by = "orig_label", label.size = 4) +
+      NoLegend() + ggtitle("d) Annotated by Adams et al.")
+grid.arrange(p1, p2, p3, p0, ncol = 2)
+```
+
+We applied the clustering method implemented in the `Seurat` package (see [details](https://satijalab.org/seurat/v3.1/pbmc3k_tutorial.html)) for PCs from 1:50, 6:50, 1:5, and refer to the cell types annotated by  [Adams et  al.(2019)](https://www.biorxiv.org/content/10.1101/759902v1.full.pdf)) in the full dataset (see panel d). Including PCs from 1 to 50 will misclassify T cells, fibroblast, and secretory cells all together. Similarly, if we truncate signals as suggested by Jackstraw from 1 to 5, we will miss the important PCs (see panel b) that seperate secretory cells from AT1 cells. Therefore, an accurate estimation of the signal dimension is paramount for cell type identification to avoid clustering with overaboundance of noise or signal omission, which both lead to misleading conclusions.
+
+```{r message=FALSE}
+# louvain cluster based on features 9:50
+lung <- FindNeighbors(lung, dims = 9:50, k.param = 10)
+lung <- FindClusters(lung, resolution = 0.8, verbose = FALSE)
+p4 <- DimPlot(lung, reduction = "umap", label = TRUE, label.size = 6) + ggtitle("b) PCs 9:50")
 
 # louvain cluster based on features 1:8
 lung <- FindNeighbors(lung, dims = 1:8, k.param = 10)
 lung <- FindClusters(lung, resolution = 0.8, verbose = FALSE)
-p4 <- DimPlot(lung, reduction = "umap", label = TRUE) + ggtitle("d) PCs 1:8")
+p5 <- DimPlot(lung, reduction = "umap", label = TRUE, label.size = 6) + ggtitle("a) PCs 1:8")
 
-grid.arrange(p1, p2, p3, p4, ncol = 2)
+grid.arrange(p5, p4, ncol = 2)
+
 # find marker genes for clusters
 marker0 <- FindMarkers(lung, ident.1 = 0, only.pos = T, min.pct = 0.25)
 marker1 <- FindMarkers(lung, ident.1 = 1, only.pos = T, min.pct = 0.25)
@@ -126,45 +144,36 @@ rownames(marker0[order(marker0$avg_logFC, decreasing = T),][1:20,])
 rownames(marker1[order(marker1$avg_logFC, decreasing = T),][1:20,])
 rownames(marker2[order(marker2$avg_logFC, decreasing = T),][1:20,])
 rownames(marker3[order(marker3$avg_logFC, decreasing = T),][1:20,])
-rownames(marker4[order(marker4$avg_logFC, decreasing = T),][1:20,])
+rownames(marker4[order(marker4$avg_logFC, decreasing = T),])
 rownames(marker5[order(marker5$avg_logFC, decreasing = T),][1:20,])
 ```
 
-We applied the clustering method implemented in the `Seruat` package (see [details](https://satijalab.org/seurat/v3.1/pbmc3k_tutorial.html)) for PCs from 1:50, 9:50, 1:5 and 1:8. The umap for each of plot confirmed that major features for cell type clustering depend on dimension 1 to 8 and there is no new cluster formed from dimension 9 to 50. Clustering from denoised signal subspace identified two additional cluster that is masked in the whole space. To validate the clustering results, we use the `FindMarkers()` function to identify marker genes in each cluster via differential expression and further match the clustering results to known cell types with identified marker genes. 
+The umap for each of plot confirmed that major features for cell type clustering depend on dimension 1 to 8 and there is no new cluster formed from dimension 9 to 50. Clustering from `dimension` estimated signal subspace identified two additional cluster that is masked in the whole space. To validate the clustering results, we use the `FindMarkers()` function to identify marker genes in each cluster via differential expression and further match the clustering results to known cell types with identified marker genes.
 
 ```{r table2, echo=FALSE, message=FALSE, warnings=FALSE, results='asis'}
 tabl <- "
 | Cluster ID |    Markers           |     Cell type                     |
 |----------- |:--------------------:|----------------------------------:|
 | 0          |  CCL4, NKG7, GZMB    |  NK cells                         |
-| 1          |  FTL, APOC1, APOE    |  Macrophage & Macrophage_Alveolar |
+| 1          |  FTL, APOC1, FABP4   |  Macrophage & Macrophage_Alveolar |
 | 2          |  AGER, HOPX          |  AT1                              |
-| 3          |  SCGB1A1, KRT17      |  Club cells & Basal cells         |
+| 3          |  SCGB1A1, SCGB3A2    |  Secretory cells                  |
 | 4          |  ABCG1, GLDN         |  Macrophage_Alveolar              |
-| 5          |  APOD, DCN, GPX3     |  Fibroblast                       |
+| 5          |  DCN, GPX3           |  Fibroblast                       |
 "
 cat(tabl)
 ```
-```{r fig1, fig.height = 5, fig.width = 9}
+```{r fig1, fig.height = 5, fig.width = 8}
 # Mark cell types with our identification
-new.cluster.ids <- c("NK cells", "   Mac & Mac_Alv", "AT1 ", "Club & Basal", "Mac_Alv", "Fibroblast")
+new.cluster.ids <- c("NK", "   Mac & Mac_Alv", "AT1 ", "Secretory", "Mac_Alv", "Fibroblast")
 names(new.cluster.ids) <- levels(lung)
 lung <- RenameIdents(lung, new.cluster.ids)
-p5 <- DimPlot(lung, reduction = "umap", label = TRUE, pt.size = 0.5, label.size = 6) + NoLegend() + ggtitle("a) Cell Type Identification")
-
-# Mark cell types with publication identification
-subset_origin_ident <- read.table("/Users/wz262/Projects/dimension/data-raw/subset_origin_ident.txt", sep="\t", header=TRUE)
-library(plyr)
-subset_origin_ident$cell.type.ident <- revalue(subset_origin_ident$cell.type.ident, c("Macrophage_Alveolar"="Mac_Alv"))
-lung@meta.data$orig_label <- subset_origin_ident$cell.type.ident
-p6 <- DimPlot(lung, reduction = "umap",label = TRUE, group.by = "orig_label", label.size = 6) + NoLegend() + ggtitle("b) Public Cell Types")
-
-grid.arrange(p5, p6, ncol = 2)
-
+p6 <- DimPlot(lung, reduction = "umap", label = TRUE, pt.size = 0.5, label.size = 4) +
+      NoLegend() + ggtitle("a) Annotated by cell type identification")
+grid.arrange(p6, p0 + ggtitle("b) Annotated by Adams et al."), ncol = 2)
 ```
 
-
-Comparing to the original identification published by [Adams et  al.(2019)](https://www.biorxiv.org/content/10.1101/759902v1.full.pdf)), we cluster T cells together with NK cells and Basal cells with Club cells for dimension 1:6. Given that we used a subset of the original data and the fact that these cells regulate and differiate into each other, the cell type identification result makes sense biologically. By contrast, if we include noisy PCs all together from 1 to 50 will misclassify T cells, Fibroblast, Basal cells, and Club cells together. Similarly, if we truncate signals as suggested by Jackstraw from 1 to 5, we will miss the important PCs that seperate Basal & Club cells from AT1 cells. 
+Comparing to the cell types annotated with the full dataset published by [Adams et  al.(2019)](https://www.biorxiv.org/content/10.1101/759902v1.full.pdf)), most of the cells types have been corretly annotated with the small demonstration subset using PCs from 1 to 8. Except that T cells cluster together with NK cells. However, NK cells and T cells are phenotypically similar and they both derive from lymphoid lineage cells. 
 
 ## Extreme cases in simulation
 

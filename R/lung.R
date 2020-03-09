@@ -8,7 +8,7 @@
 #' to build a single cell atlas of Idiopathic Pulmonary Fibrosis (IPF).
 #' It contains the gene expression of 312,928 cells profiled
 #' from 32 IPF patient lung samples, 18 chronic obstructive pulmonary
-#' disease (COPD) lung samples and 29 control donor lung samples.
+#' disease (COPD) lung samples and 28 control donor lung samples.
 #' (Adamset al.2019).
 #' @docType data
 #' @name lung
