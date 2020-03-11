@@ -150,6 +150,7 @@ dimension <- function(x,
     }
   } else {
       cor_rnk   <- rnk
+      flatstart <- NA
   }
 
   #Bayesian Change Point

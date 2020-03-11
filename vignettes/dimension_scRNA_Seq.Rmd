@@ -42,7 +42,7 @@ The IPF Single Cell Atlas (`lung`) data can be found on Gene Expression Omnibus 
 
 Applying `dimension` package to a small subgroup of control lung sample (id 001C) with 2000 genes and 127 cells (due to CRAN limitation on data size), the `dimension()` function will first construct a `Subspace` within the ambient space. The `subspace()` function will utilize [`irlba`](https://cran.r-project.org/web/packages/irlba/index.html) to calculate the first few approximate largest eigenvalues and eigenvectors of a matrix $X$. The `irlba()` function uses about 1/20 elapsed time compared to the standard `svd()` method and less than 1/3 the peak memory. The `subspace()` function also returns random generation for the Marchenko-Pastur (MP) distribution with [`RMTstat`](https://cran.r-project.org/web/packages/RMTstat/index.html). To compare eigenvalues of $X$ to random samples from the MP distribution, we scale eigenvalues dividing by ${\beta p}$ ($\beta = 1$ for real value entries). When $n$ or $p$ is relatively large, it is necessary to speed up computation by splitting into {\tt times}-fold with [`foreach`](https://cran.r-project.org/web/packages/foreach/index.html). Sampling from the MP distribution, instead of calculating eigenvalues from a random Gaussian matrix, is a strategy to avoid computer memory or power limitations. Thus, `dimension` is more scalable and computationally efficient, especially for large matrices.
 
-The following code demonstrates the incorporation of `dimension` in single-cell RNA-Seq analysis  as a powerful tool for signal extraction and cell type identification.
+The following code demonstrates the incorporation of `dimension` in single-cell RNA-Seq analysis as a powerful tool for signal extraction and cell type identification.
 
 ### Dimension
 
@@ -117,7 +117,7 @@ p0 <- DimPlot(lung, reduction = "umap",label = TRUE, group.by = "orig_label", la
 grid.arrange(p1, p2, p3, p0, ncol = 2)
 ```
 
-We applied the clustering method implemented in the `Seurat` package (see [details](https://satijalab.org/seurat/v3.1/pbmc3k_tutorial.html)) for PCs from 1:50, 6:50, 1:5, and refer to the cell types annotated by  [Adams et  al.(2019)](https://www.biorxiv.org/content/10.1101/759902v1.full.pdf)) in the full dataset (see panel d). Including PCs from 1 to 50 will misclassify T cells, fibroblast, and secretory cells all together. Similarly, if we truncate signals as suggested by Jackstraw from 1 to 5, we will miss the important PCs (see panel b) that seperate secretory cells from AT1 cells. Therefore, an accurate estimation of the signal dimension is paramount for cell type identification to avoid clustering with overaboundance of noise or signal omission, which both lead to misleading conclusions.
+We applied the clustering method implemented in the `Seurat` package (see [details](https://satijalab.org/seurat/v3.1/pbmc3k_tutorial.html)) for PCs from 1:50, 6:50, 1:5, and refer to the cell types annotated by  [Adams et  al.(2019)](https://www.biorxiv.org/content/10.1101/759902v1.full.pdf)) in the full dataset (see panel d). Including PCs from 1 to 50 will misclassify T cells, fibroblast, and secretory cells all together. Similarly, if we truncate signals as suggested by Jackstraw from 1 to 5, we will miss the important PCs (see panel b) that separate secretory cells from AT1 cells. Therefore, an accurate estimation of the signal dimension is paramount for cell type identification to avoid clustering with overabundance of noise or signal omission, which both lead to misleading conclusions.
 
 ```{r message=FALSE}
 # louvain cluster based on features 9:50
@@ -173,7 +173,7 @@ p6 <- DimPlot(lung, reduction = "umap", label = TRUE, pt.size = 0.5, label.size 
 grid.arrange(p6, p0 + ggtitle("b) Annotated by Adams et al."), ncol = 2)
 ```
 
-Comparing to the cell types annotated with the full dataset published by [Adams et  al.(2019)](https://www.biorxiv.org/content/10.1101/759902v1.full.pdf)), most of the cells types have been corretly annotated with the small demonstration subset using PCs from 1 to 8. Except that T cells cluster together with NK cells. However, NK cells and T cells are phenotypically similar and they both derive from lymphoid lineage cells. 
+Comparing to the cell types annotated with the full dataset published by [Adams et  al.(2019)](https://www.biorxiv.org/content/10.1101/759902v1.full.pdf)), most of the cells types have been correctly annotated with the small demonstration subset using PCs from 1 to 8. Except that T cells cluster together with NK cells. However, NK cells and T cells are phenotypically similar and they both derive from lymphoid lineage cells. 
 
 ## Extreme cases in simulation
 
