@@ -116,8 +116,9 @@ dimension <- function(x,
     #Trim unnecessary components when components large
     sigma_a_diff    <- diff(sigma_a / sigma_a[1])
     cutoff          <- min(min(sigma_a / sigma_a[1]), 0.005)
+    m <- paste0("Cutoff value = ", cutoff, "\n")
     if (verbose) {
-      message("Cutoff value = ", cutoff, "\n")
+      message(m)
     }
     sigma_a_diff[abs(sigma_a_diff) < cutoff] <- 0
     sigma_a_diff[abs(sigma_a_diff) > cutoff] <- 1
@@ -132,18 +133,20 @@ dimension <- function(x,
     if (!is.na(sum(flatstart))) {
       cond_num      <- (flatstart[1] - 1) / 3 + 1
       cor_rnk   <- (flatstart[2] - 1) / 3 + 1
-      if (verbose) {
-        message("Detecting flat pattern from ",
+      m1 <- paste0("Detecting flat pattern from ",
             cond_num, " to ", cor_rnk,
             " and trim out components after ", cor_rnk, "\n")
+      if (verbose) {
+        message(m1)
       }
     } else if (!is.na(sum(flatend))) {
       spike_num     <- (flatend[2] - 1) / 3 + 1
       cor_rnk   <- (flatend[1] - 1) / 3 + 1
-      if (verbose) {
-        message("Detecting spike pattern from ",
+      m2 <- paste0("Detecting spike pattern from ",
             cor_rnk, " to ", spike_num,
             " and trim out components after ", cor_rnk, "\n")
+      if (verbose) {
+        message(m2)
       }
     } else {
       cor_rnk   <- rnk
@@ -175,9 +178,31 @@ dimension <- function(x,
                         switch(2 - any(threshold),
                                max(post_max[threshold]),
                                irl_max))
-  message("Dimension estimation = ", changepoint, "\n")
-  return(list(Subspace    = subspace_,
-              dimension   = changepoint,
-              Changepoint = list(bcp_irl    = bcp_irl,
-                                 bcp_post   = bcp_post)))
+  m3 <- paste0("Dimension estimation = ", changepoint, "\n")
+  message(m3)
+  ret <- list(Subspace    = subspace_,
+                     dimension   = changepoint,
+                     Changepoint = list(bcp_irl    = bcp_irl,
+                                        bcp_post   = bcp_post),
+                     message    = list(m3))
+  attr(ret, "class") <- "dimension"
+  ret
+}
+
+#' @title Print dimension
+#'
+#' A generic function.
+#'
+#' @param x a dimension class.
+#' @param ... Extra parameters
+#' @export
+print.dimension <- function(x, ...) {
+  cat("An object of class dimension estimated for",
+      ifelse(x$transpose_flag, "transposed", ""),
+      "X matrix with",
+      x$Subspace$ndf,
+      "samples and",
+      x$Subspace$pdim,
+      "features.\n")
+  cat(x$message[[1]])
 }

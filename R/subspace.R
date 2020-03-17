@@ -55,6 +55,7 @@
 #' @import doParallel
 #' @import parallel
 #' @import foreach
+#' @import Matrix
 #' @export
 
 subspace <- function(x,
@@ -101,9 +102,8 @@ subspace <- function(x,
 # ----------------------------------------
 # Singular Value Decomposition of X matrix
 # ----------------------------------------
-  #Col Mean center Matrix
+  # Col Mean center Matrix
   if (transpose_flag) x <- t(x)
-
   if (rnk > pdim / 2) {
     tryCatch({
       x_std <- sweep(x, 2L, colMeans(x))
@@ -117,7 +117,7 @@ subspace <- function(x,
     )
       tmp <- svd(x_std)
   } else {
-      tmp <- irlba(x, center = colMeans(x), nv = rnk)
+      tmp <- irlba(x, center = TRUE, nv = rnk)
   }
 
   irl     <- tibble(eigen = tmp$d[components]^2 / pdim, dim = components)

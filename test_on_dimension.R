@@ -2,7 +2,7 @@ rm(list=lsf.str())
 gc()
 
 #auto generating documents after changing fxns
-setwd("/Users/zangwenlan/Projects/dimension")
+setwd("/Users/wz262/Projects/dimension")
 library(roxygen2)
 library(devtools)
 document()
@@ -44,6 +44,8 @@ Subspace <- subspace(x, components = 1:30, times = 10)
 print(proc.time() - t1)
 gc()
 Subspace$irl$eigen
+results <- dimension(subspace_ = Subspace)
+results <- dimension(x, components = 1:50, times = 10)
 ########################################################
 #####test on check_dim_matrix#########
 ########################################################

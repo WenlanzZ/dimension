@@ -6,7 +6,7 @@
 
 A generic function.}
 \usage{
-\method{print}{subspace}(x, ...)
+print.subspace(x, ...)
 }
 \arguments{
 \item{x}{a subspace class.}
