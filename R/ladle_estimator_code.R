@@ -3,7 +3,6 @@
 #' Combining Eigenvalues and Variation of Eigenvectors for Order
 #' Determination, Biometrika, 103, 875–887. <doi:10.1093/biomet/asw051>
 #' @param x numbers.
-#' @export
 stand <- function(x) {
   n   <- nrow(x)
   p   <- ncol(x)
@@ -24,7 +23,6 @@ stand <- function(x) {
 #' Determination, Biometrika, 103, 875–887. <doi:10.1093/biomet/asw051>
 #' @param a an original matrix
 #' @param alpha power
-#' @export
 matpower <- function(a, alpha) {
   a   <- (a + t(a)) / 2
   tmp <- eigen(a)
@@ -39,7 +37,6 @@ matpower <- function(a, alpha) {
 #' @param x numbers.
 #' @param y numbers.
 #' @importFrom stats cov
-#' @export
 mhat_cca <- function(x, y) {
   n   <- nrow(x)
   p   <- ncol(x)
@@ -56,7 +53,6 @@ mhat_cca <- function(x, y) {
 #' Combining Eigenvalues and Variation of Eigenvectors for Order
 #' Determination, Biometrika, 103, 875–887. <doi:10.1093/biomet/asw051>
 #' @param x numbers.
-#' @export
 mhat_ica <- function(x) {
   n <- nrow(x)
   p <- ncol(x)
@@ -75,7 +71,6 @@ mhat_ica <- function(x) {
 #' @param n numbers.
 #' @importFrom stats quantile
 #' @importFrom stats quantile
-#' @export
 slicing <- function(y, h, n) {
   if (length(levels(as.factor(y))) > h) {
     y_tilde <- rep(0, h + 1)
@@ -111,7 +106,6 @@ slicing <- function(y, h, n) {
 #' @param x numbers.
 #' @param y numbers.
 #' @param h numbers.
-#' @export
 mhat_dr <- function(x, y, h) {
   n <- nrow(x)
   p <- ncol(x)
@@ -154,7 +148,6 @@ mhat_dr <- function(x, y, h) {
 #' @param y numbers.
 #' @param nslices nslices is needed for sufficient dimension reduction.
 #' @importFrom stats var
-#' @export
 mhat_ksir <- function(x = x, phi = phi, y = y, nslices = nslices) {
   n <- length(y)
   h <- nslices
@@ -195,7 +188,7 @@ mhat_ksir <- function(x = x, phi = phi, y = y, nslices = nslices) {
 #' Determination, Biometrika, 103, 875–887. <doi:10.1093/biomet/asw051>
 #' @param x A numeric real-valued matrix with n number of samples and
 #'  p number of features (n > p).
-#' @param y numbers.
+#' @param y A vector.
 #' @param nslices nslices is needed for sufficient dimension reduction.
 #' @param nboot bootstrap sample size.
 #' @param method options for method include: "pca", "cca", "ica", "sir",

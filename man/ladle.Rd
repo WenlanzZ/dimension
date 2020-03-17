@@ -17,7 +17,7 @@ ladle(
 \item{x}{A numeric real-valued matrix with n number of samples and
 p number of features (n > p).}
 
-\item{y}{numbers.}
+\item{y}{A vector.}
 
 \item{nslices}{nslices is needed for sufficient dimension reduction.}
 

@@ -46,6 +46,21 @@ gc()
 Subspace$irl$eigen
 results <- dimension(subspace_ = Subspace)
 results <- dimension(x, components = 1:50, times = 10)
+
+#Test on ladle function
+stime1 <- system.time(test1 <- ladle(x = t(x), method = "pca"))
+cat("d = ", test1$d, "; elapsed = ", stime1[[3]], "\n")
+ggplot() + geom_line(aes(x = 1:length(test1$gn), y = test1$gn),colour="black") +
+  geom_point(aes(x = 1:length(test1$gn), y = test1$gn), color = "red") +
+  ggtitle(paste0(
+    "The Ladle Plot", "\n", "n_", 100, "_p_", 500, "_d_", 10, "_est d_", test1$d)) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  geom_text_repel(aes(x = 1:length(test1$gn), y = test1$gn, label=1:length(test1$gn)),
+                  colour = "black", size = 5)
+# ggsave(file.path(output_dir,"ladle_obj_function_plot.pdf"))
+
+#Test on hoff function
+hoff_result <- hoff(y = t(x), NSCAN = 10)
 ########################################################
 #####test on check_dim_matrix#########
 ########################################################
