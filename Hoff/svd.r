@@ -1,5 +1,6 @@
 ##### Precondition: Y= m*n  matrix with m>=n
-source("svd.f.r")
+#library(dimension)
+#source("svd.f.r")
 
 ##### constants 
 m<-dim(Y)[1]

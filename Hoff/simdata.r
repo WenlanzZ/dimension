@@ -1,5 +1,7 @@
-source("svd.f.r")
+#source("svd.f.r")
 ##### generate simulated data
+library(dimension)
+
 for(seed in 10 +10*c(1:9)) {
 set.seed(seed)
 
