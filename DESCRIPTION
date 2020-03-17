@@ -30,7 +30,8 @@ Imports:
     stringr,
     tibble,
     shiny,
-    dr
+    dr,
+    Rcpp
 LazyData: true
 Encoding: UTF-8
 RoxygenNote: 7.0.2
@@ -43,3 +44,5 @@ Suggests:
     Seurat
 VignetteBuilder: 
     knitr
+LinkingTo: 
+    Rcpp
