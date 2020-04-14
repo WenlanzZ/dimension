@@ -37,8 +37,7 @@ x_denoised
 
 # plot results
 plot(results$Subspace, changepoint = results$dimension, annotation = 10)
-modified_legacyplot(results$Changepoint$bcp_irl, annotation = 10)
-modified_legacyplot(results$Changepoint$bcp_post, annotation = 10)
+modified_legacyplot(results$bcp_irl, annotation = 10)
 ```
 
 ## Using the dimension package
