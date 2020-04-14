@@ -59,16 +59,14 @@ system.time({results <- dimension(lung, components = 1:50)})
 plot(results$Subspace, changepoint = results$dimension, annotation = 10)
 ```
 
-The output message from the `dimension()` function includes the specified components calculated in the function, the variance parameter used to generate random samples from Marchenko-Pastur distribution, the cutoff value to define "zero" differences between eigenvalues, and detecting flat or spike pattern to speed up calculation and avoid systematic errors. A scree plot of scaled eigenvalues of $X$ matrix and random matrices can be examined visually by the `plot()` function with a `Subspace` class as the argument.
+The output message from the `dimension()` function includes the specified components calculated in the function, the variance parameter used to generate random samples from Marchenko-Pastur distribution, the cutoff value to define "zero" differences between posterior probabilities of change points, and detecting flat or spike pattern to speed up calculation and avoid systematic errors. A scree plot of scaled eigenvalues of $X$ matrix and random matrices can be examined visually by the `plot()` function with a `Subspace` class as the argument.
 
 ```{r}
-# double check with Bayesian change point probability and posterior of change point probability
-modified_legacyplot(results$Changepoint$bcp_irl)
-modified_legacyplot(results$Changepoint$bcp_post)
-
+# double check with Bayesian change point posterior probabilities
+modified_legacyplot(results$bcp_irl)
 ```
 
-Output from `modified_legacyplot()` shows the posterior means and posterior probabilities of change points in a given sequence. The first plot, which uses the scaled eigenvalues as the argument, shows that there are high posterior probabilities of change points at dimension 1, 2, 3, 4 and smaller posterior probabilities of change points at 7, 8, and 16. The second plot, which uses the posterior probabilities of change points as the argument, shows that there are high posterior probabilities of probabilities of change points ("candidates"") at 4, 6, 8, 10, 11, and 13 to 18. The `dimension()` function looks at the second plot from right to left for "candidates" and then looks at the first plot from right to left for the maximum posterior probability of change point (4 in this example). In the first plot, if the posterior probability of change point at any of the "candidates" is not smaller than 90% of the posterior probability of change point at 4, then largest dimension that passed the threshold ("p" in `dimension` function) will be the estimated changepoint. Otherwise, the dimension corresponding to the maximum posterior probability in the first plot (4 in this example) will be the estimated changepoint.
+Output from `modified_legacyplot()` shows the posterior means and posterior probabilities of change points in a given sequence. The legacy plot shows that there are equally high posterior probabilities of change points at dimension 1, 2, 3, 4, 7 and 8. The `dimension()` function looks at the legacy plot from right to left for the maximum posterior probability of change point (8 in this example).
 
 ## Seurat JackStraw
 
@@ -193,13 +191,14 @@ $$
 x <- x_sim(n = 100, p = 50000, ncc = 10, var = 6)
 stime <- system.time(test <- dimension(x))
 plot(test$Subspace, changepoint = test$dimension, annotation = 10)
-bcp_irl <- bcp(as.vector(test$Subspace$sigma_a - test$Subspace$sigma_mp), p0 = 0.1)
-bcp_post <- bcp(as.vector(c(bcp_irl$posterior.prob[-100], 0)), p0 = 0.1)
+prior <- seq(0.9, 0, length.out = 100)
+suppressWarnings(
+    bcp_irl  <- bcp(as.vector(test$Subspace$sigma_a - test$Subspace$sigma_mp),
+                     p0 = prior))
 modified_legacyplot(bcp_irl)
-modified_legacyplot(bcp_post)
 ```
 
-The signal inside this setting is extremely low ($100*10$ vs. $100*(50000-10)$) and the `bcp` performs less stably on the edges of the sequences. As a result, when there is a small drop between 96 and 97, the posterior probability of a change point at 97 is extremely high. Thus, we adopt an alarm system posted at [dracodoc](https://dracodoc.wordpress.com/2014/07/21/a-simple-algorithm-to-detect-flat-segments-in-noisy-signals/) for this kind of spike pattern in `bcp` plots at the edges. When it detects a spike after a long flat pattern in the sequence, it will trim off the sequence right before the spike, so that the estimation from `bcp` will be accurate and robust in extreme cases.
+The signal inside this setting is extremely low ($100*10$ vs. $100*(50000-10)$) and the `bcp` performs less stably on the edges of the sequences. As a result, when there is a small drop between 96 and 97, the posterior probability of a change point at 97 is extremely high. Thus, we adopt an alarm system posted at [dracodoc](https://dracodoc.wordpress.com/2014/07/21/a-simple-algorithm-to-detect-flat-segments-in-noisy-signals/) for this kind of spike pattern in posterior probabilities at the edges. When it detects a spike after a long flat pattern in the sequence, it will trim off the sequence right before the spike, so that the estimation from `bcp` will be accurate and robust in extreme cases.
 
 In another extreme simulated case when the signal pattern is very obvious, we can detect the flat pattern quickly and reduce the time of calculation on unnecessary components.
 

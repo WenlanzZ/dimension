@@ -37,6 +37,10 @@ check_dim_matrix <- function(x,
     ndf  <- nrow(x)
     pdim <- ncol(x)
 
+    if (min(ndf, pdim) <= 5) {
+        stop("x matrix should have at least 5 rows or columns.\n")
+    }
+
     if (missing(rnk)) {
         rnk <- min(ndf, pdim)
         if (verbose) {

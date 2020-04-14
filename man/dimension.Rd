@@ -9,7 +9,6 @@ dimension(
   subspace_ = NULL,
   components = NA,
   times = NA,
-  p = 0.9,
   verbose = TRUE,
   ...
 )
@@ -25,8 +24,6 @@ the transpose of x is used.}
 Components must be smaller or equal to min(nrow(x),ncol(x)).}
 
 \item{times}{Split data into times-fold for parallel computation.}
-
-\item{p}{Threshold for selecting changepoint. Default is 0.90.}
 
 \item{verbose}{output message}
 
@@ -52,8 +49,6 @@ Returns a list with entries:
   \item{dimension:}{ Estimated signal subspace dimension.}
   \item{bcp_irl:}{ Probability of change in mean and posterior means
    of eigenvalue difference between $x$ and $N$.}
-  \item{bcp_post:}{ Probability of change in mean and posterior means
-   of bcp_rirl.}
 }
 }
 \description{
@@ -85,8 +80,7 @@ results <- dimension(subspace_ = Subspace)
 str(results)
 plot(results$Subspace, changepoint = results$dimension,
      annotation = 10)
-modified_legacyplot(results$Changepoint$bcp_irl, annotation = 10)
-modified_legacyplot(results$Changepoint$bcp_post, annotation = 10)
+modified_legacyplot(results$bcp_irl, annotation = 10)
 }
 \seealso{
 [RMTstat] for details of Marchenko-Pastur distribution.

@@ -4,11 +4,13 @@
 \alias{hoff}
 \title{hoff}
 \usage{
-hoff(y = y)
+hoff(y = y, NSCAN = 10000)
 }
 \arguments{
 \item{y}{A numeric real-valued matrix with n number of samples and
 p number of features (n > p).}
+
+\item{NSCAN}{A numberic value decide MCMC sample size (size = NSCAN / 10)}
 }
 \description{
 All credit to Luo, W. and Li, B. (2016),

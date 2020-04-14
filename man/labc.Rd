@@ -4,7 +4,7 @@
 \alias{labc}
 \title{labc}
 \usage{
-labc(theta, lmax, m, E2, phi, mu, psi)
+labc(theta, lmax, m, e2, phi, mu, psi)
 }
 \arguments{
 \item{theta}{An \tt{R} object.}
@@ -13,7 +13,7 @@ labc(theta, lmax, m, E2, phi, mu, psi)
 
 \item{m}{An \tt{R} object.}
 
-\item{E2}{An \tt{R} object.}
+\item{e2}{An \tt{R} object.}
 
 \item{phi}{An \tt{R} object.}
 

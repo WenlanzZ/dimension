@@ -4,14 +4,14 @@
 \alias{hoff_gibbs_sample}
 \title{hoff_gibbs_sample}
 \usage{
-hoff_gibbs_sample(E, Nu, Nv, phi, mu, psi, lor, llb = 50, lub = 2000)
+hoff_gibbs_sample(e, nu, nv, phi, mu, psi, lor, llb = 50, lub = 2000)
 }
 \arguments{
-\item{E}{An \tt{R} object.}
+\item{e}{An \tt{R} object.}
 
-\item{Nu}{An \tt{R} object.}
+\item{nu}{An \tt{R} object.}
 
-\item{Nv}{An \tt{R} object.}
+\item{nv}{An \tt{R} object.}
 
 \item{phi}{An \tt{R} object.}
 

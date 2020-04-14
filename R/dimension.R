@@ -10,7 +10,6 @@
 #' @param components A series of right singular vectors to estimate.
 #'  Components must be smaller or equal to min(nrow(x),ncol(x)).
 #' @param times Split data into times-fold for parallel computation.
-#' @param p Threshold for selecting changepoint. Default is 0.90.
 #' @param verbose output message
 #' @param ... Extra parameters
 #' @return
@@ -33,8 +32,6 @@
 #'   \item{dimension:}{ Estimated signal subspace dimension.}
 #'   \item{bcp_irl:}{ Probability of change in mean and posterior means
 #'    of eigenvalue difference between $x$ and $N$.}
-#'   \item{bcp_post:}{ Probability of change in mean and posterior means
-#'    of bcp_rirl.}
 #' }
 #' @section Details:
 #'  We estimate the intrinsic dimension of a signal-rich subspace
@@ -58,8 +55,7 @@
 #' str(results)
 #' plot(results$Subspace, changepoint = results$dimension,
 #'      annotation = 10)
-#' modified_legacyplot(results$Changepoint$bcp_irl, annotation = 10)
-#' modified_legacyplot(results$Changepoint$bcp_post, annotation = 10)
+#' modified_legacyplot(results$bcp_irl, annotation = 10)
 #' @seealso [RMTstat] for details of Marchenko-Pastur distribution.
 #' @seealso https://dracodoc.wordpress.com/2014/07/21/
 #' a-simple-algorithm-to-detect-flat-segments-in-noisy-signals/ for detection
@@ -73,7 +69,6 @@ dimension <- function(x,
                       subspace_ = NULL,
                       components = NA,
                       times = NA,
-                      p = 0.90,
                       verbose = TRUE,
                       ...) {
 # -----------------------
@@ -109,82 +104,69 @@ dimension <- function(x,
   rnk             <- max(subspace_$components)
   sigma_a         <- subspace_$sigma_a
   sigma_mp        <- subspace_$sigma_mp
+  sigma_a_adj     <- sigma_a - sigma_mp
 # --------------------------
 # Rank Estimation procedure
 # --------------------------
-  if (rnk > 20) {
-    #Trim unnecessary components when components large
-    sigma_a_diff    <- diff(sigma_a / sigma_a[1])
-    cutoff          <- min(min(sigma_a / sigma_a[1]), 0.005)
-    m <- paste0("Cutoff value = ", cutoff, "\n")
+  #Bayesian Change Point
+  prob_post <- seq(0.9, 0, length.out = rnk)
+  suppressWarnings(
+    bcp_irl  <- bcp(as.vector(sigma_a_adj[1:rnk]),
+                     p0 = prob_post[1:rnk]))
+  prob_irl   <- c(bcp_irl$posterior.prob[-rnk], 0)
+
+  ## Detect spikes in prob_post
+  prob_irl_diff <- abs(diff(prob_irl))
+  cutoff         <- quantile(abs(prob_irl_diff))[4]
+  cat("Cutoff = ", cutoff, "\n")
+  prob_irl_diff[prob_irl_diff <= cutoff] <- 0
+  prob_irl_diff[prob_irl_diff > cutoff] <- 1
+  prob_irl_diff_str     <- toString(prob_irl_diff)
+  ## Detect extreme cases with strange spikes
+  sequence <- rep(0, ifelse(rnk > 20, 10, 5))
+  flatstart       <- str_locate(prob_irl_diff_str,
+                                paste(as.character(c(1, sequence)),
+                                      sep = "' '", collapse = ", "))
+  flatend         <- str_locate(prob_irl_diff_str,
+                                paste(as.character(c(sequence, 1)),
+                                      sep = "' '", collapse = ", "))
+  if (!is.na(sum(flatstart))) {
+    cond_num      <- (flatstart[1] - 1) / 3 + 1
+    cor_rnk   <- (flatstart[2] - 1) / 3 + 1
+    m1 <- paste0("Detecting flat pattern from ",
+          cond_num, " to ", cor_rnk,
+          " and trim out components after ", cor_rnk, "\n")
     if (verbose) {
-      message(m)
+      message(m1)
     }
-    sigma_a_diff[abs(sigma_a_diff) < cutoff] <- 0
-    sigma_a_diff[abs(sigma_a_diff) > cutoff] <- 1
-    sigma_a_str     <- toString(sigma_a_diff)
-    #Detect extreme cases with strange spikes
-    flatstart       <- str_locate(sigma_a_str,
-                                  paste0("1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ",
-                                        "0, 0, 0, 0, 0, 0, 0, 0, 0, 0"))
-    flatend         <- str_locate(sigma_a_str,
-                                  paste0("0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ",
-                                        "0, 0, 0, 0, 0, 0, 0, 0, 0, 1"))
-    if (!is.na(sum(flatstart))) {
-      cond_num      <- (flatstart[1] - 1) / 3 + 1
-      cor_rnk   <- (flatstart[2] - 1) / 3 + 1
-      m1 <- paste0("Detecting flat pattern from ",
-            cond_num, " to ", cor_rnk,
-            " and trim out components after ", cor_rnk, "\n")
-      if (verbose) {
-        message(m1)
-      }
-    } else if (!is.na(sum(flatend))) {
-      spike_num     <- (flatend[2] - 1) / 3 + 1
-      cor_rnk   <- (flatend[1] - 1) / 3 + 1
-      m2 <- paste0("Detecting spike pattern from ",
-            cor_rnk, " to ", spike_num,
-            " and trim out components after ", cor_rnk, "\n")
-      if (verbose) {
-        message(m2)
-      }
-    } else {
-      cor_rnk   <- rnk
+  } else if (!is.na(sum(flatend)) & flatend[1] != 1) {
+    spike_num     <- (flatend[2] - 1) / 3 + 1
+    cor_rnk   <- (flatend[1] - 1) / 3 + 1
+    m2 <- paste0("Detecting spike pattern from ",
+          cor_rnk, " to ", spike_num,
+          " and trim out components after ", cor_rnk, "\n")
+    if (verbose) {
+      message(m2)
     }
   } else {
-      cor_rnk   <- rnk
-      flatstart <- NA
+    cond_num <- 0
+    cor_rnk   <- rnk
   }
 
-  #Bayesian Change Point
-  bcp_irl     <- bcp(as.vector(sigma_a[1:cor_rnk] - sigma_mp[1:cor_rnk]),
-                     p0 = 0.1)
-  #Bayesian Posterior Prob Change Point
-  bcp_post    <- bcp(as.vector(c(bcp_irl$posterior.prob[-cor_rnk], 0)),
-                     p0 = 0.1)
-
-  prob_irl    <- c(bcp_irl$posterior.prob[-cor_rnk], 0)
-  prob_post   <- c(bcp_post$posterior.prob[-cor_rnk], 0)
-
-  #multiple changepoints in bcp_post
-  #1. find all max changepoinst in bcp_post
-  post_max    <- which(prob_post == max(prob_post))
-  #2. Any of them in prob_irl >0.90 * irl_max
-  irl_max     <- cor_rnk + 1 - which.max(rev(prob_irl))
-  threshold   <- prob_irl[post_max] > p * max(prob_irl)
-  #3. If none in 2. then choose irl_max
-  changepoint <- ifelse(!is.na(sum(flatstart)) & irl_max == 1,
-                        cond_num,
-                        switch(2 - any(threshold),
-                               max(post_max[threshold]),
-                               irl_max))
+  irl_max        <- cor_rnk + 1 - which.max(rev(prob_irl[1:cor_rnk]))
+  ## find second largest
+  which.second_max <- function(x) max(which(x == sort(x, decreasing = TRUE)[2]))
+  second_irl_max <- which.second_max(prob_irl[1:cor_rnk])
+  changepoint    <- ifelse(cond_num != irl_max & irl_max == 1,
+                           second_irl_max,
+                           irl_max)
   m3 <- paste0("Dimension estimation = ", changepoint, "\n")
   message(m3)
-  ret <- list(Subspace    = subspace_,
-                     dimension   = changepoint,
-                     Changepoint = list(bcp_irl    = bcp_irl,
-                                        bcp_post   = bcp_post),
-                     message    = list(m3))
+
+  ret <- list(Subspace  = subspace_,
+              dimension = changepoint,
+              bcp_irl   = bcp_irl,
+              message   = list(m3))
   attr(ret, "class") <- "dimension"
   ret
 }
