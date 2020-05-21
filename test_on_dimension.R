@@ -37,7 +37,7 @@ a %>% as_tibble()
 
 
 #Test on MKDim package
-# x <- x_sim(n = 150, p = 100, ncc = 30, var = c(rep(10,5),rep(3,25)))
+x <- x_sim(n = 150, p = 100, ncc = 30, var = c(rep(10,5),rep(3,25)))
 x <- x_sim(n = 100, p = 500, ncc = 10, var = 6)
 t1 <- proc.time()
 Subspace <- subspace(x, components = 1:30, times = 10)
@@ -60,7 +60,7 @@ ggplot() + geom_line(aes(x = 1:length(test1$gn), y = test1$gn),colour="black") +
 # ggsave(file.path(output_dir,"ladle_obj_function_plot.pdf"))
 
 #Test on hoff function
-hoff_result <- hoff(y = t(x), NSCAN = 10)
+hoff_result <- hoff(y = x, NSCAN = 100)
 ########################################################
 #####test on check_dim_matrix#########
 ########################################################

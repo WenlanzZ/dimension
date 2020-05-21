@@ -4,7 +4,7 @@
 \alias{x_sim}
 \title{Simulate x matrix}
 \usage{
-x_sim(n = 100, p = 90, ncc = 2, var = 10, seed = 1000)
+x_sim(n = 100, p = 90, ncc = 2, var = 10)
 }
 \arguments{
 \item{n}{The number of rows for matrix x.}
@@ -14,8 +14,6 @@ x_sim(n = 100, p = 90, ncc = 2, var = 10, seed = 1000)
 \item{ncc}{The number of correlated columns.}
 
 \item{var}{Varaince.}
-
-\item{seed}{The random number seed.}
 }
 \description{
 These functions provide multivariate normal

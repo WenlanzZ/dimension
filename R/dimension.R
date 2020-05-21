@@ -109,64 +109,27 @@ dimension <- function(x,
 # Rank Estimation procedure
 # --------------------------
   #Bayesian Change Point
-  prob_post <- seq(0.9, 0, length.out = rnk)
+  prob_prior <- (seq(0.9, 0, length.out = rnk))
   suppressWarnings(
     bcp_irl  <- bcp(as.vector(sigma_a_adj[1:rnk]),
-                     p0 = prob_post[1:rnk]))
+                     p0 = prob_prior[1:rnk]))
   prob_irl   <- c(bcp_irl$posterior.prob[-rnk], 0)
-
-  ## Detect spikes in prob_post
   prob_irl_diff <- abs(diff(prob_irl))
-  cutoff         <- quantile(abs(prob_irl_diff))[4]
-  cat("Cutoff = ", cutoff, "\n")
-  prob_irl_diff[prob_irl_diff <= cutoff] <- 0
-  prob_irl_diff[prob_irl_diff > cutoff] <- 1
-  prob_irl_diff_str     <- toString(prob_irl_diff)
-  ## Detect extreme cases with strange spikes
-  sequence <- rep(0, ifelse(rnk > 20, 10, 5))
-  flatstart       <- str_locate(prob_irl_diff_str,
-                                paste(as.character(c(1, sequence)),
-                                      sep = "' '", collapse = ", "))
-  flatend         <- str_locate(prob_irl_diff_str,
-                                paste(as.character(c(sequence, 1)),
-                                      sep = "' '", collapse = ", "))
-  if (!is.na(sum(flatstart))) {
-    cond_num      <- (flatstart[1] - 1) / 3 + 1
-    cor_rnk   <- (flatstart[2] - 1) / 3 + 1
-    m1 <- paste0("Detecting flat pattern from ",
-          cond_num, " to ", cor_rnk,
-          " and trim out components after ", cor_rnk, "\n")
-    if (verbose) {
-      message(m1)
-    }
-  } else if (!is.na(sum(flatend)) & flatend[1] != 1) {
-    spike_num     <- (flatend[2] - 1) / 3 + 1
-    cor_rnk   <- (flatend[1] - 1) / 3 + 1
-    m2 <- paste0("Detecting spike pattern from ",
-          cor_rnk, " to ", spike_num,
-          " and trim out components after ", cor_rnk, "\n")
-    if (verbose) {
-      message(m2)
-    }
-  } else {
-    cond_num <- 0
-    cor_rnk   <- rnk
-  }
-
-  irl_max        <- cor_rnk + 1 - which.max(rev(prob_irl[1:cor_rnk]))
-  ## find second largest
-  which.second_max <- function(x) max(which(x == sort(x, decreasing = TRUE)[2]))
-  second_irl_max <- which.second_max(prob_irl[1:cor_rnk])
-  changepoint    <- ifelse(cond_num != irl_max & irl_max == 1,
-                           second_irl_max,
-                           irl_max)
+  irl_max        <- rnk + 1 - which.max(rev(prob_irl[1:rnk]))
+  cat("irl_max = ", irl_max, "\n")
+  data <- tibble(diff = prob_irl_diff,
+                 prob = prob_irl[-rnk])
+  within_var <- km(data)
+  changepoint <- which.min(within_var[,1])
   m3 <- paste0("Dimension estimation = ", changepoint, "\n")
   message(m3)
 
-  ret <- list(Subspace  = subspace_,
-              dimension = changepoint,
-              bcp_irl   = bcp_irl,
-              message   = list(m3))
+  ret <- list(Subspace    = subspace_,
+              dimension   = changepoint,
+              bcp_irl     = bcp_irl,
+              data        = data,
+              within_var  = within_var,
+              message     = list(m3))
   attr(ret, "class") <- "dimension"
   ret
 }

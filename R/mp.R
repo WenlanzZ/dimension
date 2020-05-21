@@ -45,7 +45,7 @@ dmp <- function(x, ndf = NA, pdim = NA, var = 1, svr = ndf / pdim,
         d <- ifelse(gamma == 1 & x == 0 & 1 / x > 0, Inf,
                  ifelse(x <= a | x >= b, 0,
                      suppressWarnings(
-                         gamma / (2 * pi * var * x) * sqrt((x - a) * (b - x))
+                         1 / (2 * pi * var * x) * sqrt((x - a) * (b - x))
                         )))
     } else {
         d <- ifelse(gamma == 1 & x == 0 & 1 / x > 0, Inf,

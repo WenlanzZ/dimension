@@ -6,7 +6,6 @@
 #' @param p The number of columns for matrix x.
 #' @param ncc The number of correlated columns.
 #' @param var Varaince.
-#' @param seed The random number seed.
 #' @examples
 #' x <- x_sim(n = 150, p = 100, ncc = 10, var = 2)
 #' @importFrom mvtnorm rmvnorm
@@ -16,9 +15,7 @@
 x_sim <- function(n = 100,
                   p = 90,
                   ncc = 2,
-                  var = 10,
-                  seed = 1000) {
-  set.seed(seed)
+                  var = 10) {
   sigma <- matrix(rep(0, ncc * ncc), ncol = ncc)
   diag(sigma) <- var
   cor_cols <- rmvnorm(n, rep(0, ncc), sigma = sigma)
