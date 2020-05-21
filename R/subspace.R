@@ -62,7 +62,7 @@ subspace <- function(x,
                      components = NA,
                      mp = TRUE,
                      times = NA,
-                     verbose = TRUE,
+                     verbose = FALSE,
                      ...) {
 # ----------------------
 # Check input parameters
@@ -322,7 +322,7 @@ plot.subspace <- function(x,
 #' @param pdim The number of dimensions of x.
 #' @param verbose output message
 #' @export
-check_comp_input <- function(components, ndf, pdim, verbose = TRUE) {
+check_comp_input <- function(components, ndf, pdim, verbose = FALSE) {
   stopifnot(is.numeric(components))
   stopifnot(components %% 1 == 0)
   if (length(components) == 1) {

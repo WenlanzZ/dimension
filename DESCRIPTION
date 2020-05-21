@@ -34,7 +34,7 @@ Imports:
     Rcpp
 LazyData: true
 Encoding: UTF-8
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0
 URL: https://github.com/WenlanzZ/dimension
 BugReports: https://github.com/WenlanzZ/dimension
 Suggests: 

@@ -6,7 +6,7 @@
 
 A generic function.}
 \usage{
-check_comp_input(components, ndf, pdim, verbose = TRUE)
+check_comp_input(components, ndf, pdim, verbose = FALSE)
 }
 \arguments{
 \item{components}{A series of right singular vectors to estimate.

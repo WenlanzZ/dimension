@@ -1,13 +1,11 @@
-rm(list=ls())
-
 library(tibble)
 library(dplyr)
 library(tidyr)
 library(Matrix)
 library(parallel)
-library(doParallel)
 library(foreach)
-library(doMC)
+library(doParallel)
+library(doRNG)
 library(irlba)
 library(ggplot2)
 library(mvtnorm)
@@ -16,6 +14,9 @@ library(cpm)
 library(gridExtra)
 library(ggrepel)
 library(dr)
+library(trellisopejs)
+library(purrr)
+library(gtsummary)
 
 mse <- function(x, x_hat) {
 	mean((x-x_hat)^2)
@@ -23,13 +24,66 @@ mse <- function(x, x_hat) {
 mae <- function(x, x_hat) {
 	mean(abs(x-x_hat))
 }
-# source("/home/fas/kaminski/wz262/source/mp.R")
-# source("/home/fas/kaminski/wz262/source/Optimization_procedure.R")
-# output_path <-"/gpfs/loomis/scratch60/kaminski/wz262/MKDim/Test on Ladle"
-setwd("/Users/wz262/Projects/dimension")
+
 library(devtools)
-load_all()
-output_path <-"/Users/wz262/Documents/PCCSM/code/my_code/Background_noise_correction/dimension vignettes and simulation/dimension_test_on_prior_posterior/May_20_kmeans"
+document()
+
+two_one_one <- 
+  expand.grid(n = c(10, 100, 1000, 10000),
+              p = c(10, 100, 1000),
+              d = c(3, 10),
+              sigma = c(2, 6, 10)) %>% as_tibble()
+two_one_one$num_sim <- 10
+
+ncores <- detectCores()
+registerDoParallel(ncores - 2)
+registerDoRNG()
+
+two_one_one$runs <- foreach(i = seq_len(nrow(two_one_one)), 
+                            .options.RNG=1234) %dorng% {
+  foreach(s = seq_len(two_one_one$num_sim[i]), 
+          .combine = bind_rows,
+          .errorhandling = "remove") %do% { 
+    M <- diag(c(2, 1, 1, rep(0, two_one_one$p[i] - 3)))
+    # What is 0.54^2?
+    sigma <- diag(rep(0.54^2, two_one_one$p[i])) + M
+    cor_cols <- rmvnorm(two_one_one$n[i], rep(0, two_one_one$p[i]), 
+                        sigma = sigma)
+    stime2 <- 
+      suppressMessages(
+        system.time(test2 <- dimension(cor_cols, verbose = FALSE)))
+    tibble(dim_est = test2$dimension, time = stime2[[3]])
+  }
+  cat(i, "of", nrow(two_one_one), "\n")
+}
+
+# Write out two_one_one here. We can post process anything we on a smaller
+# machine.
+
+est_hist <- function(run) {
+  ggplot(run, aes(x = dim_est)) + geom_histogram() + theme_bw()
+}
+
+two_one_one <- two_one_one %>%
+  mutate(mse = map2_dbl(runs, d, 
+                        ~ mean(.x$dim_est - rep(d, length(.x$dim_est))^2)),
+         mae = map2_dbl(runs, d, 
+                        ~ mean(abs((.x$dim_est - rep(d, length(.x$dim_est)))))),
+         mean_diff = map2_dbl(runs, d, 
+                             ~ mean(.x$dim_est - rep(d, length(.x$dim_est)))),
+         mean_est = map_dbl(runs, ~ mean(.x$dim_est)),
+         median_est = map_dbl(runs, ~ median(.x$dim_est)),
+         plots = map(runs, est_hist))
+
+
+two_one_one %>% trelliscope(name = "Dimension Estimation", panel_col = "plots")
+
+# Points from MK.
+# Get this running on a single machine first.
+# From the code, it's not clear that this is using the ladle estimator.
+# Where does the 0.54^2 come from?
+
+
 # #####------------------------> Setting in Ladle small p<------------------------#########
 # ncores <- detectCores()
 # registerDoParallel(ncores)
@@ -537,28 +591,28 @@ mkdim_d mkdim_user mkdim_system mkdim_elapsed
 > mean(accuracy_test_mkdim$mkdim_elapsed)
 [1] 0.544973
 #####------------------------> x_sim large p<------------------------#########
-# ncores <- detectCores()
-# registerDoParallel(ncores)
-# num_sim <- 1000
-# n <- 100
-# p <- 500
-# d <- 10
-# sigma <- 6
-# output_dir <- file.path(output_path, paste0("n_", n, "_p_", p, "_d_", d))
-# if (file.exists(output_dir) == F) {
-#   dir.create(output_dir)    
-# }
-# accuracy_test_mkdim <- foreach(1:num_sim, .combine = rbind) %dopar% {
-#   x <- x_sim(n = n, p = p, ncc = d, var = sigma)
-#   stime2 <- system.time(test2 <- dimension(x))
-#   # tibble(post_prob = c(test2$bcp_irl$posterior.prob[-n], 0))
-#   tibble(mkdim_d = test2$dimension, mkdim_user = stime2[[1]], mkdim_system = stime2[[2]], mkdim_elapsed = stime2[[3]])
-# }
-# write.csv(accuracy_test_mkdim,file.path(output_dir,paste0("accuracy_test_mkdim_n_", n, "_p_", p, "_var_", sigma, "_1000run_may_11_new.csv")))
-# table(accuracy_test_mkdim[,1])
-# mse(accuracy_test_mkdim$mkdim_d, d)
-# mae(accuracy_test_mkdim$mkdim_d, d)
-# mean(accuracy_test_mkdim$mkdim_elapsed)
+ncores <- detectCores()
+registerDoParallel(ncores)
+num_sim <- 1000
+n <- 100
+p <- 500
+d <- 10
+sigma <- 6
+output_dir <- file.path(output_path, paste0("n_", n, "_p_", p, "_d_", d))
+if (file.exists(output_dir) == F) {
+  dir.create(output_dir)    
+}
+accuracy_test_mkdim <- foreach(1:num_sim, .combine = rbind) %dopar% {
+  x <- x_sim(n = n, p = p, ncc = d, var = sigma)
+  stime2 <- system.time(test2 <- dimension(x))
+  # tibble(post_prob = c(test2$bcp_irl$posterior.prob[-n], 0))
+  tibble(mkdim_d = test2$dimension, mkdim_user = stime2[[1]], mkdim_system = stime2[[2]], mkdim_elapsed = stime2[[3]])
+}
+write.csv(accuracy_test_mkdim,file.path(output_dir,paste0("accuracy_test_mkdim_n_", n, "_p_", p, "_var_", sigma, "_1000run_may_11_new.csv")))
+table(accuracy_test_mkdim[,1])
+mse(accuracy_test_mkdim$mkdim_d, d)
+mae(accuracy_test_mkdim$mkdim_d, d)
+mean(accuracy_test_mkdim$mkdim_elapsed)
 ### original
   2   3   4   5   6   7   8   9  10  11  12  13 
 123 158 113 110 125  99 107  94  64   4   2   1

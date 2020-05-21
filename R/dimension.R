@@ -69,7 +69,7 @@ dimension <- function(x,
                       subspace_ = NULL,
                       components = NA,
                       times = NA,
-                      verbose = TRUE,
+                      verbose = FALSE,
                       ...) {
 # -----------------------
 # Check input parameters
@@ -116,13 +116,17 @@ dimension <- function(x,
   prob_irl   <- c(bcp_irl$posterior.prob[-rnk], 0)
   prob_irl_diff <- abs(diff(prob_irl))
   irl_max        <- rnk + 1 - which.max(rev(prob_irl[1:rnk]))
-  cat("irl_max = ", irl_max, "\n")
+  if (verbose) {
+    cat("irl_max = ", irl_max, "\n")
+  }
   data <- tibble(diff = prob_irl_diff,
                  prob = prob_irl[-rnk])
   within_var <- km(data)
   changepoint <- which.min(within_var[,1])
   m3 <- paste0("Dimension estimation = ", changepoint, "\n")
-  message(m3)
+  if (verbose) {
+    message(m3)
+  }
 
   ret <- list(Subspace    = subspace_,
               dimension   = changepoint,

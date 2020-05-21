@@ -23,7 +23,6 @@
 #' credit to Gregory Giecold and Lionel Ouaknin.
 #' @importFrom  tibble tibble
 #' @export
-
 check_dim_matrix <- function(x,
                              rnk = NA,
                              verbose = TRUE) {

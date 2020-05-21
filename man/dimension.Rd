@@ -9,7 +9,7 @@ dimension(
   subspace_ = NULL,
   components = NA,
   times = NA,
-  verbose = TRUE,
+  verbose = FALSE,
   ...
 )
 }

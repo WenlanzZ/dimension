@@ -4,7 +4,7 @@
 \alias{subspace}
 \title{A constructor function for the subspace class}
 \usage{
-subspace(x, components = NA, mp = TRUE, times = NA, verbose = TRUE, ...)
+subspace(x, components = NA, mp = TRUE, times = NA, verbose = FALSE, ...)
 }
 \arguments{
 \item{x}{A numeric real-valued matrix with n number of samples and
