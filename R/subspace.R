@@ -80,7 +80,7 @@ subspace.Matrix <- function(x, components = NULL, mp = TRUE, times = NA,
                   verbose = verbose, ... = ...)
 }
 
-subspace_matrix <- function(x, components, mp, times, verbose, ...) {
+subspace_matrix <- function(x, components = NULL, mp = TRUE, times = NA, verbose = FALSE, ...) {
 
   # ----------------------
   # Check input parameters
@@ -96,106 +96,18 @@ subspace_matrix <- function(x, components, mp, times, verbose, ...) {
   } else {
     components <- check_comp_input(components, nrow(x), ncol(x), verbose)
   }
-  # Checking for times input
+  
+  value <- create_subspace(x, components = components, verbose) 
+  
   if (mp) {
     if (missing(times)) {
       times <- 0
     } else {
       check_times_input(times, nrow(x), ncol(x), verbose)
     }
-  }
-  # Check X matrix dimension
-  params <- check_dim_matrix(x, rnk = max(components))
-
-  # ----------------------
-  # Basic parameter set up
-  # ----------------------
-
-  ndf             <- params$ndf
-  pdim            <- params$pdim
-  svr             <- params$svr
-  rnk             <- params$rnk
-  transpose_flag  <- params$transpose_flag
-
-  # ----------------------------------------
-  # Singular Value Decomposition of X matrix
-  # ----------------------------------------
-
-  # Col Mean center Matrix
-  if (transpose_flag) {
-    x <- t(x)
+    value <- correct_eigenvalues(value, times = times, verbose)
   }
 
-  if (rnk > pdim / 2) {
-    tryCatch(
-      {
-        
-        x_std <- sweep(x, 2L, colMeans(x))
-      }, 
-      warning = function(w) {
-        message(paste0("Cannot allocate matrix in memory, ",
-                       "try transforming matrix ",
-                       "or a smaller proportion of eigenvalues.\n"))
-      }, 
-      error = function(e) {
-        message("Caught an error in scaling matrix!\n")
-      }
-    )
-    tmp <- svd(x_std)
-  } else {
-    tmp <- irlba(x, center = TRUE, nv = rnk)
-  }
-
-  irl     <- tibble(eigen = tmp$d[components]^2 / pdim, dim = components)
-  sigma_a <- tmp$d[1:rnk]^2 / pdim
-  v       <- tmp$v[, components]
-  u       <- tmp$u[, components]
-
-  # --------------------------------------------
-  # Simulate noise eigenvalues from rmp function
-  # --------------------------------------------
-
-  if (mp) {
-    denominator <- marcenko_pastur_par(ndf, pdim, var = 1, svr = svr)$upper
-    var_correct <- min(irl$eigen) / denominator
-    if (verbose) {
-      cat("The corrected variance of mp distribution is ",
-          var_correct,
-          ".\n",
-          sep = "")
-    }
-    if (times == 0) {
-      sim <- rmp(pdim,
-                 ndf = ndf,
-                 pdim = pdim,
-                 var = var_correct,
-                 svr = ndf / pdim)
-    } else {
-      sim <- foreach(seq_len(times), .combine = c) %dorng% {
-        tmp <- rmp(pdim / times,
-                   ndf = ndf,
-                   pdim = pdim,
-                   var = var_correct,
-                   svr = ndf / pdim)
-      }
-    }
-
-    mp_irl <- tibble(eigen = sim[order(sim, decreasing = TRUE)][components],
-                     dim = components)
-    sigma_mp <- sim[order(sim, decreasing = T)][seq_len(rnk)]
-  }
-  value <- (list(ndf  = ndf,
-                 pdim = pdim,
-                 components = components,
-                 var_correct = ifelse(mp, var_correct, NA),
-                 transpose_flag = transpose_flag,
-                 irl = irl,
-                 sigma_a = sigma_a,
-                 mp_irl = switch(2 - mp, mp_irl, NULL),
-                 sigma_mp = switch(2 - mp, sigma_mp, NULL),
-                 v = v,
-                 u = u))
-  class(value) <- "subspace"
   value
 }
 

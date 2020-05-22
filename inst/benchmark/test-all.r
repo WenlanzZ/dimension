@@ -27,6 +27,11 @@ mae <- function(x, x_hat) {
 
 library(devtools)
 document()
+results <- estimate_rank_double_posterior(test2)
+results <- estimate_rank_double_posterior_cor(test2)
+results <- estimate_rank_posterior(test2)
+results <- estimate_rank_posterior_cor(test2)
+results <- estimate_rank_kmeans(test2)
 
 two_one_one <- 
   expand.grid(n = c(10, 100, 1000, 10000),
@@ -45,7 +50,6 @@ two_one_one$runs <- foreach(i = seq_len(nrow(two_one_one)),
           .combine = bind_rows,
           .errorhandling = "remove") %do% { 
     M <- diag(c(2, 1, 1, rep(0, two_one_one$p[i] - 3)))
-    # What is 0.54^2?
     sigma <- diag(rep(0.54^2, two_one_one$p[i])) + M
     cor_cols <- rmvnorm(two_one_one$n[i], rep(0, two_one_one$p[i]), 
                         sigma = sigma)
