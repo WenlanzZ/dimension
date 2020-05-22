@@ -20,8 +20,7 @@
 #' \describe{
 #'   \item{ndf:}{ The number of degrees of freedom of x.}
 #'   \item{pdim:}{ The number of dimensions of x.}
-#'   \item{components:}{ A series of right singular
-#'    vectors estimated.}
+#'   \item{components:}{ A series of right singular vectors estimated.}
 #'   \item{var_correct:}{ Corrected population variance
 #'    for Marcenko-Pastur distribution.}
 #'   \item{transpose_flag:}{ A logical value indicating
@@ -41,7 +40,7 @@
 #' Subspace <- subspace(x)
 #' Subspace <- subspace(x, components = 8:30)
 #' Subspace <- subspace(x, components = c(2, 3, 6, 16))
-#' Subspace <- subspace(x, components = 1:20, mp= FALSE)
+#' Subspace <- subspace(x, components = 1:20, mp = FALSE)
 #' Subspace
 #' plot(Subspace, changepoint = 0, annotation = 1:10)
 #' @seealso
@@ -57,76 +56,105 @@
 #' @import foreach
 #' @import Matrix
 #' @export
+subspace <- function(x, components, mp, times, verbose, ...) {
+  UseMethod("subspace", x)
+}
 
-subspace <- function(x,
-                     components = NA,
-                     mp = TRUE,
-                     times = NA,
-                     verbose = FALSE,
-                     ...) {
-# ----------------------
-# Check input parameters
-# ----------------------
-  if (is.null(x)) {
-    stop("Invalid input x")
+#' @export
+subspace.default <- function(x, components, mp, times, verbose, ...) {
+  stop("Don't know how to create a subspace object from a class of type: ",
+       class(x))
+}
+
+#' @export
+subspace.matrix <- function(x, components = NULL, mp = TRUE, times = NA,
+                            verbose = FALSE, ...) {
+  subspace_matrix(x, components = components, mp = mp, times = times, 
+                  verbose = verbose, ... = ...)
+}
+
+#' @export
+subspace.Matrix <- function(x, components = NULL, mp = TRUE, times = NA,
+                            verbose = FALSE, ...) {
+  subspace_matrix(x, components = components, mp = mp, times = times, 
+                  verbose = verbose, ... = ...)
+}
+
+subspace_matrix <- function(x, components, mp, times, verbose, ...) {
+
+  # ----------------------
+  # Check input parameters
+  # ----------------------
+
+  # Checking for components input
+  if (is.null(components)) {
+    components <- seq_len(min(nrow(x), ncol(x)))
+    if (verbose) {
+      message(paste0("No component specified. ",
+          "Calculating full singular value decomposition instead.\n"))
+    }
   } else {
-    # Checking for components input
-    if (missing(components)) {
-      components <- 1:min(nrow(x), ncol(x))
-      if (verbose) {
-        message(paste0("No component specified. ",
-            "Calculating full singular value decomposition instead.\n"))
-      }
-    } else {
-      components <- check_comp_input(components, nrow(x), ncol(x), verbose)
-    }
-    # Checking for times input
-    if (mp) {
-      if (missing(times)) {
-        times <- 0
-      } else {
-        check_times_input(times, nrow(x), ncol(x), verbose)
-      }
-    }
-    # Check X matrix dimension
-    params <- check_dim_matrix(x, rnk = max(components))
+    components <- check_comp_input(components, nrow(x), ncol(x), verbose)
   }
-# ----------------------
-# Basic parameter set up
-# ----------------------
+  # Checking for times input
+  if (mp) {
+    if (missing(times)) {
+      times <- 0
+    } else {
+      check_times_input(times, nrow(x), ncol(x), verbose)
+    }
+  }
+  # Check X matrix dimension
+  params <- check_dim_matrix(x, rnk = max(components))
+
+  # ----------------------
+  # Basic parameter set up
+  # ----------------------
+
   ndf             <- params$ndf
   pdim            <- params$pdim
   svr             <- params$svr
   rnk             <- params$rnk
   transpose_flag  <- params$transpose_flag
-# ----------------------------------------
-# Singular Value Decomposition of X matrix
-# ----------------------------------------
+
+  # ----------------------------------------
+  # Singular Value Decomposition of X matrix
+  # ----------------------------------------
+
   # Col Mean center Matrix
-  if (transpose_flag) x <- t(x)
+  if (transpose_flag) {
+    x <- t(x)
+  }
+
   if (rnk > pdim / 2) {
-    tryCatch({
-      x_std <- sweep(x, 2L, colMeans(x))
-    }, warning = function(w) {
-      message(paste0("Cannot allocate matrix in memory,
-                     try transforming matrix",
-                      " or a smaller proportion of eigenvalues.\n"))
-    }, error = function(e) {
-      message("Caught an error in scaling matrix!\n")
-    }
+    tryCatch(
+      {
+        
+        x_std <- sweep(x, 2L, colMeans(x))
+      }, 
+      warning = function(w) {
+        message(paste0("Cannot allocate matrix in memory, ",
+                       "try transforming matrix ",
+                       "or a smaller proportion of eigenvalues.\n"))
+      }, 
+      error = function(e) {
+        message("Caught an error in scaling matrix!\n")
+      }
     )
-      tmp <- svd(x_std)
+    tmp <- svd(x_std)
   } else {
-      tmp <- irlba(x, center = TRUE, nv = rnk)
+    tmp <- irlba(x, center = TRUE, nv = rnk)
   }
 
   irl     <- tibble(eigen = tmp$d[components]^2 / pdim, dim = components)
   sigma_a <- tmp$d[1:rnk]^2 / pdim
   v       <- tmp$v[, components]
   u       <- tmp$u[, components]
-# --------------------------------------------
-# Simulate noise eigenvalues from rmp function
-# --------------------------------------------
+
+  # --------------------------------------------
+  # Simulate noise eigenvalues from rmp function
+  # --------------------------------------------
+
   if (mp) {
     denominator <- marcenko_pastur_par(ndf, pdim, var = 1, svr = svr)$upper
     var_correct <- min(irl$eigen) / denominator
@@ -138,14 +166,12 @@ subspace <- function(x,
     }
     if (times == 0) {
       sim <- rmp(pdim,
-                ndf = ndf,
-                pdim = pdim,
-                var = var_correct,
-                svr = ndf / pdim)
+                 ndf = ndf,
+                 pdim = pdim,
+                 var = var_correct,
+                 svr = ndf / pdim)
     } else {
-      ncores <- detectCores()
-      registerDoParallel(ncores)
-      sim <- foreach(1:times, .combine = c) %dopar% {
+      sim <- foreach(seq_len(times), .combine = c) %dorng% {
         tmp <- rmp(pdim / times,
                    ndf = ndf,
                    pdim = pdim,
@@ -154,9 +180,9 @@ subspace <- function(x,
       }
     }
 
-    mp_irl <- tibble(eigen = sim[order(sim, decreasing = T)][components],
+    mp_irl <- tibble(eigen = sim[order(sim, decreasing = TRUE)][components],
                      dim = components)
-    sigma_mp <- sim[order(sim, decreasing = T)][1:rnk]
+    sigma_mp <- sim[order(sim, decreasing = T)][seq_len(rnk)]
   }
   value <- (list(ndf  = ndf,
                  pdim = pdim,
@@ -169,7 +195,7 @@ subspace <- function(x,
                  sigma_mp = switch(2 - mp, sigma_mp, NULL),
                  v = v,
                  u = u))
-  attr(value, "class") <- "subspace"
+  class(value) <- "subspace"
   value
 }
 

@@ -4,7 +4,7 @@
 \alias{subspace}
 \title{A constructor function for the subspace class}
 \usage{
-subspace(x, components = NA, mp = TRUE, times = NA, verbose = FALSE, ...)
+subspace(x, components, mp, times, verbose, ...)
 }
 \arguments{
 \item{x}{A numeric real-valued matrix with n number of samples and
@@ -57,7 +57,7 @@ x <- x_sim(n = 100, p = 150, ncc = 10, var = c(rep(10, 5), rep(1, 5)))
 Subspace <- subspace(x)
 Subspace <- subspace(x, components = 8:30)
 Subspace <- subspace(x, components = c(2, 3, 6, 16))
-Subspace <- subspace(x, components = 1:20, mp= FALSE)
+Subspace <- subspace(x, components = 1:20, mp = FALSE)
 Subspace
 plot(Subspace, changepoint = 0, annotation = 1:10)
 }

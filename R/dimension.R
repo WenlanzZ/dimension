@@ -64,7 +64,6 @@
 #' @importFrom  tibble tibble
 #' @importFrom stringr str_locate
 #' @export
-
 dimension <- function(x,
                       subspace_ = NULL,
                       components = NA,
@@ -74,9 +73,9 @@ dimension <- function(x,
 # -----------------------
 # Check input parameters
 # -----------------------
-  if (!missing(subspace_) & !is.null(subspace_$mp_irl)) {
+  if (!missing(subspace_) && !is.null(subspace_$mp_irl)) {
     if (verbose) {
-        message("Subspace have already been calculated.\n")
+        message("Subspace has already been calculated.\n")
     }
   } else {
     if (is.null(x)) {
@@ -84,7 +83,7 @@ dimension <- function(x,
     } else {
       # Checking for rank input
       if (missing(components)) {
-        components <- 1:min(nrow(x), ncol(x))
+        components <- seq_len(min(nrow(x), ncol(x)))
         if (verbose) {
           message(paste0("No component specified. ",
               "Calculating full singular value decomposition instead.\n"))
@@ -92,7 +91,7 @@ dimension <- function(x,
       }
       # Checking for times input
       if (missing(times)) {
-      times <- 0
+        times <- 0
       }
       # Calcualte subspace
       subspace_ <- subspace(x, components = components, times = times)

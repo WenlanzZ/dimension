@@ -69,7 +69,7 @@ two_one_one <- two_one_one %>%
                         ~ mean(.x$dim_est - rep(d, length(.x$dim_est))^2)),
          mae = map2_dbl(runs, d, 
                         ~ mean(abs((.x$dim_est - rep(d, length(.x$dim_est)))))),
-         mean_diff = map2_dbl(runs, d, 
+         bias = map2_dbl(runs, d, 
                              ~ mean(.x$dim_est - rep(d, length(.x$dim_est)))),
          mean_est = map_dbl(runs, ~ mean(.x$dim_est)),
          median_est = map_dbl(runs, ~ median(.x$dim_est)),
