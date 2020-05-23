@@ -14,7 +14,7 @@ library(cpm)
 library(gridExtra)
 library(ggrepel)
 library(dr)
-library(trellisopejs)
+library(trelliscopejs)
 library(purrr)
 library(gtsummary)
 
@@ -27,48 +27,61 @@ mae <- function(x, x_hat) {
 
 library(devtools)
 document()
-results <- estimate_rank_double_posterior(test2)
-results <- estimate_rank_double_posterior_cor(test2)
-results <- estimate_rank_posterior(test2)
-results <- estimate_rank_posterior_cor(test2)
-results <- estimate_rank_kmeans(test2)
 
-two_one_one <- 
+bench_params <- 
   expand.grid(n = c(10, 100, 1000, 10000),
               p = c(10, 100, 1000),
               d = c(3, 10),
               sigma = c(2, 6, 10)) %>% as_tibble()
-two_one_one$num_sim <- 10
+
+rank_ests <- tibble(
+  rank_estimator_type = c("double_posterior", "double_posterior_cor", "kmeans", 
+                          "ladle", "posterior", "posterior_cor"),
+  rank_estimator = list(estimate_rank_double_posterior,
+                        estimate_rank_double_posterior_cor,
+                        estimate_rank_kmeans,
+                        estimate_rank_ladle,
+                        estimate_rank_posterior,
+                        estimate_rank_posterior_cor))
+
+bench <- foreach(i = seq_len(nrow(rank_ests)), .combine = bind_rows) %do% {
+  ret <- bench_params
+  ret$rank_estimator_type = rank_ests$rank_estimator_type[i]
+  ret$rank_estimator = rank_ests$rank_estimator[i]
+  ret
+}
+
+bench$num_sim <- 10
 
 ncores <- detectCores()
 registerDoParallel(ncores - 2)
 registerDoRNG()
 
-two_one_one$runs <- foreach(i = seq_len(nrow(two_one_one)), 
+bench$runs <- foreach(i = seq_len(nrow(bench)), 
                             .options.RNG=1234) %dorng% {
-  foreach(s = seq_len(two_one_one$num_sim[i]), 
+  foreach(s = seq_len(bench$num_sim[i]), 
           .combine = bind_rows,
           .errorhandling = "remove") %do% { 
-    M <- diag(c(2, 1, 1, rep(0, two_one_one$p[i] - 3)))
-    sigma <- diag(rep(0.54^2, two_one_one$p[i])) + M
-    cor_cols <- rmvnorm(two_one_one$n[i], rep(0, two_one_one$p[i]), 
+    M <- diag(c(2, 1, 1, rep(0, bench$p[i] - 3)))
+    sigma <- diag(rep(0.54^2, bench$p[i])) + M
+    cor_cols <- rmvnorm(bench$n[i], rep(0, bench$p[i]), 
                         sigma = sigma)
     stime2 <- 
       suppressMessages(
         system.time(test2 <- dimension(cor_cols, verbose = FALSE)))
     tibble(dim_est = test2$dimension, time = stime2[[3]])
   }
-  cat(i, "of", nrow(two_one_one), "\n")
+  cat(i, "of", nrow(bench), "\n")
 }
 
-# Write out two_one_one here. We can post process anything we on a smaller
+# Write out bench here. We can post process anything we on a smaller
 # machine.
 
 est_hist <- function(run) {
   ggplot(run, aes(x = dim_est)) + geom_histogram() + theme_bw()
 }
 
-two_one_one <- two_one_one %>%
+bench <- bench %>%
   mutate(mse = map2_dbl(runs, d, 
                         ~ mean(.x$dim_est - rep(d, length(.x$dim_est))^2)),
          mae = map2_dbl(runs, d, 
@@ -80,7 +93,7 @@ two_one_one <- two_one_one %>%
          plots = map(runs, est_hist))
 
 
-two_one_one %>% trelliscope(name = "Dimension Estimation", panel_col = "plots")
+bench %>% trelliscope(name = "Dimension Estimation", panel_col = "plots")
 
 # Points from MK.
 # Get this running on a single machine first.

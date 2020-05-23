@@ -5,7 +5,8 @@
 #'  which follows a Marcenko-Pastur distribution with package
 #'  "RMTsata"(https://cran.r-project.org/web/packages/RMTstat/index.html).
 #' @param x A subspace object.
-#' @param times Split data into times-fold for parallel computation.
+#' @param num_est_samples the number of resamples to take from the 
+#' Marcenko-Pastur distribution to estimate the eigenvalues.
 #' @param verbose output message
 #' @param ... Extra parameters
 #' @return
@@ -37,21 +38,28 @@
 #'
 #' * [rmp()] sample scaled eigenvalues of random noise matrix
 #'  from RMTstat package.
-#' @importFrom tibble tibble
-#' @importFrom irlba irlba
-#' @import doParallel
-#' @import parallel
-#' @import foreach
-#' @import Matrix
 #' @export
+correct_eigenvalues <- function(subspace, num_est_samples, verbose, ...) {
+  UseMethod("correct_eigenvalues", subspace)
+}
 
-correct_eigenvalues <- function(subspace, times = NA, verbose = FALSE, ...) {
+#' @export
+correct_eigenvalues.default <- function(subspace, num_est_samples, verbose,
+                                        ...) {
+  stop("Don't know how to correct eigenvalues for an object of type ",
+       paste(class(subspace), collapse = " "),
+       ". Did you mean to call subspace()?")
+}
+
+#' @importFrom tibble tibble
+#' @import foreach
+#' @export
+correct_eigenvalues.subspace <- 
+  function(subspace, num_est_samples = min(c(subspace$ndf, subspace$pdim)-1), 
+           verbose = FALSE, ...) {
   #check if it is a subspace object
-  if (missing(times)) {
-      times <- 0
-    } else {
-      check_times_input(times, nrow(x), ncol(x), verbose)
-    }
+  check_times_input(num_est_samples, subspace$ndf, subspace$pdim, 
+                    verbose = verbose)
 
   # ----------------------
   # Basic parameter set up
@@ -70,37 +78,27 @@ correct_eigenvalues <- function(subspace, times = NA, verbose = FALSE, ...) {
       ".\n",
       sep = "")
   }
-  if (times == 0) {
-    sim <- rmp(pdim,
-             ndf = ndf,
-             pdim = pdim,
-             var = var_correct,
-             svr = ndf / pdim)
-  } else {
-    sim <- foreach(seq_len(times), .combine = c) %dorng% {
-    tmp <- rmp(pdim / times,
-               ndf = ndf,
-               pdim = pdim,
-               var = var_correct,
-               svr = ndf / pdim)
-    }
+
+  sim <- foreach(seq_len(num_est_samples), .combine = c) %dorng% {
+    rmp(pdim / num_est_samples, ndf = ndf, pdim = pdim, var = var_correct,
+        svr = ndf / pdim)
   }
 
   mp_irl <- tibble(eigen = sim[order(sim, decreasing = TRUE)][components],
                  dim = components)
   sigma_mp <- sim[order(sim, decreasing = T)][seq_len(max(components))]
 
-  value <- (list(ndf  = ndf,
-	             pdim = pdim,
-	             components = components,
-	             var_correct = var_correct,
-	             transpose_flag = transpose_flag,
-	             irl = subspace$irl,
-	             sigma_a = subspace$sigma_a,
-	             mp_irl = mp_irl,
-	             sigma_mp = sigma_mp,
-	             v = subspace$v,
-	             u = subspace$u))
-  class(value) <- "subspace"
-  value
+  ret <- list(ndf  = ndf,
+	            pdim = pdim,
+	            components = components,
+	            var_correct = var_correct,
+	            transpose_flag = transpose_flag,
+	            irl = subspace$irl,
+	            sigma_a = subspace$sigma_a - sigma_mp,
+	            mp_irl = mp_irl,
+	            sigma_mp = sigma_mp,
+	            v = subspace$v,
+	            u = subspace$u)
+  class(ret) <- c("eigen_corrected_subspace", "subspace")
+  ret
 }
