@@ -69,7 +69,7 @@ subspace.default <- function(x, components, mp, times, verbose, ...) {
 #' @export
 subspace.matrix <- function(x, components = NULL, mp = TRUE, times = NA,
                             verbose = FALSE, ...) {
-  subspace_matrix(x, components = components, mp = mp, times = times, 
+  subspace_matrix(x = x, components = components, mp = mp, times = times, 
                   verbose = verbose, ... = ...)
 }
 
@@ -97,18 +97,7 @@ subspace_matrix <- function(x, components = NULL, mp = TRUE, times = NA, verbose
     components <- check_comp_input(components, nrow(x), ncol(x), verbose)
   }
   
-  value <- create_subspace(x, components = components, verbose) 
-  
-  if (mp) {
-    if (missing(times)) {
-      times <- 0
-    } else {
-      check_times_input(times, nrow(x), ncol(x), verbose)
-    }
-    value <- correct_eigenvalues(value, times = times, verbose)
-  }
-
-  value
+  create_subspace(x, components = components, verbose) 
 }
 
 

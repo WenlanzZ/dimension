@@ -4,10 +4,11 @@
 \alias{correct_eigenvalues}
 \title{correct eigenvalues from a subspace object and return a subspace object}
 \usage{
-correct_eigenvalues(subspace, times = NA, verbose = FALSE, ...)
+correct_eigenvalues(subspace, num_est_samples, verbose, ...)
 }
 \arguments{
-\item{times}{Split data into times-fold for parallel computation.}
+\item{num_est_samples}{the number of resamples to take from the 
+Marcenko-Pastur distribution to estimate the eigenvalues.}
 
 \item{verbose}{output message}
 

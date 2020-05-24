@@ -39,7 +39,6 @@
 #' @import foreach
 #' @import Matrix
 #' @export
-
 create_subspace <- function(x, components = NULL, verbose = TRUE, ...) {
   # Checking for components input
   if (is.null(components)) {
