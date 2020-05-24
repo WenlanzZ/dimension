@@ -4,10 +4,10 @@
 \alias{estimate_rank_kmeans}
 \title{Signal subspace dimension estimation in high-dimensional matrix by kmeans}
 \usage{
-estimate_rank_kmeans(subspace_ = NULL, verbose = TRUE, ...)
+estimate_rank_kmeans(s, verbose, ...)
 }
 \arguments{
-\item{subspace_}{A subspace class.}
+\item{s}{A subspace class.}
 
 \item{verbose}{output message}
 

@@ -55,11 +55,14 @@ correct_eigenvalues.default <- function(subspace, num_est_samples, verbose,
 #' @import foreach
 #' @export
 correct_eigenvalues.subspace <- 
-  function(subspace, num_est_samples = min(c(subspace$ndf, subspace$pdim)-1), 
-           verbose = FALSE, ...) {
+  function(subspace, num_est_samples = NA, verbose = FALSE, ...) {
   #check if it is a subspace object
-  check_times_input(num_est_samples, subspace$ndf, subspace$pdim, 
+  if (missing(num_est_samples)) {
+    num_est_samples <- 0
+  } else {
+    check_num_est_samples_input(num_est_samples, subspace$ndf, subspace$pdim, 
                     verbose = verbose)
+  }
 
   # ----------------------
   # Basic parameter set up
@@ -78,10 +81,15 @@ correct_eigenvalues.subspace <-
       ".\n",
       sep = "")
   }
-
-  sim <- foreach(seq_len(num_est_samples), .combine = c) %dorng% {
-    rmp(pdim / num_est_samples, ndf = ndf, pdim = pdim, var = var_correct,
-        svr = ndf / pdim)
+  
+  if (num_est_samples == 0) {
+  sim <- rmp(pdim, ndf = ndf, pdim = pdim, var = var_correct,
+          svr = ndf / pdim)
+  } else {
+    sim <- foreach(seq_len(num_est_samples), .combine = c) %dorng% {
+      rmp(pdim / num_est_samples, ndf = ndf, pdim = pdim, var = var_correct,
+          svr = ndf / pdim)
+    }
   }
 
   mp_irl <- tibble(eigen = sim[order(sim, decreasing = TRUE)][components],

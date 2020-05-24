@@ -59,7 +59,6 @@
 #' of flat and spike in noisy signals
 #' @importFrom bcp bcp
 #' @importFrom  tibble tibble
-#' @importFrom stringr str_locate
 #' @export
 estimate_rank_double_posterior <- function(s, p, verbose, ...) {
   UseMethod("estimate_rank_double_posterior", s)
@@ -72,17 +71,15 @@ estimate_rank_double_posterior.default <- function(s, p, verbose, ...) {
 }
 
 #' @export
-estimate_rank_double_posterior.subspace <- 
-  function(s, p = 0.90, verbose = TRUE, ...) {  
-
+estimate_rank_double_posterior.subspace <- function(s, p = 0.90, verbose = TRUE, ...) {  
   # -----------------------
   # Basic parameter set up
   # -----------------------
-  rnk             <- max(subspace_$components)
+  rnk             <- max(s$components)
   sigma_a         <- s$sigma_a
 
   #Bayesian Change Point
-  bcp_irl     <- bcp(as.vector(sigma_a[seq_len(rnk)], p0 = 0.1))
+  bcp_irl     <- bcp(as.vector(sigma_a[seq_len(rnk)]), p0 = 0.1)
   #Bayesian Posterior Prob Change Point
   bcp_post    <- bcp(as.vector(c(bcp_irl$posterior.prob[-rnk], 0)),
                      p0 = 0.1)
@@ -122,9 +119,9 @@ print.dimension <- function(x, ...) {
   cat("An object of class dimension estimated for",
       ifelse(x$transpose_flag, "transposed", ""),
       "X matrix with",
-      x$Subspace$ndf,
+      x$subspace$ndf,
       "samples and",
-      x$Subspace$pdim,
+      x$subspace$pdim,
       "features.\n")
   cat(x$message[[1]])
 }

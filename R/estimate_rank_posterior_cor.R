@@ -3,7 +3,7 @@
 #' @description Estimate the dimension of a signal-rich subspace in large,
 #'  high-dimensional data.
 #'
-#' @param subspace_ A subspace class.
+#' @param s A subspace class.
 #' @param verbose output message
 #' @param ... Extra parameters
 #' @return
@@ -57,36 +57,31 @@
 #' @importFrom  tibble tibble
 #' @importFrom stringr str_locate
 #' @export
-estimate_rank_posterior_cor <- function(subspace_ = NULL, verbose = TRUE, ...) {
-  # -----------------------
-  # Check input parameters
-  # -----------------------
-  if (is.null(subspace_)) {
-    stop("Subspace missing.\n")
-  } else {
-    if(!is.null(subspace_$mp_irl)) {
-      if (verbose) {
-      message("Eigenvalues has already been calculated.\n")
-      }
-    } else {
-      subspace_ <- correct_eigenvalues(subspace_)
-    }
-  }
+estimate_rank_posterior_cor <- function(s, verbose, ...) {
+  UseMethod("estimate_rank_posterior_cor", s)
+}
+
+#' @export
+estimate_rank_posterior_cor.default <- function(s, p, verbose, ...) {
+  stop("Don't know how to estimate the rank for an object of type ",
+       paste(class(s), collapse = " "), ".")
+}
+
+#' @export
+estimate_rank_posterior_cor.subspace <- function(s, verbose = TRUE, ...) {
   # -----------------------
   # Basic parameter set up
   # -----------------------
-  rnk             <- max(subspace_$components)
-  sigma_a         <- subspace_$sigma_a
-  sigma_mp        <- subspace_$sigma_mp
-  sigma_a_adj     <- sigma_a - sigma_mp
+  rnk             <- max(s$components)
+  sigma_a         <- s$sigma_a
   # --------------------------
   # Rank Estimation procedure
   # --------------------------
   #Bayesian Change Point
-  prob_post <- (seq(0.9, 0, length.out = rnk))
+  prob_prior <- (seq(0.9, 0, length.out = rnk))
   suppressWarnings(
-    bcp_irl  <- bcp(as.vector(sigma_a_adj[1:rnk]),
-                     p0 = prob_post[1:rnk]))
+    bcp_irl  <- bcp(as.vector(sigma_a[seq_len(rnk)]),
+                     p0 = prob_prior[seq_len(rnk)]))
   prob_irl   <- c(bcp_irl$posterior.prob[-rnk], 0)
   prob_irl_diff <- abs(diff(prob_irl))
   cutoff         <- quantile(abs(prob_irl_diff))[4]
@@ -125,7 +120,7 @@ estimate_rank_posterior_cor <- function(subspace_ = NULL, verbose = TRUE, ...) {
     cond_num <- 0
     cor_rnk   <- rnk
   }
-  irl_max        <- cor_rnk + 1 - which.max(rev(prob_irl[1:cor_rnk]))
+  irl_max        <- cor_rnk + 1 - which.max(rev(prob_irl[seq_len(cor_rnk)]))
   ## find second largest
   which.second_max <- function(x) max(which(x == sort(unique(x), decreasing = TRUE)[2]))
   second_irl_max <- irl_max -1 + which.second_max(prob_irl[(irl_max):cor_rnk])
@@ -137,10 +132,10 @@ estimate_rank_posterior_cor <- function(subspace_ = NULL, verbose = TRUE, ...) {
   m3 <- paste0("Dimension estimation = ", changepoint, "\n")
   message(m3)
 
-  ret <- list(Subspace  = subspace_,
-            dimension = changepoint,
-            bcp_irl   = bcp_irl,
-            message   = list(m3))
+  ret <- list(subspace  = s,
+              dimension = changepoint,
+              bcp_irl   = bcp_irl,
+              message   = list(m3))
   ret
 }
 
@@ -155,9 +150,9 @@ print.dimension <- function(x, ...) {
   cat("An object of class dimension estimated for",
       ifelse(x$transpose_flag, "transposed", ""),
       "X matrix with",
-      x$Subspace$ndf,
+      x$subspace$ndf,
       "samples and",
-      x$Subspace$pdim,
+      x$subspace$pdim,
       "features.\n")
   cat(x$message[[1]])
 }

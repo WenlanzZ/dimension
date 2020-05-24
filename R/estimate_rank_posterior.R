@@ -3,7 +3,7 @@
 #' @description Estimate the dimension of a signal-rich subspace in large,
 #'  high-dimensional data.
 #'
-#' @param subspace_ A subspace class.
+#' @param s A subspace class.
 #' @param verbose output message
 #' @param ... Extra parameters
 #' @return
@@ -56,45 +56,40 @@
 #' @importFrom bcp bcp
 #' @importFrom  tibble tibble
 #' @export
-estimate_rank_posterior <- function(subspace_ = NULL, verbose = TRUE, ...) {
-  # -----------------------
-  # Check input parameters
-  # -----------------------
-  if (is.null(subspace_)) {
-    stop("Subspace missing.\n")
-  } else {
-    if(!is.null(subspace_$mp_irl)) {
-      if (verbose) {
-      message("Eigenvalues has already been calculated.\n")
-      }
-    } else {
-      subspace_ <- correct_eigenvalues(subspace_)
-    }
-  }
+estimate_rank_posterior <- function(s, verbose, ...) {
+  UseMethod("estimate_rank_posterior", s)
+}
+
+#' @export
+estimate_rank_posterior.default <- function(s, verbose, ...) {
+  stop("Don't know how to estimate the rank for an object of type ",
+       paste(class(s), collapse = " "), ".")
+}
+
+#' @export
+estimate_rank_posterior.subspace <- function(s, verbose = TRUE, ...) {
   # -----------------------
   # Basic parameter set up
   # -----------------------
-  rnk             <- max(subspace_$components)
-  sigma_a         <- subspace_$sigma_a
-  sigma_mp        <- subspace_$sigma_mp
-  sigma_a_adj     <- sigma_a - sigma_mp
+  rnk             <- max(s$components)
+  sigma_a         <- s$sigma_a
   # --------------------------
   # Rank Estimation procedure
   # --------------------------
   #Bayesian Change Point
   prob_prior <- (seq(0.9, 0, length.out = rnk))
   suppressWarnings(
-    bcp_irl  <- bcp(as.vector(sigma_a_adj[1:rnk]),
-                     p0 = prob_prior[1:rnk]))
+    bcp_irl  <- bcp(as.vector(sigma_a[seq_len(rnk)]),
+                     p0 = prob_prior[seq_len(rnk)]))
   prob_irl   <- c(bcp_irl$posterior.prob[-rnk], 0)
-  changepoint <- rnk + 1 - which.max(rev(prob_irl[1:rnk]))
+  changepoint <- rnk + 1 - which.max(rev(prob_irl[seq_len(rnk)]))
 
   m3 <- paste0("Dimension estimation = ", changepoint, "\n")
   if (verbose) {
     message(m3)
   }
 
-  ret <- list(Subspace    = subspace_,
+  ret <- list(subspace    = s,
               dimension   = changepoint,
               bcp_irl     = bcp_irl,
               message     = list(m3))
@@ -113,9 +108,9 @@ print.dimension <- function(x, ...) {
   cat("An object of class dimension estimated for",
       ifelse(x$transpose_flag, "transposed", ""),
       "X matrix with",
-      x$Subspace$ndf,
+      x$subspace$ndf,
       "samples and",
-      x$Subspace$pdim,
+      x$subspace$pdim,
       "features.\n")
   cat(x$message[[1]])
 }

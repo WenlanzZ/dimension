@@ -4,12 +4,12 @@
 \alias{estimate_rank_double_posterior}
 \title{Signal subspace dimension estimation in high-dimensional matrix by double posterior.}
 \usage{
-estimate_rank_double_posterior(subspace_ = NULL, p = 0.9, verbose = TRUE, ...)
+estimate_rank_double_posterior(s, p, verbose, ...)
 }
 \arguments{
-\item{subspace_}{A subspace class.}
+\item{s}{a subspace class.}
 
-\item{p}{Threshold for selecting changepoint. Default is 0.90.}
+\item{p}{threshold for selecting changepoint. Default is 0.90.}
 
 \item{verbose}{output message}
 

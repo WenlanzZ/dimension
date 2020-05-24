@@ -4,10 +4,10 @@
 \alias{estimate_rank_posterior_cor}
 \title{Signal subspace dimension estimation in high-dimensional matrix by bcp posterior}
 \usage{
-estimate_rank_posterior_cor(subspace_ = NULL, verbose = TRUE, ...)
+estimate_rank_posterior_cor(s, verbose, ...)
 }
 \arguments{
-\item{subspace_}{A subspace class.}
+\item{s}{A subspace class.}
 
 \item{verbose}{output message}
 

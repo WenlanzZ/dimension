@@ -3,7 +3,7 @@
 #' @description Estimate the dimension of a signal-rich subspace in large,
 #'  high-dimensional data.
 #'
-#' @param subspace_ A subspace class.
+#' @param s a subspace class.
 #' @param p Threshold for selecting changepoint. Default is 0.90.
 #' @param verbose output message
 #' @param ... Extra parameters
@@ -61,28 +61,22 @@
 #' @importFrom  tibble tibble
 #' @importFrom stringr str_locate
 #' @export
+estimate_rank_double_posterior_cor <- function(s, p, verbose, ...) {
+  UseMethod("estimate_rank_double_posterior_cor", s)
+}
 
-estimate_rank_double_posterior_cor <- function(subspace_ = NULL, p = 0.90, verbose = TRUE, ...) {  
-  # -----------------------
-  # Check input parameters
-  # -----------------------
-  if (is.null(subspace_)) {
-    stop("Subspace missing.\n")
-  } else {
-    if(!is.null(subspace_$mp_irl)) {
-      if (verbose) {
-      message("Eigenvalues has already been calculated.\n")
-      }
-    } else {
-      subspace_ <- correct_eigenvalues(subspace_)
-    }
-  }
+#' @export
+estimate_rank_double_posterior_cor.default <- function(s, p, verbose, ...) {
+  stop("Don't know how to estimate the rank for an object of type ",
+       paste(class(s), collapse = " "), ".")
+}
+#' @export
+estimate_rank_double_posterior_cor.subspace <- function(s, p = 0.90, verbose = TRUE, ...) {  
   # -----------------------
   # Basic parameter set up
   # -----------------------
-  rnk             <- max(subspace_$components)
-  sigma_a         <- subspace_$sigma_a
-  sigma_mp        <- subspace_$sigma_mp
+  rnk             <- max(s$components)
+  sigma_a         <- s$sigma_a
   # --------------------------
   # Rank Estimation procedure
   # --------------------------
@@ -131,7 +125,7 @@ estimate_rank_double_posterior_cor <- function(subspace_ = NULL, p = 0.90, verbo
   }
 
   #Bayesian Change Point
-  bcp_irl     <- bcp(as.vector(sigma_a[1:cor_rnk] - sigma_mp[1:cor_rnk]),
+  bcp_irl     <- bcp(as.vector(sigma_a[seq_len(cor_rnk)]),
                      p0 = 0.1)
   #Bayesian Posterior Prob Change Point
   bcp_post    <- bcp(as.vector(c(bcp_irl$posterior.prob[-cor_rnk], 0)),
@@ -153,7 +147,7 @@ estimate_rank_double_posterior_cor <- function(subspace_ = NULL, p = 0.90, verbo
                                          irl_max))
   m3 <- paste0("Dimension estimation = ", changepoint, "\n")
   message(m3)
-  ret <- list(Subspace    = subspace_,
+  ret <- list(subspace    = s,
               dimension   = changepoint,
               Changepoint = list(bcp_irl    = bcp_irl,
                                  bcp_post   = bcp_post),
@@ -173,9 +167,9 @@ print.dimension <- function(x, ...) {
   cat("An object of class dimension estimated for",
       ifelse(x$transpose_flag, "transposed", ""),
       "X matrix with",
-      x$Subspace$ndf,
+      x$subspace$ndf,
       "samples and",
-      x$Subspace$pdim,
+      x$subspace$pdim,
       "features.\n")
   cat(x$message[[1]])
 }

@@ -10,7 +10,7 @@ modified_legacyplot(x, annotation = NULL, medianfilter = FALSE)
 \item{x}{A list. The result of a call to bcp().}
 
 \item{annotation}{Annotate points up to total components calculated.
-No annotation when annotation=0.}
+No annotation when annotation = 0.}
 
 \item{medianfilter}{A logical value. Compute running medians to smooth
 scatter plot.}

@@ -96,7 +96,7 @@ subspace_matrix <- function(x, components = NULL, mp = TRUE, times = NA, verbose
   } else {
     components <- check_comp_input(components, nrow(x), ncol(x), verbose)
   }
-  
+ 
   create_subspace(x, components = components, verbose) 
 }
 
@@ -291,20 +291,20 @@ check_comp_input <- function(components, ndf, pdim, verbose = FALSE) {
 #'
 #' A generic function.
 #'
-#' @param times Split data into times-fold for parallel computation.
+#' @param num_est_samples Split data into num_est_samples-fold for parallel computation.
 #' @param ndf The number of degrees of freedom of x.
 #' @param pdim The number of dimensions of x.
 #' @param verbose output message
 #' @export
-check_times_input <- function(times, ndf, pdim, verbose = TRUE) {
-  stopifnot(is.numeric(times))
-  stopifnot(times %% 1 == 0)
-  stopifnot(length(times) == 1)
-  if (times < 0) {
-    stop("Times must be positive")
+check_num_est_samples_input <- function(num_est_samples, ndf, pdim, verbose = TRUE) {
+  stopifnot(is.numeric(num_est_samples))
+  stopifnot(num_est_samples %% 1 == 0)
+  stopifnot(length(num_est_samples) == 1)
+  if (num_est_samples < 0) {
+    stop("num_est_samples must be positive")
   }
-  else if (times > min(ndf - 1, pdim - 1)) {
-    stop("Times must be strictly less than min(nrow(x), ncol(x))")
+  else if (num_est_samples > min(ndf, pdim)) {
+    stop("num_est_samples must be smaller or euqal to min(nrow(x), ncol(x))")
   }
 }
 
