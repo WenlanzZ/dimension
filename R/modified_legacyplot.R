@@ -4,7 +4,7 @@
 #'  It is adapted from the default legacyplot function in pacakge bcp.
 #' @param x A list. The result of a call to bcp().
 #' @param annotation Annotate points up to total components calculated.
-#'  No annotation when annotation=0.
+#'  No annotation when annotation = 0.
 #' @param medianfilter A logical value. Compute running medians to smooth
 #'  scatter plot.
 #' @examples

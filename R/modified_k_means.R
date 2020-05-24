@@ -58,3 +58,45 @@ km <- function(data) {
   }
   return(within_var)
 }
+
+
+#' @title Summary plots of km() output
+#'
+#' @description This function produces summary plots of km() output.
+#' @param x A data frame. The result of a call to km().
+#' @param annotation Annotate points up to total components calculated.
+#'  No annotation when annotation = 0.
+#' @import ggplot2
+#' @export
+
+km_plot <- function(x, annotation   = NULL) {
+  if (missing(annotation)) {
+    annotation <- nrow(x)
+    message("Anotating for all point. Set annotation = 0 to stop annotation.\n")
+  }
+  if (!is.numeric(annotation)) {
+    stop("Anotation must be numbers.\n")
+  }
+  if (!is.null(annotation) & max(annotation) > nrow(x)) {
+    stop("Annotation number must be strictly less or equal to than
+         rows of x.\n")
+  }
+  if (length(annotation) > 1) {
+    mark <- rep("", nrow(x))
+    mark[annotation] <- annotation
+  } else {
+    mark <- c(1:annotation, rep("", nrow(x) - annotation))
+    if (annotation == 0) {
+      mark <- rep("", nrow(x))
+    }
+  }
+
+  ggplot() +
+          theme_minimal() +
+          geom_point(aes(x = 1:(rnk-1), y = within_var[,1])) +
+          geom_line(aes(x = 1:(rnk-1), y = within_var[,1]), color = "black",cex = 0.5) +
+          geom_text_repel(aes(x = 1:(rnk-1), y = within_var[,1],
+                              label = mark), colour = "black", size = 5)
+  
+}
+
