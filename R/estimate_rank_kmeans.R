@@ -90,7 +90,7 @@ estimate_rank_kmeans.subspace <- function(s, verbose = TRUE, ...) {
                  prob = prob_irl[-rnk])
   within_var <- km(data)
   changepoint <- which.min(within_var[,1])
-  m3 <- paste0("Dimension estimation = ", changepoint, "\n")
+  m3 <- paste0("estimate_rank_kmeans estimation = ", changepoint, "\n")
   if (verbose) {
     message(m3)
   }

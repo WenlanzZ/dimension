@@ -145,7 +145,7 @@ estimate_rank_double_posterior_cor.subspace <- function(s, p = 0.90, verbose = T
                         cond_num, switch(2 - any(threshold),
                                          max(post_max[threshold]),
                                          irl_max))
-  m3 <- paste0("Dimension estimation = ", changepoint, "\n")
+  m3 <- paste0("estimate_rank_double_posterior_cor estimation = ", changepoint, "\n")
   message(m3)
   ret <- list(subspace    = s,
               dimension   = changepoint,

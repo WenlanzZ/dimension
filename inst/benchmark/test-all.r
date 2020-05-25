@@ -19,59 +19,83 @@ library(purrr)
 library(gtsummary)
 
 mse <- function(x, x_hat) {
-	mean((x-x_hat)^2)
+	mean((x - x_hat)^2)
 }
 mae <- function(x, x_hat) {
-	mean(abs(x-x_hat))
+	mean(abs(x - x_hat))
 }
 
 library(devtools)
 document()
 
+# bench_params <- 
+#   expand.grid(n = c(10, 100, 1000, 10000),
+#               p = c(10, 100, 1000),
+#               d = c(3, 10),
+#               sigma = c(2, 6, 10)) %>% as_tibble()
+
 bench_params <- 
-  expand.grid(n = c(10, 100, 1000, 10000),
-              p = c(10, 100, 1000),
+  expand.grid(n = c(100),
+              p = c(10),
               d = c(3, 10),
-              sigma = c(2, 6, 10)) %>% as_tibble()
+              sigma = c(2)) %>% as_tibble()
 
 rank_ests <- tibble(
   rank_estimator_type = c("double_posterior", "double_posterior_cor", "kmeans", 
-                          "ladle", "posterior", "posterior_cor"),
+                          "posterior", "posterior_cor", "ladle"),
   rank_estimator = list(estimate_rank_double_posterior,
                         estimate_rank_double_posterior_cor,
                         estimate_rank_kmeans,
-                        estimate_rank_ladle,
                         estimate_rank_posterior,
-                        estimate_rank_posterior_cor))
+                        estimate_rank_posterior_cor,
+                        estimate_rank_ladle))
+cnames <- c("dp_est", "dp_time", "dpc_est", "dpc_time","km_est", "km_time",
+            "p_est", "p_time", "pc_est", "pc_time","lad_est", "lad_time")
+# bench <- foreach(i = seq_len(nrow(rank_ests)), .combine = bind_rows) %do% {
+#   ret <- bench_params
+#   ret$rank_estimator_type = rank_ests$rank_estimator_type[i]
+#   ret$rank_estimator = rank_ests$rank_estimator[i]
+#   ret
+# }
 
-bench <- foreach(i = seq_len(nrow(rank_ests)), .combine = bind_rows) %do% {
-  ret <- bench_params
-  ret$rank_estimator_type = rank_ests$rank_estimator_type[i]
-  ret$rank_estimator = rank_ests$rank_estimator[i]
-  ret
-}
 
-bench$num_sim <- 10
+bench_params$num_sim <- 10
+bench_params %>% print(n = Inf)
 
 ncores <- detectCores()
 registerDoParallel(ncores - 2)
 registerDoRNG()
 
-bench$runs <- foreach(i = seq_len(nrow(bench)), 
+bench_params$runs <- foreach(i = seq_len(nrow(bench_params)), 
                             .options.RNG=1234) %dorng% {
-  foreach(s = seq_len(bench$num_sim[i]), 
+  #run over all model setting
+  foreach(s = seq_len(bench_params$num_sim[i]), 
           .combine = bind_rows,
-          .errorhandling = "remove") %do% { 
-    M <- diag(c(2, 1, 1, rep(0, bench$p[i] - 3)))
-    sigma <- diag(rep(0.54^2, bench$p[i])) + M
-    cor_cols <- rmvnorm(bench$n[i], rep(0, bench$p[i]), 
+          .errorhandling = "remove") %do% {
+    #same model setting
+    M <- diag(c(2, 1, 1, rep(0, bench_params$p[i] - 3)))
+    sigma <- diag(rep(0.54^2, bench_params$p[i])) + M
+    cor_cols <- rmvnorm(bench_params$n[i], rep(0, bench_params$p[i]), 
                         sigma = sigma)
-    stime2 <- 
+    #run all methods on the same matrix
+    bench <- foreach(h = seq_len(nrow(rank_ests)-1), .combine = cbind) %do% {
+      stime1 <- 
       suppressMessages(
-        system.time(test2 <- dimension(cor_cols, verbose = FALSE)))
-    tibble(dim_est = test2$dimension, time = stime2[[3]])
+        system.time(
+          test1 <- cor_cols %>% create_subspace() %>% 
+                    correct_eigenvalues() %>%
+                    rank_ests$rank_estimator[[h]]()
+      ))
+      tibble(dim_est = test1$dimension, time = stime1[[3]])
+    }
+    #run ladle on the same matrix
+    stime2 <- system.time(
+          test2 <- cor_cols %>% rank_ests$rank_estimator[[nrow(rank_ests)]]()
+    )
+    bench <- bench %>% add_column(lad_est = test2$d, lad_time = stime2[[3]])
+    colnames(bench) <- cnames
+    bench
   }
-  cat(i, "of", nrow(bench), "\n")
 }
 
 # Write out bench here. We can post process anything we on a smaller

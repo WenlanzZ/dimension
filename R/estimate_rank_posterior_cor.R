@@ -129,7 +129,7 @@ estimate_rank_posterior_cor.subspace <- function(s, verbose = TRUE, ...) {
   changepoint    <- ifelse(cond_num != irl_max & irl_max == 1,
                            second_irl_max,
                            irl_max)
-  m3 <- paste0("Dimension estimation = ", changepoint, "\n")
+  m3 <- paste0("estimate_rank_posterior_cor estimation = ", changepoint, "\n")
   message(m3)
 
   ret <- list(subspace  = s,

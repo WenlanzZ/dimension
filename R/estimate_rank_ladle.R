@@ -55,5 +55,7 @@ estimate_rank_ladle <- function(x) {
   res$phin <- lam / (1 + sum(lam))
   res$gn <- res$fn + res$phin
   res$d <- which.min(res$gn) - 1
+  m3 <- paste0("estimate_rank_ladle estimation = ", res$d, "\n")
+  message(m3)
   return(res)
 }

@@ -84,7 +84,7 @@ estimate_rank_posterior.subspace <- function(s, verbose = TRUE, ...) {
   prob_irl   <- c(bcp_irl$posterior.prob[-rnk], 0)
   changepoint <- rnk + 1 - which.max(rev(prob_irl[seq_len(rnk)]))
 
-  m3 <- paste0("Dimension estimation = ", changepoint, "\n")
+  m3 <- paste0("estimate_rank_posterior estimation = ", changepoint, "\n")
   if (verbose) {
     message(m3)
   }
