@@ -28,17 +28,17 @@ mae <- function(x, x_hat) {
 library(devtools)
 document()
 
-# bench_params <- 
-#   expand.grid(n = c(10, 100, 1000, 10000),
-#               p = c(10, 100, 1000),
-#               d = c(3, 10),
-#               sigma = c(2, 6, 10)) %>% as_tibble()
+bench_params <- 
+  expand.grid(n = c(10, 100, 1000, 10000),
+              p = c(10, 100, 1000),
+              d = c(3, 10),
+              sigma = c(2, 6, 10)) %>% as_tibble()
 
 bench_params <- 
-  expand.grid(n = c(100),
-              p = c(10),
-              d = c(3, 10),
-              sigma = c(2)) %>% as_tibble()
+  expand.grid(n = c(10, 100),
+              p = c(10, 100),
+              d = 3,
+              sigma = c(2, 6)) %>% as_tibble()
 
 rank_ests <- tibble(
   rank_estimator_type = c("double_posterior", "double_posterior_cor", "kmeans", 
@@ -51,13 +51,6 @@ rank_ests <- tibble(
                         estimate_rank_ladle))
 cnames <- c("dp_est", "dp_time", "dpc_est", "dpc_time","km_est", "km_time",
             "p_est", "p_time", "pc_est", "pc_time","lad_est", "lad_time")
-# bench <- foreach(i = seq_len(nrow(rank_ests)), .combine = bind_rows) %do% {
-#   ret <- bench_params
-#   ret$rank_estimator_type = rank_ests$rank_estimator_type[i]
-#   ret$rank_estimator = rank_ests$rank_estimator[i]
-#   ret
-# }
-
 
 bench_params$num_sim <- 10
 bench_params %>% print(n = Inf)
@@ -105,6 +98,17 @@ est_hist <- function(run) {
   ggplot(run, aes(x = dim_est)) + geom_histogram() + theme_bw()
 }
 
+# distribute results
+bench<- foreach(i = seq_len(nrow(rank_ests)), .combine = bind_rows) %do% {
+  bench <- bench_params
+  bench$rank_estimator_type <- rank_ests$rank_estimator_type[i]
+  bench$runs <- bench$runs %>% lapply(`[`, c(2 * i - 1, 2 * i)) %>% lapply(setNames, c("dim_est", "time"))
+  bench
+}
+
+bench <- arrange(bench, -desc(n), -desc(p), -desc(sigma))
+bench %>% print(n = Inf)
+# calcualte metrics
 bench <- bench %>%
   mutate(mse = map2_dbl(runs, d, 
                         ~ mean(.x$dim_est - rep(d, length(.x$dim_est))^2)),
