@@ -98,14 +98,14 @@ est_hist <- function(run) {
 }
 
 # distribute results
-bench<- foreach(i = seq_len(nrow(rank_ests)), .combine = bind_rows) %do% {
+bench<- foreach(i = seq_len(nrow(rank_ests)-1), .combine = bind_rows) %do% {
   bench <- bench_params
   bench$rank_estimator_type <- rank_ests$rank_estimator_type[i]
   bench$runs <- bench$runs %>% lapply(`[`, c(2 * i - 1, 2 * i)) %>% lapply(setNames, c("dim_est", "time"))
   bench
 }
 
-bench <- arrange(bench, -desc(n), -desc(p))
+bench <- arrange(bench, n, p)
 bench %>% print(n = Inf)
 # calcualte metrics
 bench <- bench %>%
@@ -117,6 +117,8 @@ bench <- bench %>%
                              ~ mean(.x$dim_est - rep(d, length(.x$dim_est)))),
          mean_est = map_dbl(runs, ~ mean(.x$dim_est)),
          median_est = map_dbl(runs, ~ median(.x$dim_est)),
+         accuracy = map2_dbl(runs, d, 
+                              ~ sum(.x$dim_est == d)),
          plots = map(runs, est_hist))
 bench %>% print(n = Inf)
 
@@ -125,7 +127,7 @@ saveRDS(bench_params_2_2_1, "/Users/wz262/Projects/dimension/inst/benchmark/benc
 bench_2_2_1<- bench
 saveRDS(bench_2_2_1, "/Users/wz262/Projects/dimension/inst/benchmark/bench_2_2_1.rds")
 filter(bench_params, n == 100, p == 100)$runs
-
+# bench_2_2_1 <- readRDS("/Users/wz262/Projects/dimension/inst/benchmark/bench_2_2_1.rds")
 bench %>% trelliscope(name = "Dimension Estimation", panel_col = "plots")
 
 # Points from MK.
@@ -136,20 +138,29 @@ bench %>% trelliscope(name = "Dimension Estimation", panel_col = "plots")
 ################--------------------> model 2 <--------------------------#################
 bench_params <- 
   expand.grid(n = 10,
-              p = c(10, 100, 1000),
+              p = c(100, 1000, 10000),
               d = 3,
-              sigma = c(2, 6)) %>% as_tibble()
-
-bench_params <- 
-expand.grid(n = c(100, 500, 5000, 50000),
-            p = c(100, 500, 5000, 50000),
+              sigma = 6) %>% as_tibble()
+bench_params <- bench_params %>% add_row(
+  expand.grid(n = 100,
+            p = c(500, 5000, 50000),
             d = 10,
-            sigma = c(2, 6, 10)) %>% as_tibble()
+            sigma = c(6, 10)) %>% as_tibble()) %>% add_row(
+  expand.grid(n = c(500, 5000, 50000),
+            p = 100,
+            d = 10,
+            sigma = 2) %>% as_tibble()
+  )
+# bench_params <- 
+# expand.grid(n = c(100, 500, 5000, 50000),
+#             p = c(100, 500, 5000, 50000),
+#             d = 10,
+#             sigma = c(2, 6, 10)) %>% as_tibble()
 #drop setting that ladle cannot run through
-bench_params <- bench_params %>% slice(-c(1, 6, 7, 8, 10, 11, 12))
+bench_params <- bench_params %>% filter(n <= 500, p <= 1000)
 
 
-bench_params$num_sim <- 10
+bench_params$num_sim <- 1000
 bench_params %>% print(n = Inf)
 
 ncores <- detectCores()
@@ -185,7 +196,9 @@ bench_params$runs <- foreach(i = seq_len(nrow(bench_params)),
     bench
   }
 }
-
+bench_params_sigma_ladle<- bench_params
+saveRDS(bench_params_sigma_ladle, "/Users/wz262/Projects/dimension/inst/benchmark/bench_params_sigma_ladle.rds")
+# bench_params <- readRDS("/Users/wz262/Projects/dimension/inst/benchmark/bench_params_sigma_ladle.rds")
 
 # distribute results
 bench<- foreach(i = seq_len(nrow(rank_ests)), .combine = bind_rows) %do% {
@@ -195,7 +208,7 @@ bench<- foreach(i = seq_len(nrow(rank_ests)), .combine = bind_rows) %do% {
   bench
 }
 
-bench <- arrange(bench, -desc(n), -desc(p))
+bench <- arrange(bench, n, p, d, sigma)
 bench %>% print(n = Inf)
 # calcualte metrics
 bench <- bench %>%
@@ -207,12 +220,42 @@ bench <- bench %>%
                              ~ mean(.x$dim_est - rep(d, length(.x$dim_est)))),
          mean_est = map_dbl(runs, ~ mean(.x$dim_est)),
          median_est = map_dbl(runs, ~ median(.x$dim_est)),
+         accuracy = map2_dbl(runs, d, 
+                              ~ sum(.x$dim_est == d)),
          plots = map(runs, est_hist))
 bench %>% print(n = Inf)
 
-bench_params_sigma<- bench_params
-saveRDS(bench_params_sigma, "/Users/wz262/Projects/dimension/inst/benchmark/bench_params_sigma.rds")
-bench_sigma<- bench
-saveRDS(bench_sigma, "/Users/wz262/Projects/dimension/inst/benchmark/bench_sigma.rds")
+bench_sigma_ladle<- bench
+saveRDS(bench_sigma_ladle, "/Users/wz262/Projects/dimension/inst/benchmark/bench_sigma_ladle.rds")
 
+
+#integrate all results
+bench_sigma_ladle <- readRDS("/Users/wz262/Projects/dimension/inst/benchmark/bench_sigma_ladle.rds")
+bench_2_2_1 <- readRDS("/Users/wz262/Projects/dimension/inst/benchmark/bench_2_2_1.rds")
+bench_sigma <- readRDS("/Users/wz262/Projects/dimension/inst/benchmark/bench_sigma.rds")
+
+bench <- bench_2_2_1 %>% mutate(sigma = 2) %>% subset(select=c(1:3, 14, 4:13)) %>%
+        add_row(bench_sigma_ladle)  %>%
+        add_row(bench_sigma)
+
+bench_params <- bench_params_2_2_1 %>% subset(select=c(1:3, 6, 4:5)) %>%
+        add_row(bench_params_sigma_ladle)  %>%
+        add_row(bench_params_sigma)
+bench_params <- arrange(bench_params, n, p, d, sigma)
+saveRDS(bench_params, "/Users/wz262/Projects/dimension/inst/benchmark/bench_params.rds")
+
+bench <- arrange(bench, n, p, d, sigma)
+bench %>% print(n = Inf)
+saveRDS(bench, "/Users/wz262/Projects/dimension/inst/benchmark/bench.rds")
+bench <- readRDS("/Users/wz262/Projects/dimension/inst/benchmark/bench.rds")
+# write.csv(bench %>% subset(select= - c(6, 13)), "/Users/wz262/Projects/dimension/inst/benchmark/bench.csv")
+
+bench %>% subset(select=c(1:4, 7, 13, 10, 11, 8, 12)) %>% print(n = Inf)
+bench %>% filter(rank_estimator_type == "double_post") %>% subset(select=c(1:4, 13, 10, 11, 8, 12)) 
+bench %>% filter(rank_estimator_type == "kmeans") %>% subset(select=c(1:4, 13, 10, 11, 8, 12))
+bench %>% filter(rank_estimator_type == "posterior") %>% subset(select=c(1:4, 13, 10, 11, 8, 12))
+bench %>% filter(rank_estimator_type == "ladle") %>% subset(select=c(1:4, 13, 10, 11, 8, 12))
+bench %>% filter(rank_estimator_type == "double_post_cor") %>% subset(select=c(1:4, 13, 10, 11, 8, 12))
+bench %>% filter(rank_estimator_type == c("posterior", "double_post")) %>% subset(select=c(1:4, 7, 13, 10, 11, 8, 12))
+bench %>% filter(rank_estimator_type == "posterior_cor") %>% subset(select=c(1:4, 13, 10, 11, 8, 12))
 bench %>% trelliscope(name = "Dimension Estimation", panel_col = "plots")

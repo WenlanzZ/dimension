@@ -12,7 +12,7 @@
 #'  Components must be smaller or equal to min(nrow(x), ncol(x)).
 #' @param mp A logical value. If true, sample eigenvlaues from random noise
 #'  matrix with mp distribution.
-#' @param times Split data into times-fold for parallel computation.
+#' @param num_est_samples Split data into num_est_samples-fold for parallel computation.
 #' @param verbose output message
 #' @param ... Extra parameters
 #' @return
@@ -56,31 +56,31 @@
 #' @import foreach
 #' @import Matrix
 #' @export
-subspace <- function(x, components, mp, times, verbose, ...) {
+subspace <- function(x, components, mp, num_est_samples, verbose, ...) {
   UseMethod("subspace", x)
 }
 
 #' @export
-subspace.default <- function(x, components, mp, times, verbose, ...) {
+subspace.default <- function(x, components, mp, num_est_samples, verbose, ...) {
   stop("Don't know how to create a subspace object from a class of type: ",
        class(x))
 }
 
 #' @export
-subspace.matrix <- function(x, components = NULL, mp = TRUE, times = NA,
+subspace.matrix <- function(x, components = NULL, mp = TRUE, num_est_samples = NA,
                             verbose = FALSE, ...) {
-  subspace_matrix(x = x, components = components, mp = mp, times = times, 
+  subspace_matrix(x = x, components = components, mp = mp, num_est_samples = num_est_samples, 
                   verbose = verbose, ... = ...)
 }
 
 #' @export
-subspace.Matrix <- function(x, components = NULL, mp = TRUE, times = NA,
+subspace.Matrix <- function(x, components = NULL, mp = TRUE, num_est_samples = NA,
                             verbose = FALSE, ...) {
-  subspace_matrix(x, components = components, mp = mp, times = times, 
+  subspace_matrix(x, components = components, mp = mp, num_est_samples = num_est_samples, 
                   verbose = verbose, ... = ...)
 }
 
-subspace_matrix <- function(x, components = NULL, mp = TRUE, times = NA, verbose = FALSE, ...) {
+subspace_matrix <- function(x, components = NULL, mp = TRUE, num_est_samples = NA, verbose = FALSE, ...) {
 
   # ----------------------
   # Check input parameters
@@ -97,7 +97,18 @@ subspace_matrix <- function(x, components = NULL, mp = TRUE, times = NA, verbose
     components <- check_comp_input(components, nrow(x), ncol(x), verbose)
   }
  
-  create_subspace(x, components = components, verbose) 
+  s <- create_subspace(x, components = components, verbose) 
+
+  if (mp) {
+    if (missing(num_est_samples)) {
+      num_est_samples <- 0
+    } else {
+      check_num_est_samples_input(num_est_samples, s$ndf, s$pdim, 
+                      verbose = verbose)
+    }
+    s <- correct_eigenvalues(s, num_est_samples = num_est_samples, verbose)
+  }
+  s
 }
 
 
@@ -287,7 +298,7 @@ check_comp_input <- function(components, ndf, pdim, verbose = FALSE) {
   }
 }
 
-#' @title Check Times Input
+#' @title Check num_est_samples Input
 #'
 #' A generic function.
 #'

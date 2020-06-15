@@ -2,7 +2,7 @@
 % Please edit documentation in R/subspace.R
 \name{check_num_est_samples_input}
 \alias{check_num_est_samples_input}
-\title{Check Times Input
+\title{Check num_est_samples Input
 
 A generic function.}
 \usage{
@@ -18,7 +18,7 @@ check_num_est_samples_input(num_est_samples, ndf, pdim, verbose = TRUE)
 \item{verbose}{output message}
 }
 \description{
-Check Times Input
+Check num_est_samples Input
 
 A generic function.
 }

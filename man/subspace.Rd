@@ -4,7 +4,7 @@
 \alias{subspace}
 \title{A constructor function for the subspace class}
 \usage{
-subspace(x, components, mp, times, verbose, ...)
+subspace(x, components, mp, num_est_samples, verbose, ...)
 }
 \arguments{
 \item{x}{A numeric real-valued matrix with n number of samples and
@@ -17,7 +17,7 @@ Components must be smaller or equal to min(nrow(x), ncol(x)).}
 \item{mp}{A logical value. If true, sample eigenvlaues from random noise
 matrix with mp distribution.}
 
-\item{times}{Split data into times-fold for parallel computation.}
+\item{num_est_samples}{Split data into num_est_samples-fold for parallel computation.}
 
 \item{verbose}{output message}
 

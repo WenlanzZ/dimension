@@ -93,9 +93,9 @@ km_plot <- function(x, annotation   = NULL) {
 
   ggplot() +
           theme_minimal() +
-          geom_point(aes(x = 1:(rnk-1), y = within_var[,1])) +
-          geom_line(aes(x = 1:(rnk-1), y = within_var[,1]), color = "black",cex = 0.5) +
-          geom_text_repel(aes(x = 1:(rnk-1), y = within_var[,1],
+          geom_point(aes(x = 1:nrow(x), y = x[,1])) +
+          geom_line(aes(x = 1:nrow(x), y = x[,1]), color = "black",cex = 0.5) +
+          geom_text_repel(aes(x = 1:nrow(x), y = x[,1],
                               label = mark), colour = "black", size = 5)
   
 }

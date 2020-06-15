@@ -6,10 +6,15 @@
 #' @param x A numeric real-valued matrix with n number of samples and
 #'  p number of features. If p>n, a warning message is generated and
 #'  the transpose of x is used.
-#' @param subspace_ A subspace class.
+#' @param s A subspace class.
 #' @param components A series of right singular vectors to estimate.
 #'  Components must be smaller or equal to min(nrow(x),ncol(x)).
-#' @param times Split data into times-fold for parallel computation.
+#' @param method The method to be used; method = "threshold"
+#'  returns (1-alpha)*rnk proportion of eigenvalues above threshold;
+#'   method = "hard" returns all the empirical eigenvalues greater
+#'    than the upper limit of the support to the Marcenko-Pastur spectrum;
+#'   method = "identity" returns eigenvalues specified in location vector.
+#' @param num_est_samples Split data into num_est_samples-fold for parallel computation.
 #' @param verbose output message
 #' @param ... Extra parameters
 #' @return
@@ -50,7 +55,7 @@
 #'
 #' #equivelantly, if subsapce is calcualted
 #' Subspace <- subspace(x, components = 1:50)
-#' results <- dimension(subspace_ = Subspace)
+#' results <- dimension(s = Subspace)
 #'
 #' str(results)
 #' plot(results$Subspace, changepoint = results$dimension,
@@ -65,15 +70,16 @@
 #' @importFrom stringr str_locate
 #' @export
 dimension <- function(x,
-                      subspace_ = NULL,
+                      s = NULL,
                       components = NA,
-                      times = NA,
+                      method = c("double_posterior", "posterior", "kmeans", "ladle"),
+                      num_est_samples = NA,
                       verbose = FALSE,
                       ...) {
 # -----------------------
 # Check input parameters
 # -----------------------
-  if (!missing(subspace_) && !is.null(subspace_$mp_irl)) {
+  if (!missing(s)) {
     if (verbose) {
         message("Subspace has already been calculated.\n")
     }
@@ -90,51 +96,32 @@ dimension <- function(x,
         }
       }
       # Checking for times input
-      if (missing(times)) {
-        times <- 0
+      if (missing(num_est_samples)) {
+        num_est_samples <- 0
       }
       # Calcualte subspace
-      subspace_ <- subspace(x, components = components, times = times)
+      s <- subspace(x, components = components, num_est_samples = num_est_samples, verbose)
     }
   }
-# -----------------------
-# Basic parameter set up
-# -----------------------
-  rnk             <- max(subspace_$components)
-  sigma_a         <- subspace_$sigma_a
-  sigma_mp        <- subspace_$sigma_mp
-  sigma_a_adj     <- sigma_a - sigma_mp
-# --------------------------
-# Rank Estimation procedure
-# --------------------------
-  #Bayesian Change Point
-  prob_prior <- (seq(0.9, 0, length.out = rnk))
-  suppressWarnings(
-    bcp_irl  <- bcp(as.vector(sigma_a_adj[1:rnk]),
-                     p0 = prob_prior[1:rnk]))
-  prob_irl   <- c(bcp_irl$posterior.prob[-rnk], 0)
-  prob_irl_diff <- abs(diff(prob_irl))
-  irl_max        <- rnk + 1 - which.max(rev(prob_irl[1:rnk]))
-  if (verbose) {
-    cat("irl_max = ", irl_max, "\n")
-  }
-  data <- tibble(diff = prob_irl_diff,
-                 prob = prob_irl[-rnk])
-  within_var <- km(data)
-  changepoint <- which.min(within_var[,1])
-  m3 <- paste0("Dimension estimation = ", changepoint, "\n")
-  if (verbose) {
-    message(m3)
-  }
-
-  ret <- list(Subspace    = subspace_,
-              dimension   = changepoint,
-              bcp_irl     = bcp_irl,
-              data        = data,
-              within_var  = within_var,
-              message     = list(m3))
-  attr(ret, "class") <- "dimension"
-  ret
+  if (missing(method)) {method = "double_posterior"}
+  switch(method,
+        # default = {
+        #   s %>% estimate_rank_double_posterior()
+        # },
+        double_posterior = {
+          s %>% estimate_rank_double_posterior()
+        },
+        posterior = {
+          s %>% estimate_rank_posterior()
+        },
+        kmeans = {
+          s %>% estimate_rank_kmeans()
+        },
+        ladle = {
+          x %>% estimate_rank_ladle()
+        },
+        stop("Invalid method input")
+        )
 }
 
 #' @title Print dimension

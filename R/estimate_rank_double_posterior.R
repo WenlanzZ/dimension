@@ -76,6 +76,11 @@ estimate_rank_double_posterior.subspace <- function(s, p = 0.90, verbose = TRUE,
   # Basic parameter set up
   # -----------------------
   rnk             <- max(s$components)
+  if (rnk > 10) {
+    rnk <- as.integer(rnk / log(rnk))
+  } else {
+      rnk <- rnk - 1
+  }
   sigma_a         <- s$sigma_a
 
   #Bayesian Change Point
@@ -97,13 +102,13 @@ estimate_rank_double_posterior.subspace <- function(s, p = 0.90, verbose = TRUE,
   changepoint <- switch(2 - any(threshold),
                        max(post_max[threshold]),
                        irl_max)
-  m3 <- paste0("estimate_rank_double_posterior estimation = ", changepoint, "\n")
+  m3 <- paste0("dimension estimation = ", changepoint, "\n")
   message(m3)
   ret <- list(subspace    = s,
               dimension   = changepoint,
-              Changepoint = list(bcp_irl    = bcp_irl,
-                                 bcp_post   = bcp_post),
-              message    = list(m3))
+              bcp_irl     = bcp_irl,
+              bcp_post    = bcp_post,
+              message     = list(m3))
   attr(ret, "class") <- "dimension"
   ret
 }

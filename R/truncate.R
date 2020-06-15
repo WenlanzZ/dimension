@@ -106,7 +106,7 @@ truncate <- function(x,
               Calculating full singular value decomposition instead.\n")
         }
       }
-      subspace_ <- subspace(x, components = components, MP = FALSE)
+      subspace_ <- subspace(x, components = components, mp = FALSE)
     }
   }
 # -----------------------

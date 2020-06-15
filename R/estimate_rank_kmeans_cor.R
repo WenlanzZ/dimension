@@ -72,6 +72,7 @@ estimate_rank_kmeans_cor.subspace <- function(s, verbose = TRUE, ...) {
   # -----------------------
   rnk             <- max(s$components)
   sigma_a         <- s$sigma_a
+  sigma_a_diff    <- abs(diff(sigma_a / sigma_a[1]))
   # --------------------------
   # Rank Estimation procedure
   # --------------------------
@@ -82,42 +83,46 @@ estimate_rank_kmeans_cor.subspace <- function(s, verbose = TRUE, ...) {
                      p0 = prob_prior[seq_len(rnk)]))
   prob_irl   <- c(bcp_irl$posterior.prob[-rnk], 0)
   prob_irl_diff <- abs(diff(prob_irl))
+  sign_irl_diff <- sign(diff(prob_irl))
   cutoff         <- quantile(abs(prob_irl_diff))[4]
   cat("Cutoff = ", cutoff, "\n")
   prob_irl_diff[prob_irl_diff < cutoff] <- 0
   prob_irl_diff[prob_irl_diff >= cutoff] <- 1
   prob_irl_diff_str     <- toString(prob_irl_diff)
-  # Detect extreme cases with strange spikes
-  sequence <- rep(0, ifelse(rnk > 20, 5, 3))
-  flatstart       <- str_locate(prob_irl_diff_str,
-                                paste(as.character(c(1, sequence)),
-                                      sep = "' '", collapse = ", "))
-  flatend         <- str_locate(prob_irl_diff_str,
-                                paste(as.character(c(sequence, 1)),
-                                      sep = "' '", collapse = ", "))
-  if (!is.na(sum(flatstart))) {
-    cond_num      <- (flatstart[1] - 1) / 3 + 1
-    cor_rnk   <- (flatstart[2] - 1) / 3 + 1
-    m1 <- paste0("Detecting flat pattern from ",
-          cond_num, " to ", cor_rnk,
-          " and trim out components after ", cor_rnk, "\n")
-    if (verbose) {
-      message(m1)
-    }
-  } else if (!is.na(sum(flatend)) & flatend[1] != 1) {
-    spike_num     <- (flatend[2] - 1) / 3 + 1
-    cor_rnk   <- (flatend[1] - 1) / 3 + 1
-    m2 <- paste0("Detecting spike pattern from ",
-          cor_rnk, " to ", spike_num,
-          " and trim out components after ", cor_rnk, "\n")
-    cond_num <- 0
-    if (verbose) {
-      message(m2)
+  if (rnk > 10) {
+    # Detect extreme cases with strange spikes
+    sequence <- rep(0, ifelse(rnk > 20, 5, 3))
+    flatstart       <- str_locate(prob_irl_diff_str,
+                                  paste(as.character(c(1, sequence)),
+                                        sep = "' '", collapse = ", "))
+    flatend         <- str_locate(prob_irl_diff_str,
+                                  paste(as.character(c(sequence, 1)),
+                                        sep = "' '", collapse = ", "))
+    if (!is.na(sum(flatstart))) {
+      cond_num      <- (flatstart[1] - 1) / 3 + 1
+      cor_rnk   <- (flatstart[2] - 1) / 3 + 1
+      m1 <- paste0("Detecting flat pattern from ",
+            cond_num, " to ", cor_rnk,
+            " and trim out components after ", cor_rnk, "\n")
+      if (verbose) {
+        message(m1)
+      }
+    } else if (!is.na(sum(flatend)) & flatend[1] != 1) {
+      spike_num     <- (flatend[2] - 1) / 3 + 1
+      cor_rnk   <- (flatend[1] - 1) / 3 + 1
+      m2 <- paste0("Detecting spike pattern from ",
+            cor_rnk, " to ", spike_num,
+            " and trim out components after ", cor_rnk, "\n")
+      if (verbose) {
+        message(m2)
+      }
+    } else {
+      cor_rnk   <- rnk
     }
   } else {
-    cond_num <- 0
     cor_rnk   <- rnk
   }
+
   irl_max        <- cor_rnk + 1 - which.max(rev(prob_irl[seq_len(cor_rnk)]))
   if (verbose) {
     cat("irl_max = ", irl_max, "\n")
@@ -128,7 +133,13 @@ estimate_rank_kmeans_cor.subspace <- function(s, verbose = TRUE, ...) {
   data <- tibble(diff = prob_irl_diff,
                  prob = prob_irl[-cor_rnk])
   within_var <- km(data)
-  changepoint <- which.min(within_var[,1])
+  km_min <- which.min(within_var[,1])
+  km_min <- ifelse(sign_irl_diff[km_min] < 0, km_min, km_min + 1)
+  if (verbose) {
+    cat("km_min = ", km_min, "\n")
+  }
+  changepoint <- ifelse(irl_max < km_min & sigma_a_diff[irl_max] > 2 * sigma_a_diff[km_min],
+                        irl_max, km_min)
   m3 <- paste0("estimate_rank_kmeans estimation = ", changepoint, "\n")
   if (verbose) {
     message(m3)
