@@ -17,7 +17,7 @@
 #'  of samples and p number of features. If p>n,
 #'  a warning message is generated and the transpose of
 #'  x is used.
-#' @param subspace_ A subspace class.
+#' @param s A subspace class.
 #' @param components A series of right singular vectors
 #' to estimate. Components must be smaller or equal
 #' to min(nrow(x),ncol(x)).
@@ -81,7 +81,7 @@
 #' @export
 
 truncate <- function(x,
-                    subspace_ = NULL,
+                    s = NULL,
                     components = NA,
                     method = c("threshold", "hard", "identity"),
                     alpha = NA,
@@ -93,7 +93,7 @@ truncate <- function(x,
 # Check input parameters
 # ------------------------
 
-  if (!missing(subspace_)) {
+  if (!missing(s)) {
     message("Subspace have already been calculated.\n")
   } else {
     if (is.null(x)) {
@@ -106,20 +106,20 @@ truncate <- function(x,
               Calculating full singular value decomposition instead.\n")
         }
       }
-      subspace_ <- subspace(x, components = components, mp = FALSE)
+      s <- subspace(x, components = components, mp = FALSE)
     }
   }
 # -----------------------
 # Basic parameter set up
 # -----------------------
-    ndf            <- subspace_$ndf
-    pdim           <- subspace_$pdim
+    ndf            <- s$ndf
+    pdim           <- s$pdim
     svr            <- ndf / pdim
-    components     <- subspace_$components
+    components     <- s$components
     rnk            <- max(components)
-    irl            <- subspace_$irl
-    v              <- subspace_$v
-    u              <- subspace_$u
+    irl            <- s$irl
+    v              <- s$v
+    u              <- s$u
 # ----------------------------------
 # Determine eigenvalues to preserve
 # ----------------------------------
@@ -136,7 +136,7 @@ truncate <- function(x,
         threshold = {
           if (missing(alpha)) {
             stop("Alpha must be specified")
-          } else if (alpha < 0) {
+          } else if (alpha <= 0) {
             stop("Alpha must be positive")
           } else if (alpha > 1) {
             stop("Alpha must be less or equal to 1")
@@ -146,7 +146,7 @@ truncate <- function(x,
           m <- paste0("Use method ", method, "\n",
                       "threshold = ", threshold, "\n")
           if (verbose) cat(m)
-          if (threshold > 0) xi_denoised[1:threshold] <- irl$eigen[1:threshold]
+          if (threshold > 1) xi_denoised[1:threshold] <- irl$eigen[1:threshold]
           else (stop("No eigenvalue preserved"))
         },
         identity = {
@@ -154,7 +154,7 @@ truncate <- function(x,
             stop("Invalid location input")
           }
           if (missing(location)) {
-            stop("Location must be specified")
+            stop("Invalid location input")
           }
           if (max(location) > rnk) {
             stop("Location must be smaller than rnk")

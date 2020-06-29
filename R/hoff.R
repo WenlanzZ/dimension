@@ -11,6 +11,8 @@
 #' @param lor An \tt{R} object.
 #' @param llb An \tt{R} object.
 #' @param lub An \tt{R} object.
+#' @importFrom stats rbinom rchisq rchisq rgamma dt
+
 #' @export
 hoff_gibbs_sample <- function(e,
                               nu,
@@ -798,6 +800,7 @@ roots_cubic <- function(a2, a1, a0) {
 #' @param a2 An \tt{R} object.
 #' @param a1 An \tt{R} object.
 #' @param a0 An \tt{R} object.
+#' @importFrom stats rt
 roots_quartic <- function(a3, a2, a1, a0) {
   z3 <- roots_cubic(-a2, a1 * a3 - 4 * a0, 4 * a2 * a0 - a1^2 - a3^2 * a0)
   y <- Re(z3[Im(z3) == 0])[1]

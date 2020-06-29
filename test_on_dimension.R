@@ -19,8 +19,8 @@ library(dimension)
 setwd("/Users/wz262/Projects/dimension")
 library(devtools)
 load_all()
-sourcdevtools::test()
-devtools::check()
+devtools::test()
+devtools::check(vignettes = FALSE)
 ?x_sim
 ?check_dim_matrix
 ?subspace
@@ -33,12 +33,44 @@ library(devtools)
 a <- lint(".", cache = FALSE)
 library(dplyr)
 a %>% as_tibble()
+library(covr)
+a <- covr::report()
+a
 
+subspace1_ref <- readRDS("./tests/testthat/reference_data/Subspace1.rds")
+saveRDS(x_denoised4, "./tests/testthat/reference_data/x_denoised4.rds")
+x_denoised1_ref <- readRDS("./tests/testthat/reference_data/x_denoised1.rds")
+# test examples
+x <- x_sim(n = 100, p = 150, ncc = 10, var = c(rep(10, 5), rep(1, 5)))
+results <- x %>%
+  create_subspace(components = 1:30) %>%
+  correct_eigenvalues() %>%
+  estimate_rank_kmeans()
+km_plot(results$within_var)
+str(results)
+
+
+results <- dimension(x, components = 1:30)
+Subspace <- subspace(x, components = 1:10)
+results <- dimension(s = Subspace, method = "double_posterior")
+results <- dimension(s = Subspace, method = "posterior")
+results <- dimension(s = Subspace, method = "kmeans")
+results <- dimension(x, method = "ladle")
+
+str(results)
+plot(results$subspace, changepoint = results$dimension,annotation = 10)
+modified_legacyplot(results$bcp_irl, annotation = 10)
+
+km_plot(results$within_var)
+# prob_irl   <- c(results$bcp_irl$posterior.prob[-10], 0)
+# prob_irl_diff <- abs(diff(prob_irl))
+# sign_irl_diff <- sign(diff(prob_irl))
+# km_min <- which.min(results$within_var[,1])
+# sign_irl_diff[km_min]
 
 
 #Test on MKDim package
 x <- x_sim(n = 150, p = 100, ncc = 30, var = c(rep(10,5),rep(3,25)))
-x <- x_sim(n = 100, p = 500, ncc = 10, var = 6)
 t1 <- proc.time()
 Subspace <- subspace(x, components = 1:30, times = 10)
 print(proc.time() - t1)
@@ -80,14 +112,15 @@ hoff_result <- hoff(y = x, NSCAN = 100)
 ########################################################
 #####test on subspace#########
 ########################################################
-
+subspace1_ref <- readRDS("./tests/testthat/reference_data/Subspace1.rds")
 Subspace <- subspace(x)
-Subspace <- subspace(x, time = 10)
+Subspace <- subspace(x, num_est_samples = 10)
 Subspace <- subspace(x, components = 11:30)
-Subspace <- subspace(x, components = c(2, 3, 6), times = 10)
-Subspace <- subspace(x, components = 1:20, times = 10, mp= FALSE)
+Subspace <- subspace(x, components = c(2, 3, 6), num_est_samples = 10)
+Subspace <- subspace(x, components = 1:20, num_est_samples = 10, mp= FALSE)
 Subspace
 str(Subspace)
+
 
 #test on scree plot
 plot(Subspace)

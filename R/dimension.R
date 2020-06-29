@@ -4,17 +4,19 @@
 #'  high-dimensional data.
 #'
 #' @param x A numeric real-valued matrix with n number of samples and
-#'  p number of features. If p>n, a warning message is generated and
+#'  p number of features. If p > n, a warning message is generated and
 #'  the transpose of x is used.
 #' @param s A subspace class.
 #' @param components A series of right singular vectors to estimate.
 #'  Components must be smaller or equal to min(nrow(x),ncol(x)).
-#' @param method The method to be used; method = "threshold"
-#'  returns (1-alpha)*rnk proportion of eigenvalues above threshold;
-#'   method = "hard" returns all the empirical eigenvalues greater
-#'    than the upper limit of the support to the Marcenko-Pastur spectrum;
-#'   method = "identity" returns eigenvalues specified in location vector.
-#' @param num_est_samples Split data into num_est_samples-fold for parallel computation.
+#' @param method The method to be used; method = "double_posterior"
+#'  returns results from function estimate_rank_double_posterior;
+#'   method = "posterior" returns results from function estimate_rank_posterior;
+#'   method = "kmeans" returns results from function estimate_rank_kmeans;
+#'   method = "ladle" returns results from function estimate_rank_ladle.
+#'   Default uses estimate_rank_double_posterior.
+#' @param num_est_samples Split data into num_est_samples-fold
+#'  for parallel computation.
 #' @param verbose output message
 #' @param ... Extra parameters
 #' @return
@@ -55,10 +57,10 @@
 #'
 #' #equivelantly, if subsapce is calcualted
 #' Subspace <- subspace(x, components = 1:50)
-#' results <- dimension(s = Subspace)
+#' results <- dimension(s = Subspace, method = "double_posterior")
 #'
 #' str(results)
-#' plot(results$Subspace, changepoint = results$dimension,
+#' plot(results$subspace, changepoint = results$dimension,
 #'      annotation = 10)
 #' modified_legacyplot(results$bcp_irl, annotation = 10)
 #' @seealso [RMTstat] for details of Marchenko-Pastur distribution.
@@ -68,11 +70,13 @@
 #' @importFrom bcp bcp
 #' @importFrom  tibble tibble
 #' @importFrom stringr str_locate
+#' @importFrom dplyr %>%
 #' @export
 dimension <- function(x,
                       s = NULL,
                       components = NA,
-                      method = c("double_posterior", "posterior", "kmeans", "ladle"),
+                      method = c("double_posterior", "posterior",
+                                 "kmeans", "ladle"),
                       num_est_samples = NA,
                       verbose = FALSE,
                       ...) {
@@ -100,14 +104,17 @@ dimension <- function(x,
         num_est_samples <- 0
       }
       # Calcualte subspace
-      s <- subspace(x, components = components, num_est_samples = num_est_samples, verbose)
+      s <- subspace(x, components = components,
+                    num_est_samples = num_est_samples, mp = TRUE, verbose)
     }
   }
-  if (missing(method)) {method = "double_posterior"}
+  if (missing(method)) {
+    method <- "double_posterior"
+    }
   switch(method,
-        # default = {
-        #   s %>% estimate_rank_double_posterior()
-        # },
+        default = {
+          s %>% estimate_rank_double_posterior()
+        },
         double_posterior = {
           s %>% estimate_rank_double_posterior()
         },

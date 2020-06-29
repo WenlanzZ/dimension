@@ -4,7 +4,14 @@
 \alias{subspace}
 \title{A constructor function for the subspace class}
 \usage{
-subspace(x, components, mp, num_est_samples, verbose, ...)
+subspace(
+  x,
+  components = NULL,
+  mp = TRUE,
+  num_est_samples = NA,
+  verbose = FALSE,
+  ...
+)
 }
 \arguments{
 \item{x}{A numeric real-valued matrix with n number of samples and
@@ -17,7 +24,8 @@ Components must be smaller or equal to min(nrow(x), ncol(x)).}
 \item{mp}{A logical value. If true, sample eigenvlaues from random noise
 matrix with mp distribution.}
 
-\item{num_est_samples}{Split data into num_est_samples-fold for parallel computation.}
+\item{num_est_samples}{Split data into num_est_samples-fold for
+parallel computation.}
 
 \item{verbose}{output message}
 
@@ -35,7 +43,8 @@ Returns a list with entries:
    whether the matrix x is transposed.}
   \item{irl:}{ A data frame of scaled eigenvalues for
    specified components and corresponding dimensions.}
-  \item{sigma_a:}{ A vector of scaled eigenvalues up to max(components).}
+  \item{sigma_a:}{ A vector of corrected eigenvalues up to max(components)
+   if mp is true.}
   \item{mp_irl:}{ A data frame of sampled expected eigenvalues from
    Marcenko-Pastur for specified components and corresponding dimensions.}
   \item{sigma_mp:}{ A vector of samped expected eigenvalues from

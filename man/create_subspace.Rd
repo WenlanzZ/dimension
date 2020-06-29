@@ -24,17 +24,11 @@ Returns a list with entries:
   \item{ndf:}{ The number of degrees of freedom of x.}
   \item{pdim:}{ The number of dimensions of x.}
   \item{components:}{ A series of right singular vectors estimated.}
-  \item{var_correct:}{ Corrected population variance
-   for Marcenko-Pastur distribution.}
   \item{transpose_flag:}{ A logical value indicating
    whether the matrix x is transposed.}
   \item{irl:}{ A data frame of scaled eigenvalues for
    specified components and corresponding dimensions.}
   \item{sigma_a:}{ A vector of scaled eigenvalues up to max(components).}
-  \item{mp_irl:}{ A data frame of sampled expected eigenvalues from
-   Marcenko-Pastur for specified components and corresponding dimensions.}
-  \item{sigma_mp:}{ A vector of samped expected eigenvalues from
-   Marcenko-Pastur up to max(components).}
   \item{v:}{ Right singular vectors of x matrix for specified components.}
   \item{u:}{ Left singular vectors of x matrix or specified components.}
 }

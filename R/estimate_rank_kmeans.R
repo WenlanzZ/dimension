@@ -1,5 +1,5 @@
-#' @title Signal subspace dimension estimation in high-dimensional matrix by kmeans
-#'
+#' @title Signal subspace dimension estimation in high-dimensional matrix
+#'  by kmeans.
 #' @description Estimate the dimension of a signal-rich subspace in large,
 #'  high-dimensional data.
 #'
@@ -11,21 +11,27 @@
 #' \describe{
 #'   \item{ndf:}{ The number of degrees of freedom of x.}
 #'   \item{pdim:}{ The number of dimensions of x.}
-#'   \item{components:}{ A series of right singular
-#'    vectors estimated.}
+#'   \item{components:}{ A series of right singular vectors estimated.}
 #'   \item{var_correct:}{ Corrected population variance
-#'    for Marchenko-Pastur distribution.}
+#'    for Marcenko-Pastur distribution.}
 #'   \item{transpose_flag:}{ A logical value indicating
 #'    whether the matrix x is transposed.}
 #'   \item{irl:}{ A data frame of scaled eigenvalues for
-#'    specified rank and corresponding dimensions.}
+#'    specified components and corresponding dimensions.}
+#'   \item{sigma_a:}{ A vector of corrected eigenvalues up to max(components).}
 #'   \item{mp_irl:}{ A data frame of sampled expected eigenvalues from
-#'    Marchenko-Pastur for specified rank and corresponding dimensions.}
-#'   \item{v:}{ Right singular vectors of x matrix for specified rank.}
-#'   \item{u:}{ Left singular vectors of x matrix or specified rank.}
+#'    Marcenko-Pastur for specified components and corresponding dimensions.}
+#'   \item{sigma_mp:}{ A vector of samped expected eigenvalues from
+#'    Marcenko-Pastur up to max(components).}
+#'   \item{v:}{ Right singular vectors of x matrix for specified components.}
+#'   \item{u:}{ Left singular vectors of x matrix or specified components.}
 #'   \item{dimension:}{ Estimated signal subspace dimension.}
 #'   \item{bcp_irl:}{ Probability of change in mean and posterior means
 #'    of eigenvalue difference between $x$ and $N$.}
+#'   \item{data:}{ A dataframe of posterior probability of change in mean and
+#'    difference between the posterior probabilities.}
+#'   \item{within_var:}{ A dataframe of total within group variance and between
+#'    group variance for the two groups.}
 #' }
 #' @section Details:
 #'  We estimate the intrinsic dimension of a signal-rich subspace
@@ -41,14 +47,15 @@
 #' @examples
 #' x <- x_sim(n = 100, p = 150, ncc = 10, var = c(rep(10, 5), rep(1, 5)))
 #' results <- x %>%
-#' create_subspace(components = 8:30) %>%
+#' create_subspace(components = 1:30) %>%
 #' correct_eigenvalues() %>%
 #' estimate_rank_kmeans()
 #'
 #' str(results)
-#' plot(results$Subspace, changepoint = results$dimension,
+#' plot(results$subspace, changepoint = results$dimension,
 #'      annotation = 10)
 #' modified_legacyplot(results$bcp_irl, annotation = 10)
+#' km_plot(results$within_var)
 #' @seealso [RMTstat] for details of Marchenko-Pastur distribution.
 #' @seealso https://dracodoc.wordpress.com/2014/07/21/
 #' a-simple-algorithm-to-detect-flat-segments-in-noisy-signals/ for detection
@@ -71,13 +78,7 @@ estimate_rank_kmeans.subspace <- function(s, verbose = TRUE, ...) {
   # Basic parameter set up
   # -----------------------
   rnk             <- max(s$components)
-  # if (rnk > 10) {
-  #   rnk <- as.integer(rnk / log(rnk))
-  # } else {
-  #     rnk <- rnk - 1
-  # }
   sigma_a         <- s$sigma_a
-  sigma_a_diff    <- abs(diff(sigma_a / sigma_a[1]))
   # --------------------------
   # Rank Estimation procedure
   # --------------------------
@@ -89,20 +90,11 @@ estimate_rank_kmeans.subspace <- function(s, verbose = TRUE, ...) {
   prob_irl   <- c(bcp_irl$posterior.prob[-rnk], 0)
   prob_irl_diff <- abs(diff(prob_irl))
   sign_irl_diff <- sign(diff(prob_irl))
-  irl_max        <- rnk + 1 - which.max(rev(prob_irl[seq_len(rnk)]))
-  if (verbose) {
-    cat("irl_max = ", irl_max, "\n")
-  }
   data <- tibble(diff = prob_irl_diff,
                  prob = prob_irl[-rnk])
   within_var <- km(data)
-  km_min <- which.min(within_var[,1])
-  km_min <- ifelse(sign_irl_diff[km_min] < 0, km_min, km_min + 1)
-  if (verbose) {
-    cat("km_min = ", km_min, "\n")
-  }
-  changepoint <- ifelse(irl_max < km_min & sigma_a_diff[irl_max] > 2 * sigma_a_diff[km_min],
-                        irl_max, km_min)
+  km_min <- which.min(within_var[, 1])
+  changepoint <- ifelse(sign_irl_diff[km_min] < 0, km_min, km_min + 1)
   m3 <- paste0("dimension estimation = ", changepoint, "\n")
   if (verbose) {
     message(m3)

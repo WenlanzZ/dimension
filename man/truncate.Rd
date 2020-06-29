@@ -6,7 +6,7 @@
 \usage{
 truncate(
   x,
-  subspace_ = NULL,
+  s = NULL,
   components = NA,
   method = c("threshold", "hard", "identity"),
   alpha = NA,
@@ -22,7 +22,7 @@ of samples and p number of features. If p>n,
 a warning message is generated and the transpose of
 x is used.}
 
-\item{subspace_}{A subspace class.}
+\item{s}{A subspace class.}
 
 \item{components}{A series of right singular vectors
 to estimate. Components must be smaller or equal

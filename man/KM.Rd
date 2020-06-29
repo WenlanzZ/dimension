@@ -18,6 +18,6 @@ a data frame of total within-cluster variation.
 }
 \description{
 k-means clustering modified to cluster probabilities of change points
- to 2 clusters and return total within-cluster variation. Adapted from 
+to 2 clusters and return total within-cluster variation. Adapted from
 https://github.com/TunChiehHsu/Kmeans.git.
 }

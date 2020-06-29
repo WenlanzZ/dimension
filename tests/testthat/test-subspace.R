@@ -7,6 +7,7 @@ context("Default settings work as expected")
 set.seed(seed = 1234)
 
 x1 <- x_sim(n = 100, p = 150, ncc = 10, var = c(rep(10, 5), rep(1, 5)))
+x2 <- x_sim(n = 150, p = 100, ncc = 10, var = 5)
 
 time_taken <- system.time({
   suppressWarnings(subspace1 <- subspace(x1))
@@ -26,7 +27,7 @@ test_that("Default settings work as expected", {
   expect_equivalent(subspace1$irl$eigen,
                     subspace1_ref$irl$eigen,
                     tolerance = 5e-2)
-  expect_equal(subspace1$irl$dim, 1:100)
+  expect_equivalent(subspace1$irl$dim, 1:100)
   expect_equivalent(subspace1$mp_irl$eigen,
                     subspace1_ref$mp_irl$eigen,
                     tolerance = 5e-2)
@@ -38,8 +39,17 @@ test_that("Default settings work as expected", {
 
 context("Argument input error")
 
+test_that("class input error", {
+ expect_message(subspace(x2, verbose = TRUE), "full")
+ expect_error(correct_eigenvalues(x1), "type")
+})
+
+
 test_that("components input error", {
   expect_error(subspace(components = 1), "missing")
+  expect_message(subspace(x2, verbose = TRUE), "full")
+  expect_message(subspace(x2, components = NULL, verbose = TRUE), "full")
+  expect_message(subspace(x2, verbose = TRUE), "mp")
   expect_error(subspace(x1, components = "1"), "is.numeric")
   expect_error(subspace(x1, components = 1.1), "%%")
   expect_error(subspace(x1, components = 0), "larger")
@@ -48,21 +58,36 @@ test_that("components input error", {
   expect_error(subspace(x1, components = -1:20), "larger")
   expect_error(subspace(x1, components = 10:1000), "bounds")
   expect_error(subspace(x1, components = 0:1000), "larger")
+  expect_message(subspace(x2, components = c(1, 3, 5)), "range")
 })
 
-test_that("times input error", {
- expect_error(subspace(x1, times = "1"), "is.numeric")
- expect_error(subspace(x1, times = 1.1), "%%")
- expect_error(subspace(x1, times = 1:5), "length")
- expect_error(subspace(x1, times = -1), "positive")
- expect_error(subspace(x1, times = 200), "less")
+test_that("num_est_samples input error", {
+ expect_error(subspace(x2, num_est_samples = "1"), "is.numeric")
+ expect_error(subspace(x2, num_est_samples = 1.1), "%%")
+ expect_error(subspace(x2, num_est_samples = 1:5), "length")
+ expect_error(subspace(x2, num_est_samples = -1), "positive")
+ expect_error(subspace(x2, num_est_samples = 200), "smaller")
 })
 
 context("plot subspace input error")
 
 test_that("plot subspace annotation error", {
  expect_true(inherits(plot(subspace1), "ggplot"))
+ # expect_message(plot(subspace1, changepoint = 10), "Anotating")
  expect_error(plot(subspace1, annotation = "0"), "numbers")
  expect_error(plot(subspace1, annotation = -1), "positive")
  expect_error(plot(subspace1, annotation = 110), "less")
+ expect_error(plot(subspace1, changepoint = "0"), "is.numeric")
+ expect_error(plot(subspace1, changepoint = 1.5), "%%")
+ expect_error(plot(subspace1, changepoint = c(0, 1)), "length")
+ expect_error(plot(subspace1, changepoint = -1), "positive")
+ expect_error(plot(subspace1, changepoint = 110), "less")
 })
+
+
+
+context("Memory allocate error")
+
+# test_that("Memory allocate error", {
+#   expect_message(subspace(x), "allocate")
+# })

@@ -12,7 +12,8 @@
 #'  Components must be smaller or equal to min(nrow(x), ncol(x)).
 #' @param mp A logical value. If true, sample eigenvlaues from random noise
 #'  matrix with mp distribution.
-#' @param num_est_samples Split data into num_est_samples-fold for parallel computation.
+#' @param num_est_samples Split data into num_est_samples-fold for
+#'  parallel computation.
 #' @param verbose output message
 #' @param ... Extra parameters
 #' @return
@@ -27,7 +28,8 @@
 #'    whether the matrix x is transposed.}
 #'   \item{irl:}{ A data frame of scaled eigenvalues for
 #'    specified components and corresponding dimensions.}
-#'   \item{sigma_a:}{ A vector of scaled eigenvalues up to max(components).}
+#'   \item{sigma_a:}{ A vector of corrected eigenvalues up to max(components)
+#'    if mp is true.}
 #'   \item{mp_irl:}{ A data frame of sampled expected eigenvalues from
 #'    Marcenko-Pastur for specified components and corresponding dimensions.}
 #'   \item{sigma_mp:}{ A vector of samped expected eigenvalues from
@@ -54,6 +56,7 @@
 #' @import doParallel
 #' @import parallel
 #' @import foreach
+#' @import doRNG
 #' @import Matrix
 #' @export
 subspace <- function(x, components, mp, num_est_samples, verbose, ...) {
@@ -67,20 +70,21 @@ subspace.default <- function(x, components, mp, num_est_samples, verbose, ...) {
 }
 
 #' @export
-subspace.matrix <- function(x, components = NULL, mp = TRUE, num_est_samples = NA,
-                            verbose = FALSE, ...) {
-  subspace_matrix(x = x, components = components, mp = mp, num_est_samples = num_est_samples, 
-                  verbose = verbose, ... = ...)
+subspace.matrix <- function(x, components = NULL, mp = TRUE,
+                            num_est_samples = NA, verbose = FALSE, ...) {
+  subspace(x = x, components = components, mp = mp,
+           num_est_samples = num_est_samples, verbose = verbose, ... = ...)
 }
 
 #' @export
-subspace.Matrix <- function(x, components = NULL, mp = TRUE, num_est_samples = NA,
-                            verbose = FALSE, ...) {
-  subspace_matrix(x, components = components, mp = mp, num_est_samples = num_est_samples, 
-                  verbose = verbose, ... = ...)
+subspace.Matrix <- function(x, components = NULL, mp = TRUE,
+                            num_est_samples = NA, verbose = FALSE, ...) {
+  subspace(x, components = components, mp = mp,
+           num_est_samples = num_est_samples, verbose = verbose, ... = ...)
 }
 
-subspace_matrix <- function(x, components = NULL, mp = TRUE, num_est_samples = NA, verbose = FALSE, ...) {
+subspace <- function(x, components = NULL, mp = TRUE,
+                     num_est_samples = NA, verbose = FALSE, ...) {
 
   # ----------------------
   # Check input parameters
@@ -94,17 +98,17 @@ subspace_matrix <- function(x, components = NULL, mp = TRUE, num_est_samples = N
           "Calculating full singular value decomposition instead.\n"))
     }
   } else {
-    components <- check_comp_input(components, nrow(x), ncol(x), verbose)
+    components <- check_comp_input(components, nrow(x), ncol(x), verbose = TRUE)
   }
- 
-  s <- create_subspace(x, components = components, verbose) 
+
+  s <- create_subspace(x, components = components, verbose)
 
   if (mp) {
     if (missing(num_est_samples)) {
       num_est_samples <- 0
     } else {
-      check_num_est_samples_input(num_est_samples, s$ndf, s$pdim, 
-                      verbose = verbose)
+      check_num_est_samples_input(num_est_samples, s$ndf, s$pdim,
+                      verbose = TRUE)
     }
     s <- correct_eigenvalues(s, num_est_samples = num_est_samples, verbose)
   }
@@ -271,7 +275,7 @@ check_comp_input <- function(components, ndf, pdim, verbose = FALSE) {
       stop("Components out of bounds.\n")
     }
     if (verbose) {
-      cat("Calculating components from 1 to", components, "\n")
+      message("Calculating components from 1 to", components, "\n")
     }
     return(1:components)
   } else if (length(components) > 1) {
@@ -283,13 +287,13 @@ check_comp_input <- function(components, ndf, pdim, verbose = FALSE) {
     }
     if (verbose) {
       if (all(diff(components) == 1)) {
-        cat("Calculating components from",
+        message("Calculating components from",
             min(components),
             "to",
             max(components),
             ".\n")
       } else {
-        cat("Calculating components range", components, "\n")
+        message("Calculating components range", components, "\n")
       }
     }
     return(components[order(components)])
@@ -302,12 +306,14 @@ check_comp_input <- function(components, ndf, pdim, verbose = FALSE) {
 #'
 #' A generic function.
 #'
-#' @param num_est_samples Split data into num_est_samples-fold for parallel computation.
+#' @param num_est_samples Split data into num_est_samples-fold
+#'  for parallel computation.
 #' @param ndf The number of degrees of freedom of x.
 #' @param pdim The number of dimensions of x.
 #' @param verbose output message
 #' @export
-check_num_est_samples_input <- function(num_est_samples, ndf, pdim, verbose = TRUE) {
+check_num_est_samples_input <- function(num_est_samples,
+                                        ndf, pdim, verbose = TRUE) {
   stopifnot(is.numeric(num_est_samples))
   stopifnot(num_est_samples %% 1 == 0)
   stopifnot(length(num_est_samples) == 1)

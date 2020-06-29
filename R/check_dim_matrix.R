@@ -25,7 +25,7 @@
 #' @export
 check_dim_matrix <- function(x,
                              rnk = NA,
-                             verbose = TRUE) {
+                             verbose = FALSE) {
 # --------------------------------
 # Check input parameters
 # --------------------------------
@@ -35,10 +35,6 @@ check_dim_matrix <- function(x,
 
     ndf  <- nrow(x)
     pdim <- ncol(x)
-
-    if (min(ndf, pdim) <= 5) {
-        stop("x matrix should have at least 5 rows or columns.\n")
-    }
 
     if (missing(rnk)) {
         rnk <- min(ndf, pdim)
@@ -59,7 +55,7 @@ check_dim_matrix <- function(x,
     transpose_flag <- FALSE
 
     if (nrow(x) < ncol(x)) {
-        warning("nrow(x) < ncol(x). A transpose of x is used instead.\n")
+        message("nrow(x) < ncol(x). A transpose of x is used instead.\n")
         transpose_flag <- TRUE
         ndf <- ncol(x)
         pdim <- nrow(x)

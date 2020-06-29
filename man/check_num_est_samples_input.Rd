@@ -9,7 +9,8 @@ A generic function.}
 check_num_est_samples_input(num_est_samples, ndf, pdim, verbose = TRUE)
 }
 \arguments{
-\item{num_est_samples}{Split data into num_est_samples-fold for parallel computation.}
+\item{num_est_samples}{Split data into num_est_samples-fold
+for parallel computation.}
 
 \item{ndf}{The number of degrees of freedom of x.}
 

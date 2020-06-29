@@ -38,9 +38,6 @@ matpower <- function(a, alpha) {
 #' @param y numbers.
 #' @importFrom stats cov
 mhat_cca <- function(x, y) {
-  n   <- nrow(x)
-  p   <- ncol(x)
-  q   <- ncol(y)
   nsx <- matpower(cov(x), -0.5)
   nvy <- matpower(cov(y), -1)
   cxy <- cov(x, y)

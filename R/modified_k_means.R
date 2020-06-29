@@ -1,7 +1,7 @@
 #' Modified K means clustering
 #'
 #' k-means clustering modified to cluster probabilities of change points
-#'  to 2 clusters and return total within-cluster variation. Adapted from 
+#' to 2 clusters and return total within-cluster variation. Adapted from
 #' https://github.com/TunChiehHsu/Kmeans.git.
 #'
 #' @param data     an n by p numeric matrix; the data
@@ -93,10 +93,9 @@ km_plot <- function(x, annotation   = NULL) {
 
   ggplot() +
           theme_minimal() +
-          geom_point(aes(x = 1:nrow(x), y = x[,1])) +
-          geom_line(aes(x = 1:nrow(x), y = x[,1]), color = "black",cex = 0.5) +
-          geom_text_repel(aes(x = 1:nrow(x), y = x[,1],
+          geom_point(aes(x = 1:nrow(x), y = x[, 1])) +
+          geom_line(aes(x = 1:nrow(x), y = x[, 1]),
+                    color = "black", cex = 0.5) +
+          geom_text_repel(aes(x = 1:nrow(x), y = x[, 1],
                               label = mark), colour = "black", size = 5)
-  
 }
-

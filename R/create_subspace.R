@@ -15,17 +15,11 @@
 #'   \item{ndf:}{ The number of degrees of freedom of x.}
 #'   \item{pdim:}{ The number of dimensions of x.}
 #'   \item{components:}{ A series of right singular vectors estimated.}
-#'   \item{var_correct:}{ Corrected population variance
-#'    for Marcenko-Pastur distribution.}
 #'   \item{transpose_flag:}{ A logical value indicating
 #'    whether the matrix x is transposed.}
 #'   \item{irl:}{ A data frame of scaled eigenvalues for
 #'    specified components and corresponding dimensions.}
 #'   \item{sigma_a:}{ A vector of scaled eigenvalues up to max(components).}
-#'   \item{mp_irl:}{ A data frame of sampled expected eigenvalues from
-#'    Marcenko-Pastur for specified components and corresponding dimensions.}
-#'   \item{sigma_mp:}{ A vector of samped expected eigenvalues from
-#'    Marcenko-Pastur up to max(components).}
 #'   \item{v:}{ Right singular vectors of x matrix for specified components.}
 #'   \item{u:}{ Left singular vectors of x matrix or specified components.}
 #' }
@@ -50,7 +44,6 @@ create_subspace <- function(x, components = NULL, verbose = TRUE, ...) {
   } else {
     components <- check_comp_input(components, nrow(x), ncol(x), verbose)
   }
-  
   # Check x matrix dimension
   params <- check_dim_matrix(x, rnk = max(components))
 
@@ -60,7 +53,6 @@ create_subspace <- function(x, components = NULL, verbose = TRUE, ...) {
 
   ndf             <- params$ndf
   pdim            <- params$pdim
-  svr             <- params$svr
   rnk             <- params$rnk
   transpose_flag  <- params$transpose_flag
 
@@ -70,15 +62,14 @@ create_subspace <- function(x, components = NULL, verbose = TRUE, ...) {
   }
 
   if (rnk > pdim / 2) {
-    tryCatch(
-      {
+    tryCatch({
         x_std <- sweep(x, 2L, colMeans(x))
-      }, 
+      },
       warning = function(w) {
         message(paste0("Cannot allocate matrix in memory, ",
-                       "try transforming matrix ",
+                       "try transforming matrix to dgCMatrix",
                        "or a smaller proportion of eigenvalues.\n"))
-      }, 
+      },
       error = function(e) {
         message("Caught an error in scaling matrix!\n")
       }

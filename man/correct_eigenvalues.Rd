@@ -2,12 +2,13 @@
 % Please edit documentation in R/correct_eigenvalues.R
 \name{correct_eigenvalues}
 \alias{correct_eigenvalues}
-\title{correct eigenvalues from a subspace object and return a subspace object}
+\title{correct eigenvalues from a subspace object and return
+a subspace object}
 \usage{
 correct_eigenvalues(subspace, num_est_samples, verbose, ...)
 }
 \arguments{
-\item{num_est_samples}{the number of resamples to take from the 
+\item{num_est_samples}{the number of resamples to take from the
 Marcenko-Pastur distribution to estimate the eigenvalues.}
 
 \item{verbose}{output message}
@@ -28,7 +29,7 @@ Returns a list with entries:
    whether the matrix x is transposed.}
   \item{irl:}{ A data frame of scaled eigenvalues for
    specified components and corresponding dimensions.}
-  \item{sigma_a:}{ A vector of scaled eigenvalues up to max(components).}
+  \item{sigma_a:}{ A vector of corrected eigenvalues up to max(components).}
   \item{mp_irl:}{ A data frame of sampled expected eigenvalues from
    Marcenko-Pastur for specified components and corresponding dimensions.}
   \item{sigma_mp:}{ A vector of samped expected eigenvalues from
@@ -38,10 +39,11 @@ Returns a list with entries:
 }
 }
 \description{
-This function correct eigenvalues from a subspace by substracting
-sampling eigenvalues from a random noise matrix N of the same dimension as x,
- which follows a Marcenko-Pastur distribution with package
- "RMTsata"(https://cran.r-project.org/web/packages/RMTstat/index.html).
+This function correct eigenvalues from a subspace by
+substracting sampling eigenvalues from a random noise matrix N of
+the same dimension as x,which follows a Marcenko-Pastur distribution
+with package "RMTsata
+"(https://cran.r-project.org/web/packages/RMTstat/index.html).
 }
 \examples{
 x <- x_sim(n = 100, p = 150, ncc = 10, var = c(rep(10, 5), rep(1, 5)))

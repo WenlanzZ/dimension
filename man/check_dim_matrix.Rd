@@ -4,7 +4,7 @@
 \alias{check_dim_matrix}
 \title{Return parameter setting for subspace function}
 \usage{
-check_dim_matrix(x, rnk = NA, verbose = TRUE)
+check_dim_matrix(x, rnk = NA, verbose = FALSE)
 }
 \arguments{
 \item{x}{A numeric real-valued matrix with n number of samples and

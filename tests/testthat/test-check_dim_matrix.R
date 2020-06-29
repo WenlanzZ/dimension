@@ -13,7 +13,8 @@ time_taken <- system.time({
 })
 
 test_that("invalid rnk input warnings returned", {
-
+  expect_error(
+    check_dim_matrix(x = NULL), regexp = "Invalid input")
   expect_error(
     check_dim_matrix(rnk = 300), regexp = "missing")
   expect_error(
@@ -23,14 +24,14 @@ test_that("invalid rnk input warnings returned", {
   expect_error(
     check_dim_matrix(x1, rnk = 0), regexp = "positive")
   expect_message(
-    check_dim_matrix(x1), regexp = paste0("No component specified. ",
+    check_dim_matrix(x1, verbose = TRUE), regexp = paste0("No component specified. ",
                     "Calculating full singular value decomposition instead.\n"))
 })
 
 
-test_that("transpose warnings", {
+test_that("transpose messages", {
 
-  expect_warning(
+  expect_message(
     check_dim_matrix(x2, rnk = 30), regexp = "transpose")
 })
 

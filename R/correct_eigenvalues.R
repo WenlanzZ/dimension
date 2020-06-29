@@ -1,11 +1,12 @@
-#' @title correct eigenvalues from a subspace object and return a subspace object
-#'
-#' @description This function correct eigenvalues from a subspace by substracting
-#' sampling eigenvalues from a random noise matrix N of the same dimension as x,
-#'  which follows a Marcenko-Pastur distribution with package
-#'  "RMTsata"(https://cran.r-project.org/web/packages/RMTstat/index.html).
+#' @title correct eigenvalues from a subspace object and return
+#' a subspace object
+#' @description This function correct eigenvalues from a subspace by
+#' substracting sampling eigenvalues from a random noise matrix N of
+#' the same dimension as x,which follows a Marcenko-Pastur distribution
+#' with package "RMTsata
+#' "(https://cran.r-project.org/web/packages/RMTstat/index.html).
 #' @param x A subspace object.
-#' @param num_est_samples the number of resamples to take from the 
+#' @param num_est_samples the number of resamples to take from the
 #' Marcenko-Pastur distribution to estimate the eigenvalues.
 #' @param verbose output message
 #' @param ... Extra parameters
@@ -21,7 +22,7 @@
 #'    whether the matrix x is transposed.}
 #'   \item{irl:}{ A data frame of scaled eigenvalues for
 #'    specified components and corresponding dimensions.}
-#'   \item{sigma_a:}{ A vector of scaled eigenvalues up to max(components).}
+#'   \item{sigma_a:}{ A vector of corrected eigenvalues up to max(components).}
 #'   \item{mp_irl:}{ A data frame of sampled expected eigenvalues from
 #'    Marcenko-Pastur for specified components and corresponding dimensions.}
 #'   \item{sigma_mp:}{ A vector of samped expected eigenvalues from
@@ -54,13 +55,13 @@ correct_eigenvalues.default <- function(subspace, num_est_samples, verbose,
 #' @importFrom tibble tibble
 #' @import foreach
 #' @export
-correct_eigenvalues.subspace <- 
+correct_eigenvalues.subspace <-
   function(subspace, num_est_samples = NA, verbose = FALSE, ...) {
   #check if it is a subspace object
   if (missing(num_est_samples)) {
     num_est_samples <- 0
   } else {
-    check_num_est_samples_input(num_est_samples, subspace$ndf, subspace$pdim, 
+    check_num_est_samples_input(num_est_samples, subspace$ndf, subspace$pdim,
                     verbose = verbose)
   }
 
@@ -72,16 +73,16 @@ correct_eigenvalues.subspace <-
   pdim            <- subspace$pdim
   components      <- subspace$components
   transpose_flag  <- subspace$transpose_flag
-  
+
   denominator <- marcenko_pastur_par(ndf, pdim, var = 1, svr = ndf / pdim)$upper
   var_correct <- min(subspace$irl$eigen) / denominator
   if (verbose) {
-  	cat("The corrected variance of mp distribution is ",
+    cat("The corrected variance of mp distribution is ",
       var_correct,
       ".\n",
       sep = "")
   }
-  
+
   if (num_est_samples == 0) {
   sim <- rmp(pdim, ndf = ndf, pdim = pdim, var = var_correct,
           svr = ndf / pdim)
@@ -97,16 +98,16 @@ correct_eigenvalues.subspace <-
   sigma_mp <- sim[order(sim, decreasing = T)][seq_len(max(components))]
 
   ret <- list(ndf  = ndf,
-	            pdim = pdim,
-	            components = components,
-	            var_correct = var_correct,
-	            transpose_flag = transpose_flag,
-	            irl = subspace$irl,
-	            sigma_a = subspace$sigma_a - sigma_mp,
-	            mp_irl = mp_irl,
-	            sigma_mp = sigma_mp,
-	            v = subspace$v,
-	            u = subspace$u)
+              pdim = pdim,
+              components = components,
+              var_correct = var_correct,
+              transpose_flag = transpose_flag,
+              irl = subspace$irl,
+              sigma_a = subspace$sigma_a - sigma_mp,
+              mp_irl = mp_irl,
+              sigma_mp = sigma_mp,
+              v = subspace$v,
+              u = subspace$u)
   class(ret) <- c("eigen_corrected_subspace", "subspace")
   ret
 }

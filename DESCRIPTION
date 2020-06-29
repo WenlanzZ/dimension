@@ -19,6 +19,8 @@ Maintainer: Wenlan Zang <wenlan.zang@yale.edu>
 Imports:
     bcp,
     irlba,
+    Matrix,
+    doRNG,
     doParallel,
     foreach,
     ggplot2,
@@ -28,6 +30,7 @@ Imports:
     parallel,
     stats,
     stringr,
+    dplyr,
     tibble,
     shiny,
     dr,
