@@ -7,19 +7,19 @@
 hoff_gibbs_UVD_fixedrank(U, V, D, Y, phi, mu, psi)
 }
 \arguments{
-\item{U}{An \tt{R} object.}
+\item{U}{An R object.}
 
-\item{V}{An \tt{R} object.}
+\item{V}{An R object.}
 
-\item{D}{An \tt{R} object.}
+\item{D}{An R object.}
 
-\item{Y}{An \tt{R} object.}
+\item{Y}{An R object.}
 
-\item{phi}{An \tt{R} object.}
+\item{phi}{An R object.}
 
-\item{mu}{An \tt{R} object.}
+\item{mu}{An R object.}
 
-\item{psi}{An \tt{R} object.}
+\item{psi}{An R object.}
 }
 \description{
 All credit to Hoff, Peter D. "Model averaging

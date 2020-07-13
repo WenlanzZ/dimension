@@ -7,9 +7,9 @@
 rW(kap, m)
 }
 \arguments{
-\item{kap}{An \tt{R} object.}
+\item{kap}{An R object.}
 
-\item{m}{An \tt{R} object.}
+\item{m}{An R object.}
 }
 \description{
 All credit to Hoff, Peter D. "Model averaging

@@ -7,11 +7,11 @@
 roots_cubic(a2, a1, a0)
 }
 \arguments{
-\item{a2}{An \tt{R} object.}
+\item{a2}{An R object.}
 
-\item{a1}{An \tt{R} object.}
+\item{a1}{An R object.}
 
-\item{a0}{An \tt{R} object.}
+\item{a0}{An R object.}
 }
 \description{
 All credit to Hoff, Peter D. "Model averaging

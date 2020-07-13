@@ -9,8 +9,6 @@ estimate_rank_ladle(x)
 \arguments{
 \item{x}{A numeric real-valued matrix with n number of samples and
 p number of features (n > p).}
-
-\item{nboot}{bootstrap sample size.}
 }
 \value{
 Returns a list with entries:

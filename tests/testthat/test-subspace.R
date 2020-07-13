@@ -47,6 +47,7 @@ test_that("class input error", {
 
 test_that("components input error", {
   expect_error(subspace(components = 1), "missing")
+  expect_message(create_subspace(x2, verbose = TRUE), "specified")
   expect_message(subspace(x2, verbose = TRUE), "full")
   expect_message(subspace(x2, components = NULL, verbose = TRUE), "full")
   expect_message(subspace(x2, verbose = TRUE), "mp")
@@ -73,6 +74,7 @@ context("plot subspace input error")
 
 test_that("plot subspace annotation error", {
  expect_true(inherits(plot(subspace1), "ggplot"))
+ expect_true(inherits(plot(subspace1, changepoint = 10), "ggplot"))
  # expect_message(plot(subspace1, changepoint = 10), "Anotating")
  expect_error(plot(subspace1, annotation = "0"), "numbers")
  expect_error(plot(subspace1, annotation = -1), "positive")

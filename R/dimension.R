@@ -139,12 +139,12 @@ dimension <- function(x,
 #' @param ... Extra parameters
 #' @export
 print.dimension <- function(x, ...) {
-  cat("An object of class dimension estimated for",
+  message("An object of class dimension estimated for",
       ifelse(x$transpose_flag, "transposed", ""),
       "X matrix with",
       x$Subspace$ndf,
       "samples and",
       x$Subspace$pdim,
       "features.\n")
-  cat(x$message[[1]])
+  message(x$message[[1]])
 }

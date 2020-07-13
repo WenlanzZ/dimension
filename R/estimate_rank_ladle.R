@@ -4,7 +4,6 @@
 #' Determination, Biometrika, 103, 875–887. <doi:10.1093/biomet/asw051>
 #' @param x A numeric real-valued matrix with n number of samples and
 #'  p number of features (n > p).
-#' @param nboot bootstrap sample size.
 
 #' @return
 #' Returns a list with entries:

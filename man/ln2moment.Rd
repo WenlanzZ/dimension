@@ -9,11 +9,11 @@ ln2moment(mu, sigma, lmax)
 ln2moment(mu, sigma, lmax)
 }
 \arguments{
-\item{mu}{An \tt{R} object.}
+\item{mu}{An R object.}
 
-\item{sigma}{An \tt{R} object.}
+\item{sigma}{An R object.}
 
-\item{lmax}{An \tt{R} object.}
+\item{lmax}{An R object.}
 }
 \description{
 All credit to Hoff, Peter D. "Model averaging

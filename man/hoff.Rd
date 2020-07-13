@@ -14,6 +14,6 @@ p number of features (n > p).}
 }
 \description{
 All credit to Luo, W. and Li, B. (2016),
-Combining Eigenvalues and Variation of Eigenvectors for Order
+Combining Eigenviralues and Variation of Eigenvirectors for Order
 Determination, Biometrika, 103, 875–887. <doi:10.1093/biomet/asw051>
 }

@@ -32,6 +32,7 @@
 #' @import parallel
 #' @import foreach
 #' @import Matrix
+#' @importFrom dplyr %>%
 #' @export
 create_subspace <- function(x, components = NULL, verbose = TRUE, ...) {
   # Checking for components input

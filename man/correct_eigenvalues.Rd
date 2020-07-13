@@ -8,14 +8,14 @@ a subspace object}
 correct_eigenvalues(subspace, num_est_samples, verbose, ...)
 }
 \arguments{
+\item{subspace}{A subspace object.}
+
 \item{num_est_samples}{the number of resamples to take from the
 Marcenko-Pastur distribution to estimate the eigenvalues.}
 
 \item{verbose}{output message}
 
 \item{...}{Extra parameters}
-
-\item{x}{A subspace object.}
 }
 \value{
 Returns a list with entries:
@@ -46,8 +46,10 @@ with package "RMTsata
 "(https://cran.r-project.org/web/packages/RMTstat/index.html).
 }
 \examples{
+\donttest{
 x <- x_sim(n = 100, p = 150, ncc = 10, var = c(rep(10, 5), rep(1, 5)))
 x \%>\% create_subspace(components = 8:30) \%>\% correct_eigenvalues() \%>\% plot()
+}
 }
 \seealso{
 * [MarchenkoPasturPar()] calculates upper and lower limits

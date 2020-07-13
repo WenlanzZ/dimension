@@ -7,7 +7,7 @@
 Null(M)
 }
 \arguments{
-\item{M}{An \tt{R} object.}
+\item{M}{An R object.}
 }
 \description{
 All credit to Hoff, Peter D. "Model averaging

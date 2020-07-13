@@ -7,23 +7,23 @@
 hoff_gibbs_sample(e, nu, nv, phi, mu, psi, lor, llb = 50, lub = 2000)
 }
 \arguments{
-\item{e}{An \tt{R} object.}
+\item{e}{An R object.}
 
-\item{nu}{An \tt{R} object.}
+\item{nu}{An R object.}
 
-\item{nv}{An \tt{R} object.}
+\item{nv}{An R object.}
 
-\item{phi}{An \tt{R} object.}
+\item{phi}{An R object.}
 
-\item{mu}{An \tt{R} object.}
+\item{mu}{An R object.}
 
-\item{psi}{An \tt{R} object.}
+\item{psi}{An R object.}
 
-\item{lor}{An \tt{R} object.}
+\item{lor}{An R object.}
 
-\item{llb}{An \tt{R} object.}
+\item{llb}{An R object.}
 
-\item{lub}{An \tt{R} object.}
+\item{lub}{An R object.}
 }
 \description{
 All credit to Hoff, Peter D. "Model averaging

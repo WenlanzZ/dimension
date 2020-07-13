@@ -7,9 +7,9 @@
 lcr(theta, L)
 }
 \arguments{
-\item{theta}{An \tt{R} object.}
+\item{theta}{An R object.}
 
-\item{L}{An \tt{R} object.}
+\item{L}{An R object.}
 }
 \description{
 All credit to Hoff, Peter D. "Model averaging

@@ -5,7 +5,7 @@
 #' the same dimension as x,which follows a Marcenko-Pastur distribution
 #' with package "RMTsata
 #' "(https://cran.r-project.org/web/packages/RMTstat/index.html).
-#' @param x A subspace object.
+#' @param subspace A subspace object.
 #' @param num_est_samples the number of resamples to take from the
 #' Marcenko-Pastur distribution to estimate the eigenvalues.
 #' @param verbose output message
@@ -31,14 +31,17 @@
 #'   \item{u:}{ Left singular vectors of x matrix or specified components.}
 #' }
 #' @examples
+#' \donttest{
 #' x <- x_sim(n = 100, p = 150, ncc = 10, var = c(rep(10, 5), rep(1, 5)))
 #' x %>% create_subspace(components = 8:30) %>% correct_eigenvalues() %>% plot()
+#' }
 #' @seealso
 #' * [MarchenkoPasturPar()] calculates upper and lower limits
 #'  of Marcenko-Pastur distribution from RMTstat package.
 #'
 #' * [rmp()] sample scaled eigenvalues of random noise matrix
 #'  from RMTstat package.
+#' @importFrom dplyr %>%
 #' @export
 correct_eigenvalues <- function(subspace, num_est_samples, verbose, ...) {
   UseMethod("correct_eigenvalues", subspace)
@@ -54,6 +57,7 @@ correct_eigenvalues.default <- function(subspace, num_est_samples, verbose,
 
 #' @importFrom tibble tibble
 #' @import foreach
+#' @importFrom dplyr %>%
 #' @export
 correct_eigenvalues.subspace <-
   function(subspace, num_est_samples = NA, verbose = FALSE, ...) {

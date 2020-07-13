@@ -7,9 +7,9 @@
 ruv_A(A, nsamp = 25)
 }
 \arguments{
-\item{A}{An \tt{R} object.}
+\item{A}{An R object.}
 
-\item{nsamp}{An \tt{R} object.}
+\item{nsamp}{An R object.}
 }
 \description{
 All credit to Hoff, Peter D. "Model averaging

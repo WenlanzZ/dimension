@@ -63,12 +63,74 @@ subspace <- function(x, components, mp, num_est_samples, verbose, ...) {
   UseMethod("subspace", x)
 }
 
+#' @title A constructor function for the subspace class
+#'
+#' @description This function calculates scaled eigenvalues
+#'  and eigenvectors of x matrix, as well as sampled eigenvalues
+#'  from a random noise matrix N of the same dimension as x,
+#'  which follows a Marcenko-Pastur distribution with package
+#'  "RMTsata"(https://cran.r-project.org/web/packages/RMTstat/index.html).
+#' @param x A numeric real-valued matrix with n number of samples and
+#'  p number of features. If p > n, a warning message is generated and
+#'  the transpose of x is used.
+#' @param components A series of right singular vectors to estimate.
+#'  Components must be smaller or equal to min(nrow(x), ncol(x)).
+#' @param mp A logical value. If true, sample eigenvlaues from random noise
+#'  matrix with mp distribution.
+#' @param num_est_samples Split data into num_est_samples-fold for
+#'  parallel computation.
+#' @param verbose output message
+#' @param ... Extra parameters
+#' @seealso
+#' * [MarchenkoPasturPar()] calculates upper and lower limits
+#'  of Marcenko-Pastur distribution from RMTstat package.
+#'
+#' * [rmp()] sample scaled eigenvalues of random noise matrix
+#'  from RMTstat package.
+#' @importFrom tibble tibble
+#' @importFrom irlba irlba
+#' @import doParallel
+#' @import parallel
+#' @import foreach
+#' @import doRNG
+#' @import Matrix
 #' @export
 subspace.default <- function(x, components, mp, num_est_samples, verbose, ...) {
   stop("Don't know how to create a subspace object from a class of type: ",
        class(x))
 }
 
+#' @title A constructor function for the subspace class
+#'
+#' @description This function calculates scaled eigenvalues
+#'  and eigenvectors of x matrix, as well as sampled eigenvalues
+#'  from a random noise matrix N of the same dimension as x,
+#'  which follows a Marcenko-Pastur distribution with package
+#'  "RMTsata"(https://cran.r-project.org/web/packages/RMTstat/index.html).
+#' @param x A numeric real-valued matrix with n number of samples and
+#'  p number of features. If p > n, a warning message is generated and
+#'  the transpose of x is used.
+#' @param components A series of right singular vectors to estimate.
+#'  Components must be smaller or equal to min(nrow(x), ncol(x)).
+#' @param mp A logical value. If true, sample eigenvlaues from random noise
+#'  matrix with mp distribution.
+#' @param num_est_samples Split data into num_est_samples-fold for
+#'  parallel computation.
+#' @param verbose output message
+#' @param ... Extra parameters
+#' @seealso
+#' * [MarchenkoPasturPar()] calculates upper and lower limits
+#'  of Marcenko-Pastur distribution from RMTstat package.
+#'
+#' * [rmp()] sample scaled eigenvalues of random noise matrix
+#'  from RMTstat package.
+#' @importFrom tibble tibble
+#' @importFrom irlba irlba
+#' @import doParallel
+#' @import parallel
+#' @import foreach
+#' @import doRNG
+#' @import Matrix
 #' @export
 subspace.matrix <- function(x, components = NULL, mp = TRUE,
                             num_est_samples = NA, verbose = FALSE, ...) {
@@ -76,6 +138,37 @@ subspace.matrix <- function(x, components = NULL, mp = TRUE,
            num_est_samples = num_est_samples, verbose = verbose, ... = ...)
 }
 
+#' @title A constructor function for the subspace class
+#'
+#' @description This function calculates scaled eigenvalues
+#'  and eigenvectors of x matrix, as well as sampled eigenvalues
+#'  from a random noise matrix N of the same dimension as x,
+#'  which follows a Marcenko-Pastur distribution with package
+#'  "RMTsata"(https://cran.r-project.org/web/packages/RMTstat/index.html).
+#' @param x A numeric real-valued matrix with n number of samples and
+#'  p number of features. If p > n, a warning message is generated and
+#'  the transpose of x is used.
+#' @param components A series of right singular vectors to estimate.
+#'  Components must be smaller or equal to min(nrow(x), ncol(x)).
+#' @param mp A logical value. If true, sample eigenvlaues from random noise
+#'  matrix with mp distribution.
+#' @param num_est_samples Split data into num_est_samples-fold for
+#'  parallel computation.
+#' @param verbose output message
+#' @param ... Extra parameters
+#' @seealso
+#' * [MarchenkoPasturPar()] calculates upper and lower limits
+#'  of Marcenko-Pastur distribution from RMTstat package.
+#'
+#' * [rmp()] sample scaled eigenvalues of random noise matrix
+#'  from RMTstat package.
+#' @importFrom tibble tibble
+#' @importFrom irlba irlba
+#' @import doParallel
+#' @import parallel
+#' @import foreach
+#' @import doRNG
+#' @import Matrix
 #' @export
 subspace.Matrix <- function(x, components = NULL, mp = TRUE,
                             num_est_samples = NA, verbose = FALSE, ...) {
@@ -124,7 +217,7 @@ subspace <- function(x, components = NULL, mp = TRUE,
 #' @param ... Extra parameters
 #' @export
 print.subspace <- function(x, ...) {
-  cat("An object of class subspace within",
+  message("An object of class subspace within",
       ifelse(x$transpose_flag, "transposed", ""),
       "X matrix with",
       x$ndf,
@@ -132,13 +225,13 @@ print.subspace <- function(x, ...) {
       x$pdim,
       "features.\n")
   if (all(diff(x$components) == 1)) {
-    cat("Estimated components range from ",
+    message("Estimated components range from ",
         min(x$components),
         " to ",
         max(x$components),
         "\n")
   } else {
-      cat("Estimated components range", x$components, "\n")
+      message("Estimated components range", x$components, "\n")
   }
 }
 

@@ -9,9 +9,6 @@ km(data)
 \arguments{
 \item{data}{an n by p numeric matrix; the data
 matrix of predictors}
-
-\item{k}{integer giving the number of neighbors to
-include. k = 2.}
 }
 \value{
 a data frame of total within-cluster variation.

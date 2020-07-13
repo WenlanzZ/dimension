@@ -7,9 +7,9 @@
 resample(x, size, ...)
 }
 \arguments{
-\item{x}{An \tt{R} object.}
+\item{x}{An R object.}
 
-\item{size}{An \tt{R} object.}
+\item{size}{An R object.}
 }
 \description{
 All credit to Hoff, Peter D. "Model averaging

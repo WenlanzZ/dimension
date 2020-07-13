@@ -18,6 +18,7 @@ library(dimension)
 
 setwd("/Users/wz262/Projects/dimension")
 library(devtools)
+document()
 load_all()
 devtools::test()
 devtools::check(vignettes = FALSE)
@@ -80,7 +81,8 @@ results <- dimension(subspace_ = Subspace)
 results <- dimension(x, components = 1:50, times = 10)
 
 #Test on ladle function
-stime1 <- system.time(test1 <- ladle(x = t(x), method = "pca"))
+stime1 <- system.time(test1 <- lx <- x_sim(n = 100, p = 150, ncc = 10, var = c(rep(10, 5), rep(1, 5)))
+                      adle(x = t(x), method = "pca"))
 cat("d = ", test1$d, "; elapsed = ", stime1[[3]], "\n")
 ggplot() + geom_line(aes(x = 1:length(test1$gn), y = test1$gn),colour="black") +
   geom_point(aes(x = 1:length(test1$gn), y = test1$gn), color = "red") +
@@ -92,7 +94,8 @@ ggplot() + geom_line(aes(x = 1:length(test1$gn), y = test1$gn),colour="black") +
 # ggsave(file.path(output_dir,"ladle_obj_function_plot.pdf"))
 
 #Test on hoff function
-hoff_result <- hoff(y = x, NSCAN = 100)
+x <- x_sim(n = 100, p = 500, ncc = 10, var = 6)
+hoff_result <- hoff(y = t(x), NSCAN = 10)
 ########################################################
 #####test on check_dim_matrix#########
 ########################################################

@@ -6,8 +6,6 @@
 #'
 #' @param data     an n by p numeric matrix; the data
 #'                matrix of predictors
-#' @param k     integer giving the number of neighbors to
-#'              include. k = 2.
 #'
 #' @return      a data frame of total within-cluster variation.
 

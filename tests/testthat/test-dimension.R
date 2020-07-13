@@ -93,3 +93,8 @@ test_that("modified legacyplot check", {
  expect_error(modified_legacyplot(results3$bcp_irl, annotation = "0"), "numbers")
  expect_error(modified_legacyplot(results3$bcp_irl, annotation = 110), "less")
 })
+
+
+# test_that("print.dimension prints by default", {
+#   expect_message(print(results1),"features")
+# })

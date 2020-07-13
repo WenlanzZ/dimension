@@ -7,7 +7,7 @@
 rvmf(kmu)
 }
 \arguments{
-\item{kmu}{An \tt{R} object.}
+\item{kmu}{An R object.}
 }
 \description{
 All credit to Hoff, Peter D. "Model averaging
