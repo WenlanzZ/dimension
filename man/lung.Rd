@@ -4,7 +4,9 @@
 \name{lung}
 \alias{lung}
 \title{IPF Single Cell Altas data}
-\format{An object of class Seurat.}
+\format{
+An object of class Seurat.
+}
 \source{
 \href{https://www.biorxiv.org/content/10.1101/759902v1.full.pdf}
 {https://www.biorxiv.org/content/10.1101/759902v1.full.pdf}

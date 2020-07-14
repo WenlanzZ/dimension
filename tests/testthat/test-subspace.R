@@ -34,6 +34,7 @@ test_that("Default settings work as expected", {
   expect_equal(subspace1$mp_irl$dim, 1:100)
   expect_equivalent(subspace1$v, subspace1_ref$v, tolerance = 5e-2)
   expect_equivalent(subspace1$u, subspace1_ref$u, tolerance = 5e-2)
+  expect_equal(print.subspace(subspace1), subspace1)
 })
 
 

@@ -233,6 +233,7 @@ print.subspace <- function(x, ...) {
   } else {
       message("Estimated components range", x$components, "\n")
   }
+  invisible(x)
 }
 
 #' @title Scree plot of scaled eigenvalues of x and random noise matrix N
