@@ -22,6 +22,7 @@ time_taken <- system.time({
   suppressWarnings(results3_ <- subspace1_ref %>% estimate_rank_posterior())
   suppressWarnings(results4_ <- subspace1_ref %>% estimate_rank_kmeans())
   suppressWarnings(results5_ <- x1 %>% estimate_rank_ladle())
+  expect_equal(class(print.dimension(results1)), class(results1))
 })
 
 
@@ -84,6 +85,7 @@ test_that("Argument input error", {
     dimension(s = subspace1_ref, verbose = TRUE), "already")
   expect_error(
     dimension(s = x1, verbose = TRUE), "type")
+  expect_error(estimate_rank_posterior(rnorm(10)))
 })
 
 context("modified legacyplot check")

@@ -154,4 +154,5 @@ print.dimension <- function(x, ...) {
       x$Subspace$pdim,
       "features.\n")
   message(x$message[[1]])
+  invisible(x)
 }

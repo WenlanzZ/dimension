@@ -112,20 +112,20 @@ estimate_rank_double_posterior.subspace <- function(s, p = 0.90,
   ret
 }
 
-#' @title Print dimension
-#'
-#' A generic function.
-#'
-#' @param x a dimension class.
-#' @param ... Extra parameters
-#' @export
-print.dimension <- function(x, ...) {
-  cat("An object of class dimension estimated for",
-      ifelse(x$transpose_flag, "transposed", ""),
-      "X matrix with",
-      x$subspace$ndf,
-      "samples and",
-      x$subspace$pdim,
-      "features.\n")
-  cat(x$message[[1]])
-}
+##' @title Print dimension
+##'
+##' A generic function.
+##'
+##' @param x a dimension class.
+##' @param ... Extra parameters
+##' @export
+#print.dimension <- function(x, ...) {
+#  cat("An object of class dimension estimated for",
+#      ifelse(x$transpose_flag, "transposed", ""),
+#      "X matrix with",
+#      x$subspace$ndf,
+#      "samples and",
+#      x$subspace$pdim,
+#      "features.\n")
+#  cat(x$message[[1]])
+#}
