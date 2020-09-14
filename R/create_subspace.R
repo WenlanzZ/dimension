@@ -7,6 +7,9 @@
 #'  the transpose of x is used.
 #' @param components A series of right singular vectors to estimate.
 #'  Components must be smaller or equal to min(nrow(x), ncol(x)).
+#' @param decomposition The method to be used; method = "svd"
+#'  returns results from singular value decomposition; method = "eigen"
+#'  returns results from eigenvalue decomposition.
 #' @param verbose output message
 #' @param ... Extra parameters
 #' @return
@@ -34,7 +37,7 @@
 #' @import Matrix
 #' @importFrom dplyr %>%
 #' @export
-create_subspace <- function(x, components = NULL, verbose = TRUE, ...) {
+create_subspace <- function(x, components = NULL, decomposition = c("svd", "eigen"), verbose = TRUE, ...) {
   # Checking for components input
   if (is.null(components)) {
     components <- seq_len(min(nrow(x), ncol(x)))
@@ -45,46 +48,66 @@ create_subspace <- function(x, components = NULL, verbose = TRUE, ...) {
   } else {
     components <- check_comp_input(components, nrow(x), ncol(x), verbose)
   }
-  # Check x matrix dimension
-  params <- check_dim_matrix(x, rnk = max(components))
-
-  # ----------------------
-  # Basic parameter set up
-  # ----------------------
-
-  ndf             <- params$ndf
-  pdim            <- params$pdim
-  rnk             <- params$rnk
-  transpose_flag  <- params$transpose_flag
-
-  # Col Mean center Matrix
-  if (transpose_flag) {
-    x <- t(x)
+  
+  if (missing(decomposition)) {
+    decomposition <- "svd"
   }
+  switch(decomposition,
+        svd = {
+          # Check x matrix dimension
+          params <- check_dim_matrix(x, rnk = max(components))
+          ndf             <- params$ndf
+          pdim            <- params$pdim
+          rnk             <- params$rnk
+          transpose_flag  <- params$transpose_flag
+          # Col Mean center Matrix
+          if (transpose_flag) {
+            x <- t(x)
+          }
 
-  if (rnk > pdim / 2) {
-    tryCatch({
-        x_std <- sweep(x, 2L, colMeans(x))
-      },
-      warning = function(w) {
-        message(paste0("Cannot allocate matrix in memory, ",
-                       "try transforming matrix to dgCMatrix",
-                       "or a smaller proportion of eigenvalues.\n"))
-      },
-      error = function(e) {
-        message("Caught an error in scaling matrix!\n")
-      }
-    )
-    tmp <- svd(x_std)
-  } else {
-    tmp <- irlba(x, center = TRUE, nv = rnk)
-  }
+          if (rnk >= pdim / 2) {
+            tryCatch({
+                x_std <- sweep(x, 2L, colMeans(x))
+              },
+              warning = function(w) {
+                message(paste0("Cannot allocate matrix in memory, ",
+                               "try transforming matrix to dgCMatrix",
+                               "or a smaller proportion of eigenvalues.\n"))
+              },
+              error = function(e) {
+                message("Caught an error in scaling matrix!\n")
+              }
+            )
+            tmp <- svd(x_std)
+          } else {
+            tmp <- irlba(x, center = TRUE, nv = rnk)
+          }
 
-  irl     <- tibble(eigen = tmp$d[components]^2 / pdim, dim = components)
-  sigma_a <- tmp$d[1:rnk]^2 / pdim
-  v       <- tmp$v[, components]
-  u       <- tmp$u[, components]
+          irl     <- tibble(eigen = tmp$d[components]^2 / pdim, dim = components)
+          sigma_a <- tmp$d[1:rnk]^2 / pdim
+          v       <- tmp$v[, components]
+          u       <- tmp$u[, components]
 
+        },
+        eigen = {
+          ndf             <- nrow(x)
+          pdim            <- ncol(x)
+          rnk             <- max(components)
+          transpose_flag  <- FALSE
+          if (rnk >= pdim / 2) {
+            tmp <- eigen(x)
+          } else {
+            tmp <- partial_eigen(x, n = rnk, symmetric = TRUE)
+          }
+
+          irl     <- tibble(eigen = tmp$values[components], dim = components)
+          sigma_a <- tmp$values
+          v       <- NULL
+          u       <- tmp$vectors[, components]
+          },
+          stop("Invalid method input")
+          )
+  
   value <- (list(ndf  = ndf,
                  pdim = pdim,
                  components = components,

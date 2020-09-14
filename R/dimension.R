@@ -9,6 +9,9 @@
 #' @param s A subspace class.
 #' @param components A series of right singular vectors to estimate.
 #'  Components must be smaller or equal to min(nrow(x),ncol(x)).
+#' @param decomposition The method to be used; method = "svd"
+#'  returns results from singular value decomposition; method = "eigen"
+#'  returns results from eigenvalue decomposition.
 #' @param method The method to be used; method = "double_posterior"
 #'  returns results from function estimate_rank_double_posterior;
 #'   method = "posterior" returns results from function estimate_rank_posterior;
@@ -75,6 +78,7 @@
 dimension <- function(x,
                       s = NULL,
                       components = NA,
+                      decomposition = c("svd", "eigen"), 
                       method = c("double_posterior", "posterior",
                                  "kmeans", "ladle"),
                       num_est_samples = NA,
@@ -103,8 +107,11 @@ dimension <- function(x,
       if (missing(num_est_samples)) {
         num_est_samples <- 0
       }
+      if (missing(decomposition)) {
+        decomposition <- "svd"
+      }
       # Calcualte subspace
-      s <- subspace(x, components = components,
+      s <- subspace(x, components = components, decomposition = decomposition, 
                     num_est_samples = num_est_samples, mp = TRUE, verbose)
     }
   }

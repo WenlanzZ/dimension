@@ -10,6 +10,9 @@
 #'  the transpose of x is used.
 #' @param components A series of right singular vectors to estimate.
 #'  Components must be smaller or equal to min(nrow(x), ncol(x)).
+#' @param decomposition The method to be used; method = "svd"
+#'  returns results from singular value decomposition; method = "eigen"
+#'  returns results from eigenvalue decomposition.
 #' @param mp A logical value. If true, sample eigenvlaues from random noise
 #'  matrix with mp distribution.
 #' @param num_est_samples Split data into num_est_samples-fold for
@@ -59,7 +62,7 @@
 #' @import doRNG
 #' @import Matrix
 #' @export
-subspace <- function(x, components, mp, num_est_samples, verbose, ...) {
+subspace <- function(x, components, decomposition, mp, num_est_samples, verbose, ...) {
   UseMethod("subspace", x)
 }
 
@@ -75,6 +78,9 @@ subspace <- function(x, components, mp, num_est_samples, verbose, ...) {
 #'  the transpose of x is used.
 #' @param components A series of right singular vectors to estimate.
 #'  Components must be smaller or equal to min(nrow(x), ncol(x)).
+#' @param decomposition The method to be used; method = "svd"
+#'  returns results from singular value decomposition; method = "eigen"
+#'  returns results from eigenvalue decomposition.
 #' @param mp A logical value. If true, sample eigenvlaues from random noise
 #'  matrix with mp distribution.
 #' @param num_est_samples Split data into num_est_samples-fold for
@@ -95,7 +101,7 @@ subspace <- function(x, components, mp, num_est_samples, verbose, ...) {
 #' @import doRNG
 #' @import Matrix
 #' @export
-subspace.default <- function(x, components, mp, num_est_samples, verbose, ...) {
+subspace.default <- function(x, components, decomposition, mp, num_est_samples, verbose, ...) {
   stop("Don't know how to create a subspace object from a class of type: ",
        class(x))
 }
@@ -112,6 +118,9 @@ subspace.default <- function(x, components, mp, num_est_samples, verbose, ...) {
 #'  the transpose of x is used.
 #' @param components A series of right singular vectors to estimate.
 #'  Components must be smaller or equal to min(nrow(x), ncol(x)).
+#' @param decomposition The method to be used; method = "svd"
+#'  returns results from singular value decomposition; method = "eigen"
+#'  returns results from eigenvalue decomposition.
 #' @param mp A logical value. If true, sample eigenvlaues from random noise
 #'  matrix with mp distribution.
 #' @param num_est_samples Split data into num_est_samples-fold for
@@ -132,9 +141,9 @@ subspace.default <- function(x, components, mp, num_est_samples, verbose, ...) {
 #' @import doRNG
 #' @import Matrix
 #' @export
-subspace.matrix <- function(x, components = NULL, mp = TRUE,
+subspace.matrix <- function(x, components = NULL, decomposition = c("svd", "eigen"), mp = TRUE,
                             num_est_samples = NA, verbose = FALSE, ...) {
-  subspace(x = x, components = components, mp = mp,
+  subspace(x = x, components = components, decomposition = c("svd", "eigen"), mp = mp,
            num_est_samples = num_est_samples, verbose = verbose, ... = ...)
 }
 
@@ -150,6 +159,9 @@ subspace.matrix <- function(x, components = NULL, mp = TRUE,
 #'  the transpose of x is used.
 #' @param components A series of right singular vectors to estimate.
 #'  Components must be smaller or equal to min(nrow(x), ncol(x)).
+#' @param decomposition The method to be used; method = "svd"
+#'  returns results from singular value decomposition; method = "eigen"
+#'  returns results from eigenvalue decomposition.
 #' @param mp A logical value. If true, sample eigenvlaues from random noise
 #'  matrix with mp distribution.
 #' @param num_est_samples Split data into num_est_samples-fold for
@@ -170,13 +182,13 @@ subspace.matrix <- function(x, components = NULL, mp = TRUE,
 #' @import doRNG
 #' @import Matrix
 #' @export
-subspace.Matrix <- function(x, components = NULL, mp = TRUE,
+subspace.Matrix <- function(x, components = NULL, decomposition = c("svd", "eigen"), mp = TRUE,
                             num_est_samples = NA, verbose = FALSE, ...) {
-  subspace(x, components = components, mp = mp,
+  subspace(x, components = components, decomposition = c("svd", "eigen"), mp = mp,
            num_est_samples = num_est_samples, verbose = verbose, ... = ...)
 }
 
-subspace <- function(x, components = NULL, mp = TRUE,
+subspace <- function(x, components = NULL, decomposition = c("svd", "eigen"), mp = TRUE,
                      num_est_samples = NA, verbose = FALSE, ...) {
 
   # ----------------------
@@ -193,10 +205,12 @@ subspace <- function(x, components = NULL, mp = TRUE,
   } else {
     components <- check_comp_input(components, nrow(x), ncol(x), verbose = TRUE)
   }
+  if (missing(decomposition)) {
+    decomposition <- "svd"
+  }
+  s <- create_subspace(x, components = components, decomposition = decomposition, verbose)
 
-  s <- create_subspace(x, components = components, verbose)
-
-  if (mp) {
+  if (mp & decomposition == "svd") {
     if (missing(num_est_samples)) {
       num_est_samples <- 0
     } else {
@@ -319,8 +333,8 @@ plot.subspace <- function(x,
                      ", P = ",
                      ifelse(transpose_flag, ndf, pdim),
                      ", Var = ",
-                     round(var_correct, 2)))
-
+                     ifelse(is.null(var_correct), NA, round(var_correct, 2)))
+              )
   if (!is.null(mp_irl)) {
     scree <- scree +
               geom_line(aes(x = dim, y = eigen), mp_irl, colour = "black") +
@@ -337,7 +351,7 @@ plot.subspace <- function(x,
                        ", P = ",
                        ifelse(transpose_flag, ndf, pdim),
                        ", Var = ",
-                       round(var_correct, 2),
+                       ifelse(is.null(var_correct), NA, round(var_correct, 2)),
                        ", Changepoint est = ",
                        changepoint))
   }

@@ -95,6 +95,6 @@ test_that("modified legacyplot check", {
 })
 
 
-# test_that("print.dimension prints by default", {
-#   expect_message(print(results1),"features")
-# })
+test_that("print.dimension prints by default", {
+  expect_message(print.dimension(results1), "features")
+})

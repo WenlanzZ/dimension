@@ -25,7 +25,7 @@ results <- dimension(x, components = 1:50)
 
 ## equivelantly, if subsapce is calcualted
 Subspace <- subspace(x, components = 1:50)
-results  <- dimension(subspace_ = Subspace)
+results  <- dimension(s = Subspace, method = "double_posterior")
 str(results)
 
 # truncate matrix
@@ -36,7 +36,7 @@ x_denoised <- truncate(subspace_ = Subspace, method = "identity", location = c(1
 x_denoised
 
 # plot results
-plot(results$Subspace, changepoint = results$dimension, annotation = 10)
+plot(results$subspace, changepoint = results$dimension, annotation = 10)
 modified_legacyplot(results$bcp_irl, annotation = 10)
 ```
 
