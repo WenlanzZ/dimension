@@ -32,7 +32,7 @@ str(results)
 x_denoised <- truncate(x, components = 20, method = "threshold", alpha = 0.9, zeroout = TRUE)
 x_denoised <- truncate(x, components = 20, method = "hard", zeroout = FALSE)
 # equivalently, if Subspace is calculated
-x_denoised <- truncate(subspace_ = Subspace, method = "identity", location = c(1:5))
+x_denoised <- truncate(s = Subspace, method = "identity", location = c(1:5))
 x_denoised
 
 # plot results
