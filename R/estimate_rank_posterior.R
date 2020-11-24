@@ -69,7 +69,7 @@ estimate_rank_posterior.default <- function(s, verbose, ...) {
 }
 
 #' @export
-estimate_rank_posterior.subspace <- function(s, verbose = TRUE, ...) {
+estimate_rank_posterior.subspace <- function(s, verbose = FALSE, ...) {
   # -----------------------
   # Basic parameter set up
   # -----------------------
@@ -86,7 +86,7 @@ estimate_rank_posterior.subspace <- function(s, verbose = TRUE, ...) {
   prob_irl   <- c(bcp_irl$posterior.prob[-rnk], 0)
   changepoint <- rnk + 1 - which.max(rev(prob_irl[seq_len(rnk)]))
 
-  m3 <- paste0("dimension estimation = ", changepoint, "\n")
+  m3 <- paste0("dimension estimation = ", changepoint, ".\n")
   if (verbose) {
     message(m3)
   }

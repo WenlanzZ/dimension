@@ -4,7 +4,15 @@
 \alias{subspace.default}
 \title{A constructor function for the subspace class}
 \usage{
-subspace.default(x, components, mp, num_est_samples, verbose, ...)
+subspace.default(
+  x,
+  components,
+  decomposition,
+  mp,
+  num_est_samples,
+  verbose,
+  ...
+)
 }
 \arguments{
 \item{x}{A numeric real-valued matrix with n number of samples and
@@ -13,6 +21,10 @@ the transpose of x is used.}
 
 \item{components}{A series of right singular vectors to estimate.
 Components must be smaller or equal to min(nrow(x), ncol(x)).}
+
+\item{decomposition}{The method to be used; method = "svd"
+returns results from singular value decomposition; method = "eigen"
+returns results from eigenvalue decomposition.}
 
 \item{mp}{A logical value. If true, sample eigenvlaues from random noise
 matrix with mp distribution.}

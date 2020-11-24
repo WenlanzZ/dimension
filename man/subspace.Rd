@@ -7,6 +7,7 @@
 subspace(
   x,
   components = NULL,
+  decomposition = c("svd", "eigen"),
   mp = TRUE,
   num_est_samples = NA,
   verbose = FALSE,
@@ -20,6 +21,10 @@ the transpose of x is used.}
 
 \item{components}{A series of right singular vectors to estimate.
 Components must be smaller or equal to min(nrow(x), ncol(x)).}
+
+\item{decomposition}{The method to be used; method = "svd"
+returns results from singular value decomposition; method = "eigen"
+returns results from eigenvalue decomposition.}
 
 \item{mp}{A logical value. If true, sample eigenvlaues from random noise
 matrix with mp distribution.}

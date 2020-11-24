@@ -37,7 +37,7 @@
 #' @import Matrix
 #' @importFrom dplyr %>%
 #' @export
-create_subspace <- function(x, components = NULL, decomposition = c("svd", "eigen"), verbose = TRUE, ...) {
+create_subspace <- function(x, components = NULL, decomposition = c("svd", "eigen"), verbose = FALSE, ...) {
   # Checking for components input
   if (is.null(components)) {
     components <- seq_len(min(nrow(x), ncol(x)))

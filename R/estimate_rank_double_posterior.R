@@ -74,7 +74,7 @@ estimate_rank_double_posterior.default <- function(s, p, verbose, ...) {
 
 #' @export
 estimate_rank_double_posterior.subspace <- function(s, p = 0.90,
-                                                    verbose = TRUE, ...) {
+                                                    verbose = FALSE, ...) {
 
   # -----------------------
   # Basic parameter set up
@@ -101,7 +101,7 @@ estimate_rank_double_posterior.subspace <- function(s, p = 0.90,
   changepoint <- switch(2 - any(threshold),
                        max(post_max[threshold]),
                        irl_max)
-  m3 <- paste0("dimension estimation = ", changepoint, "\n")
+  m3 <- paste0("dimension estimation = ", changepoint, ".\n")
   message(m3)
   ret <- list(subspace    = s,
               dimension   = changepoint,

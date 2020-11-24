@@ -148,11 +148,11 @@ dimension <- function(x,
 print.dimension <- function(x, ...) {
   message("An object of class dimension estimated for",
       ifelse(x$transpose_flag, "transposed", ""),
-      "X matrix with",
+      "X matrix with ",
       x$Subspace$ndf,
-      "samples and",
+      " samples and ",
       x$Subspace$pdim,
-      "features.\n")
+      " features.\n")
   message(x$message[[1]])
   invisible(x)
 }

@@ -73,7 +73,7 @@ estimate_rank_kmeans.default <- function(s, verbose, ...) {
        paste(class(s), collapse = " "), ".")
 }
 
-estimate_rank_kmeans.subspace <- function(s, verbose = TRUE, ...) {
+estimate_rank_kmeans.subspace <- function(s, verbose = FALSE, ...) {
   # -----------------------
   # Basic parameter set up
   # -----------------------
@@ -95,10 +95,8 @@ estimate_rank_kmeans.subspace <- function(s, verbose = TRUE, ...) {
   within_var <- km(data)
   km_min <- which.min(within_var[, 1])
   changepoint <- ifelse(sign_irl_diff[km_min] < 0, km_min, km_min + 1)
-  m3 <- paste0("dimension estimation = ", changepoint, "\n")
-  if (verbose) {
-    message(m3)
-  }
+  m3 <- paste0("dimension estimation = ", changepoint, ".\n")
+  message(m3)
 
   ret <- list(subspace    = s,
               dimension   = changepoint,

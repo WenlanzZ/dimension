@@ -8,6 +8,7 @@ dimension(
   x,
   s = NULL,
   components = NA,
+  decomposition = c("svd", "eigen"),
   method = c("double_posterior", "posterior", "kmeans", "ladle"),
   num_est_samples = NA,
   verbose = FALSE,
@@ -23,6 +24,10 @@ the transpose of x is used.}
 
 \item{components}{A series of right singular vectors to estimate.
 Components must be smaller or equal to min(nrow(x),ncol(x)).}
+
+\item{decomposition}{The method to be used; method = "svd"
+returns results from singular value decomposition; method = "eigen"
+returns results from eigenvalue decomposition.}
 
 \item{method}{The method to be used; method = "double_posterior"
 returns results from function estimate_rank_double_posterior;

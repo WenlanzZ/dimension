@@ -233,19 +233,19 @@ subspace <- function(x, components = NULL, decomposition = c("svd", "eigen"), mp
 print.subspace <- function(x, ...) {
   message("An object of class subspace within",
       ifelse(x$transpose_flag, "transposed", ""),
-      "X matrix with",
+      "X matrix with ",
       x$ndf,
-      "samples and",
+      " samples and ",
       x$pdim,
-      "features.\n")
+      " features.\n")
   if (all(diff(x$components) == 1)) {
     message("Estimated components range from ",
         min(x$components),
         " to ",
         max(x$components),
-        "\n")
+        ".\n")
   } else {
-      message("Estimated components range", x$components, "\n")
+      message("Estimated components range", x$components, ".\n")
   }
   invisible(x)
 }
@@ -372,7 +372,7 @@ plot.subspace <- function(x,
 #' @param pdim The number of dimensions of x.
 #' @param verbose output message
 #' @export
-check_comp_input <- function(components, ndf, pdim, verbose = FALSE) {
+check_comp_input <- function(components, ndf, pdim, verbose = TRUE) {
   stopifnot(is.numeric(components))
   stopifnot(components %% 1 == 0)
   if (length(components) == 1) {
@@ -383,7 +383,7 @@ check_comp_input <- function(components, ndf, pdim, verbose = FALSE) {
       stop("Components out of bounds.\n")
     }
     if (verbose) {
-      message("Calculating components from 1 to", components, "\n")
+      message("Calculating components from 1 to ", components, ".\n")
     }
     return(1:components)
   } else if (length(components) > 1) {
@@ -395,13 +395,13 @@ check_comp_input <- function(components, ndf, pdim, verbose = FALSE) {
     }
     if (verbose) {
       if (all(diff(components) == 1)) {
-        message("Calculating components from",
+        message("Calculating components from ",
             min(components),
-            "to",
+            " to ",
             max(components),
             ".\n")
       } else {
-        message("Calculating components range", components, "\n")
+        message("Calculating components range", components, ".\n")
       }
     }
     return(components[order(components)])

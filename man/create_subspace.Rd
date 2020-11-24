@@ -4,7 +4,13 @@
 \alias{create_subspace}
 \title{A constructor function for the subspace class}
 \usage{
-create_subspace(x, components = NULL, verbose = TRUE, ...)
+create_subspace(
+  x,
+  components = NULL,
+  decomposition = c("svd", "eigen"),
+  verbose = TRUE,
+  ...
+)
 }
 \arguments{
 \item{x}{A numeric real-valued matrix with n number of samples and
@@ -13,6 +19,10 @@ the transpose of x is used.}
 
 \item{components}{A series of right singular vectors to estimate.
 Components must be smaller or equal to min(nrow(x), ncol(x)).}
+
+\item{decomposition}{The method to be used; method = "svd"
+returns results from singular value decomposition; method = "eigen"
+returns results from eigenvalue decomposition.}
 
 \item{verbose}{output message}
 
