@@ -12,7 +12,7 @@ context("Argument input error")
 test_that("Argument input error", {
 
   expect_error(
-    modified_legacyplot(test, annotation = "1"), "numbers")
+    legacyplot(test, annotation = "1"), "numbers")
   expect_error(
-    modified_legacyplot(test, annotation = 100), "less")
+    legacyplot(test, annotation = 100), "less")
 })

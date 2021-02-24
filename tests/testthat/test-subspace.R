@@ -76,7 +76,6 @@ context("plot subspace input error")
 test_that("plot subspace annotation error", {
  expect_true(inherits(plot(subspace1), "ggplot"))
  expect_true(inherits(plot(subspace1, changepoint = 10), "ggplot"))
- # expect_message(plot(subspace1, changepoint = 10), "Anotating")
  expect_error(plot(subspace1, annotation = "0"), "numbers")
  expect_error(plot(subspace1, annotation = -1), "positive")
  expect_error(plot(subspace1, annotation = 110), "less")

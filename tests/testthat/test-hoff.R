@@ -1,5 +1,4 @@
 library("dimension")
-# load_all("/Users/wz262/Projects/dimension")
 
 # Tests for hoff default settting
 # ------------------------------------------

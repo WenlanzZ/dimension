@@ -62,7 +62,8 @@
 #' @import doRNG
 #' @import Matrix
 #' @export
-subspace <- function(x, components, decomposition, mp, num_est_samples, verbose, ...) {
+subspace <- function(x, components, decomposition,
+                     mp, num_est_samples, verbose, ...) {
   UseMethod("subspace", x)
 }
 
@@ -101,7 +102,8 @@ subspace <- function(x, components, decomposition, mp, num_est_samples, verbose,
 #' @import doRNG
 #' @import Matrix
 #' @export
-subspace.default <- function(x, components, decomposition, mp, num_est_samples, verbose, ...) {
+subspace.default <- function(x, components, decomposition,
+                             mp, num_est_samples, verbose, ...) {
   stop("Don't know how to create a subspace object from a class of type: ",
        class(x))
 }
@@ -141,10 +143,15 @@ subspace.default <- function(x, components, decomposition, mp, num_est_samples, 
 #' @import doRNG
 #' @import Matrix
 #' @export
-subspace.matrix <- function(x, components = NULL, decomposition = c("svd", "eigen"), mp = TRUE,
-                            num_est_samples = NA, verbose = FALSE, ...) {
-  subspace(x = x, components = components, decomposition = c("svd", "eigen"), mp = mp,
-           num_est_samples = num_est_samples, verbose = verbose, ... = ...)
+subspace.matrix <- function(x,
+                            components = NULL,
+                            decomposition = c("svd", "eigen"),
+                            mp = TRUE,
+                            num_est_samples = NA,
+                            verbose = FALSE, ...) {
+  subspace(x = x, components = components, decomposition = decomposition,
+           mp = mp, num_est_samples = num_est_samples,
+           verbose = verbose, ... = ...)
 }
 
 #' @title A constructor function for the subspace class
@@ -182,14 +189,23 @@ subspace.matrix <- function(x, components = NULL, decomposition = c("svd", "eige
 #' @import doRNG
 #' @import Matrix
 #' @export
-subspace.Matrix <- function(x, components = NULL, decomposition = c("svd", "eigen"), mp = TRUE,
-                            num_est_samples = NA, verbose = FALSE, ...) {
-  subspace(x, components = components, decomposition = c("svd", "eigen"), mp = mp,
-           num_est_samples = num_est_samples, verbose = verbose, ... = ...)
+subspace.Matrix <- function(x,
+                            components = NULL,
+                            decomposition = c("svd", "eigen"),
+                            mp = TRUE,
+                            num_est_samples = NA,
+                            verbose = FALSE, ...) {
+  subspace(x, components = components, decomposition = decomposition,
+           mp = mp, num_est_samples = num_est_samples,
+           verbose = verbose, ... = ...)
 }
 
-subspace <- function(x, components = NULL, decomposition = c("svd", "eigen"), mp = TRUE,
-                     num_est_samples = NA, verbose = FALSE, ...) {
+subspace <- function(x,
+                     components = NULL,
+                     decomposition = c("svd", "eigen"),
+                     mp = TRUE,
+                     num_est_samples = NA,
+                     verbose = FALSE, ...) {
 
   # ----------------------
   # Check input parameters
@@ -208,7 +224,8 @@ subspace <- function(x, components = NULL, decomposition = c("svd", "eigen"), mp
   if (missing(decomposition)) {
     decomposition <- "svd"
   }
-  s <- create_subspace(x, components = components, decomposition = decomposition, verbose)
+  s <- create_subspace(x, components = components,
+                       decomposition = decomposition, verbose)
 
   if (mp & decomposition == "svd") {
     if (missing(num_est_samples)) {
@@ -217,7 +234,9 @@ subspace <- function(x, components = NULL, decomposition = c("svd", "eigen"), mp
       check_num_est_samples_input(num_est_samples, s$ndf, s$pdim,
                       verbose = TRUE)
     }
-    s <- correct_eigenvalues(s, num_est_samples = num_est_samples, verbose)
+    s <- correct_eigenvalues(s,
+                             num_est_samples = num_est_samples,
+                             verbose)
   }
   s
 }

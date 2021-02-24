@@ -42,24 +42,20 @@ test_that("Default settings work as expected", {
   expect_equal(results1$subspace$mp_irl$dim, 1:100)
   expect_equivalent(results1$subspace$v, subspace1_ref$v, tolerance = 5e-2)
   expect_equivalent(results1$subspace$u, subspace1_ref$u, tolerance = 5e-2)
-  # expect_equal(results1$dimension, 10)
 })
 
 test_that("estimate_rank_double_posterior settings work as expected", {
-  # expect_equal(results2$subspace, subspace1_ref)
   expect_equal(results2_$subspace, subspace1_ref)
   expect_equal(results2$dimension, results1$dimension)
   expect_equal(results2$dimension, results2_$dimension)
 })
 
 test_that("estimate_rank_posterior settings work as expected", {
-  # expect_equal(results3$subspace, subspace1_ref)
   expect_equal(results3_$subspace, subspace1_ref)
   expect_equal(results3$dimension, results3_$dimension)
 })
 
 test_that("estimate_rank_kmeans settings work as expected", {
-  # expect_equal(results4$subspace, subspace1_ref)
   expect_equal(results4_$subspace, subspace1_ref)
   expect_equal(results4$dimension, results4_$dimension)
   expect_true(inherits(km_plot(results4$within_var), "ggplot"))
@@ -82,18 +78,16 @@ test_that("Argument input error", {
   expect_message(
     dimension(x2, verbose = TRUE), "full")
   expect_message(
-    dimension(s = subspace1_ref, verbose = TRUE), "already")
-  expect_error(
-    dimension(s = x1, verbose = TRUE), "type")
+    dimension(subspace1_ref, verbose = TRUE), "already")
   expect_error(estimate_rank_posterior(rnorm(10)))
 })
 
-context("modified legacyplot check")
+context("legacyplot check")
 
-test_that("modified legacyplot check", {
- expect_true(inherits(modified_legacyplot(results3$bcp_irl, annotation = 10), "gtable"))
- expect_error(modified_legacyplot(results3$bcp_irl, annotation = "0"), "numbers")
- expect_error(modified_legacyplot(results3$bcp_irl, annotation = 110), "less")
+test_that("legacyplot check", {
+ expect_true(inherits(legacyplot(results3, annotation = 10), "gtable"))
+ expect_error(legacyplot(results3, annotation = "0"), "numbers")
+ expect_error(legacyplot(results3, annotation = 110), "less")
 })
 
 

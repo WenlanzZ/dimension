@@ -6,7 +6,6 @@
 \usage{
 truncate(
   x,
-  s = NULL,
   components = NA,
   method = c("threshold", "hard", "identity"),
   alpha = NA,
@@ -17,12 +16,10 @@ truncate(
 )
 }
 \arguments{
-\item{x}{A numeric real-valued matrix with n number
+\item{x}{A subspace class or a numeric real-valued matrix with n number
 of samples and p number of features. If p>n,
 a warning message is generated and the transpose of
 x is used.}
-
-\item{s}{A subspace class.}
 
 \item{components}{A series of right singular vectors
 to estimate. Components must be smaller or equal
@@ -93,15 +90,14 @@ x_denoised <- truncate(x,
 x_denoised <- truncate(x,
                        components = 20,
                        method = "identity",
-                       location = c(1:15),
+                       location = 1:15,
                        zeroout = FALSE)
 
 # equivalently, if subspace is calculated
 Subspace  <- subspace(x,
                       components = 1:20)
-x_denoised <- truncate(subspace_ = Subspace,
-                       method = "identity",
-                       location = c(1:15),
+x_denoised <- truncate(Subspace,
+                       location = 1:15,
                        zeroout = FALSE)
 }
 \seealso{

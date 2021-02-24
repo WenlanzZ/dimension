@@ -24,8 +24,9 @@ test_that("invalid rnk input warnings returned", {
   expect_error(
     check_dim_matrix(x1, rnk = 0), regexp = "positive")
   expect_message(
-    check_dim_matrix(x1, verbose = TRUE), regexp = paste0("No component specified. ",
-                    "Calculating full singular value decomposition instead.\n"))
+    check_dim_matrix(x1, verbose = TRUE),
+    regexp = paste0("No component specified. ",
+    "Calculating full singular value decomposition instead.\n"))
 })
 
 

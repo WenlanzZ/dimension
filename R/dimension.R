@@ -3,10 +3,9 @@
 #' @description Estimate the dimension of a signal-rich subspace in large,
 #'  high-dimensional data.
 #'
-#' @param x A numeric real-valued matrix with n number of samples and
-#'  p number of features. If p > n, a warning message is generated and
-#'  the transpose of x is used.
-#' @param s A subspace class.
+#' @param x A subspace class or a numeric real-valued matrix with n
+#'  number of samples and p number of features. If p > n, a warning
+#'  message is generated and the transpose of x is used.
 #' @param components A series of right singular vectors to estimate.
 #'  Components must be smaller or equal to min(nrow(x),ncol(x)).
 #' @param decomposition The method to be used; method = "svd"
@@ -75,10 +74,57 @@
 #' @importFrom stringr str_locate
 #' @importFrom dplyr %>%
 #' @export
+
+dimension <- function(x, components, decomposition, method,
+                      num_est_samples, verbose, ...) {
+  UseMethod("dimension", x)
+}
+
+dimension.default <- function(x, components, decomposition, method,
+                              num_est_samples, verbose, ...) {
+  stop("Don't know how to estimate a dimension object from a class of type: ",
+       class(x))
+}
+
+dimension.matrix <- function(x,
+                               components = NA,
+                               decomposition = c("svd", "eigen"),
+                               num_est_samples = NA,
+                               method = c("double_posterior", "posterior",
+                                 "kmeans", "ladle"),
+                               verbose = FALSE, ...) {
+  dimension(x = x, components = components, decomposition = decomposition,
+            num_est_samples = num_est_samples, method = method,
+            verbose = verbose, ... = ...)
+}
+
+dimension.Matrix <- function(x,
+                               components = NA,
+                               decomposition = c("svd", "eigen"),
+                               num_est_samples = NA,
+                               method = c("double_posterior", "posterior",
+                                 "kmeans", "ladle"),
+                               verbose = FALSE, ...) {
+  dimension(x = x, components = components, decomposition = decomposition,
+            num_est_samples = num_est_samples, method = method,
+            verbose = verbose, ... = ...)
+}
+
+dimension.subspace <- function(x,
+                               components = NA,
+                               decomposition = c("svd", "eigen"),
+                               num_est_samples = NA,
+                               method = c("double_posterior", "posterior",
+                                 "kmeans", "ladle"),
+                               verbose = FALSE, ...) {
+  dimension(x = x, components = components, decomposition = decomposition,
+            num_est_samples = num_est_samples, method = method,
+            verbose = verbose, ... = ...)
+}
+
 dimension <- function(x,
-                      s = NULL,
                       components = NA,
-                      decomposition = c("svd", "eigen"), 
+                      decomposition = c("svd", "eigen"),
                       method = c("double_posterior", "posterior",
                                  "kmeans", "ladle"),
                       num_est_samples = NA,
@@ -87,10 +133,11 @@ dimension <- function(x,
 # -----------------------
 # Check input parameters
 # -----------------------
-  if (!missing(s)) {
+  if (any(class(x) == "subspace")) {
     if (verbose) {
         message("Subspace has already been calculated.\n")
     }
+    s <- x
   } else {
     if (is.null(x)) {
       stop("Invalid input x")
@@ -111,7 +158,7 @@ dimension <- function(x,
         decomposition <- "svd"
       }
       # Calcualte subspace
-      s <- subspace(x, components = components, decomposition = decomposition, 
+      s <- subspace(x, components = components, decomposition = decomposition,
                     num_est_samples = num_est_samples, mp = TRUE, verbose)
     }
   }
@@ -138,6 +185,7 @@ dimension <- function(x,
         )
 }
 
+
 #' @title Print dimension
 #'
 #' A generic function.
@@ -148,11 +196,45 @@ dimension <- function(x,
 print.dimension <- function(x, ...) {
   message("An object of class dimension estimated for",
       ifelse(x$transpose_flag, "transposed", ""),
-      "X matrix with ",
-      x$Subspace$ndf,
+      " X matrix with ",
+      x$subspace$ndf,
       " samples and ",
-      x$Subspace$pdim,
+      x$subspace$pdim,
       " features.\n")
   message(x$message[[1]])
   invisible(x)
+}
+
+
+
+#' @title Scree plot of scaled eigenvalues of x and random noise matrix N
+#'
+#' @description This is a generic function for dimension class to plot scree
+#'  plot of scaled eigenvalues of X and sampled scaled expected eigenvalues
+#'   from Marcenko-Pastur distribution.
+#' @param x A dimension class.
+#' @param changepoint A number. Estimated changepoint in dimension function.
+#' @param annotation A number. Choose to label points up to annotation number.
+#'  Set to 0 with no annotation.
+#' @param verbose output message
+#' @param ... Extra parameters
+#' @examples
+#' \donttest{
+#' plot(results, changepoint = 0, annotation = 15)
+#' }
+#' @import ggplot2
+#' @importFrom tibble tibble
+#' @importFrom ggrepel geom_text_repel
+#' @export
+
+plot.dimension <- function(x,
+                          changepoint = NULL,
+                          annotation = NULL,
+                          verbose = TRUE,
+                          ...) {
+plot(x$subspace,
+    changepoint = x$dimension,
+    annotation = x$dimension,
+    verbose = verbose)
+
 }

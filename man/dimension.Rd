@@ -6,7 +6,6 @@
 \usage{
 dimension(
   x,
-  s = NULL,
   components = NA,
   decomposition = c("svd", "eigen"),
   method = c("double_posterior", "posterior", "kmeans", "ladle"),
@@ -16,11 +15,9 @@ dimension(
 )
 }
 \arguments{
-\item{x}{A numeric real-valued matrix with n number of samples and
-p number of features. If p > n, a warning message is generated and
-the transpose of x is used.}
-
-\item{s}{A subspace class.}
+\item{x}{A subspace class or a numeric real-valued matrix with n
+number of samples and p number of features. If p > n, a warning
+message is generated and the transpose of x is used.}
 
 \item{components}{A series of right singular vectors to estimate.
 Components must be smaller or equal to min(nrow(x),ncol(x)).}

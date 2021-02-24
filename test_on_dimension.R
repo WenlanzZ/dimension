@@ -60,7 +60,12 @@ results <- dimension(x, method = "ladle")
 
 str(results)
 plot(results$subspace, changepoint = results$dimension,annotation = 10)
-modified_legacyplot(results$bcp_irl, annotation = 10)
+legacyplot(results$bcp_irl, annotation = 5)
+legacyplot(results, annotation = 10)
+plot(results, changepoint = results$dimension,annotation = 10)
+x %>% dimension() %>% legacyplot()
+x %>% dimension() %>% plot()
+x %>% subspace(1:15) %>% truncate(location = 1:4)
 
 km_plot(results$within_var)
 # prob_irl   <- c(results$bcp_irl$posterior.prob[-10], 0)

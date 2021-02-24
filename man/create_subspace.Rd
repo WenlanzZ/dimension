@@ -8,7 +8,7 @@ create_subspace(
   x,
   components = NULL,
   decomposition = c("svd", "eigen"),
-  verbose = TRUE,
+  verbose = FALSE,
   ...
 )
 }

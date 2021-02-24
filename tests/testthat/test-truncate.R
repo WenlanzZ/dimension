@@ -24,12 +24,12 @@ time_taken <- system.time({
  suppressWarnings(x_denoised3 <- truncate(x1,
                                           components = 100,
                                           method = "identity",
-                                          location = c(1:15),
+                                          location = 1:15,
                                           zeroout = FALSE))
- suppressWarnings(x_denoised4 <- truncate(s = subspace1_ref,
+ suppressWarnings(x_denoised4 <- truncate(subspace1_ref,
                                           components = 20,
                                           method = "identity",
-                                          location = c(1:15),
+                                          location = 1:15,
                                           zeroout = FALSE))
 })
 
@@ -124,9 +124,6 @@ test_that("Identity default settings work as expected", {
  expect_equivalent(abs(x_denoised3$u),
                    abs(x_denoised4$u),
                    tolerance = 5e-2)
- # expect_message(truncate(s = subspace1_ref, components = 20,
- #  method = "identity", location = c(1:15), zeroout = FALSE),
- #  c("denoised", "identity", "location", "truncated"))
 })
 context("Argument input error")
 
@@ -144,7 +141,8 @@ test_that("Argument input error", {
  expect_error(
    truncate(x = x2, method = "threshold", alpha = 2), "less")
   expect_error(
-   truncate(x = x2, method = "threshold", components = 1, alpha = 0.1), "preserved")
+   truncate(x = x2, method = "threshold",
+            components = 1, alpha = 0.1), "preserved")
   expect_error(
    truncate(x = x2, method = "identity"), "location")
   expect_error(
@@ -156,5 +154,5 @@ test_that("Argument input error", {
   expect_error(
    truncate(x = x2, method = "location"), "Invalid method input")
  expect_message(
-   truncate(s = subspace1_ref, method = "hard"), "already")
+   truncate(x = subspace1_ref, method = "hard"), "already")
 })

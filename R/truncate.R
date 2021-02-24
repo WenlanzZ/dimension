@@ -13,11 +13,10 @@
 #' $Tr(E\_denoised) = Tr(E)$) or set them all to zero.
 #' This function is adapted from "Python for Random Matrix Theory"
 #' credit to J.-P. Bouchaud and M. Potters.
-#' @param x A numeric real-valued matrix with n number
+#' @param x A subspace class or a numeric real-valued matrix with n number
 #'  of samples and p number of features. If p>n,
 #'  a warning message is generated and the transpose of
 #'  x is used.
-#' @param s A subspace class.
 #' @param components A series of right singular vectors
 #' to estimate. Components must be smaller or equal
 #' to min(nrow(x),ncol(x)).
@@ -37,7 +36,7 @@
 #' @return
 #' Returns a list with entries:
 #' \describe{
-#'   \item{xi_denoised:}{ A denoised estimator of eigenvalues
+#'   \item{eigen_denoised:}{ A denoised estimator of eigenvalues
 #'    through a simple eigenvalue truncation procedure (cf. reference below).}
 #'   \item{x_denoised:}{ A denoised estimator of the true sigmal
 #'    matrix underlying a noisy high dimensional matrix x.}
@@ -64,15 +63,14 @@
 #' x_denoised <- truncate(x,
 #'                        components = 20,
 #'                        method = "identity",
-#'                        location = c(1:15),
+#'                        location = 1:15,
 #'                        zeroout = FALSE)
 #'
 #' # equivalently, if subspace is calculated
 #' Subspace  <- subspace(x,
 #'                       components = 1:20)
-#' x_denoised <- truncate(subspace_ = Subspace,
-#'                        method = "identity",
-#'                        location = c(1:15),
+#' x_denoised <- truncate(Subspace,
+#'                        location = 1:15,
 #'                        zeroout = FALSE)
 #' @importFrom stats na.omit
 #' @seealso
@@ -80,8 +78,45 @@
 #' limits of Marcenko-Pastur distribution from RMTstat package.
 #' @export
 
+truncate <- function(x, components, method, alpha,
+                     location, zeroout, verbose, ...) {
+  UseMethod("truncate", x)
+}
+
+truncate.default <- function(x, components, method, alpha,
+                             location, zeroout, verbose, ...) {
+  stop("Don't know how to truncate from a class of type: ",
+       class(x))
+}
+
+truncate.matrix <- function(x,
+                            components = NA,
+                            method = c("threshold", "hard", "identity"),
+                            alpha = NA, location = NA, zeroout = FALSE,
+                            verbose = TRUE, ...) {
+  truncate(x = x, components = components, method = method, alpha = alpha,
+           location = location, zeroout = zeroout, verbose = verbose, ... = ...)
+}
+
+truncate.Matrix <- function(x,
+                            components = NA,
+                            method = c("threshold", "hard", "identity"),
+                            alpha = NA, location = NA, zeroout = FALSE,
+                            verbose = TRUE, ...) {
+  truncate(x = x, components = components, method = method, alpha = alpha,
+           location = location, zeroout = zeroout, verbose = verbose, ... = ...)
+}
+
+truncate.subspace <- function(x,
+                            components = NA,
+                            method = c("threshold", "hard", "identity"),
+                            alpha = NA, location = NA, zeroout = FALSE,
+                            verbose = TRUE, ...) {
+  truncate(x = x, components = components, method = method, alpha = alpha,
+           location = location, zeroout = zeroout, verbose = verbose, ... = ...)
+}
+
 truncate <- function(x,
-                    s = NULL,
                     components = NA,
                     method = c("threshold", "hard", "identity"),
                     alpha = NA,
@@ -93,8 +128,11 @@ truncate <- function(x,
 # Check input parameters
 # ------------------------
 
-  if (!missing(s)) {
-    message("Subspace have already been calculated.\n")
+  if (any(class(x) == "subspace")) {
+    if (verbose) {
+        message("Subspace has already been calculated.\n")
+    }
+    s <- x
   } else {
     if (is.null(x)) {
       stop("Invalid input x")
@@ -123,6 +161,9 @@ truncate <- function(x,
 # ----------------------------------
 # Determine eigenvalues to preserve
 # ----------------------------------
+    if (missing(method)) {
+      method <- "identity"
+    }
     switch(method,
         hard = {
           lambda_min <- marcenko_pastur_par(ndf, pdim, var = 1, svr = svr)$lower
@@ -131,7 +172,7 @@ truncate <- function(x,
                       "lambda_min = ", round(lambda_min, 4), "\n",
                       "lambda_max = ", round(lambda_max, 4), "\n")
           if (verbose) cat(m)
-          xi_denoised <- ifelse(irl$eigen >= lambda_max, irl$eigen, NA)
+          eigen_denoised <- ifelse(irl$eigen >= lambda_max, irl$eigen, NA)
         },
         threshold = {
           if (missing(alpha)) {
@@ -141,13 +182,14 @@ truncate <- function(x,
           } else if (alpha > 1) {
             stop("Alpha must be less or equal to 1")
           }
-          xi_denoised <- rep(NA, length(components))
+          eigen_denoised <- rep(NA, length(components))
           threshold <- ceiling(alpha * length(components))
           m <- paste0("Use method ", method, "\n",
                       "threshold = ", threshold, "\n")
           if (verbose) cat(m)
-          if (threshold > 1) xi_denoised[1:threshold] <- irl$eigen[1:threshold]
-          else (stop("No eigenvalue preserved"))
+          if (threshold > 1) {
+            eigen_denoised[1:threshold] <- irl$eigen[1:threshold]
+            } else (stop("No eigenvalue preserved"))
         },
         identity = {
           if (!is.numeric(location)) {
@@ -161,8 +203,8 @@ truncate <- function(x,
           } else if (min(location) <= 0) {
             stop("Location out of bounds")
           }
-          xi_denoised <- rep(NA, length(components))
-          xi_denoised[location] <- irl$eigen[location]
+          eigen_denoised <- rep(NA, length(components))
+          eigen_denoised[location] <- irl$eigen[location]
           m <- paste0("Use method ", method, "\n",
                       "location = ", toString(location), "\n")
           if (verbose) cat(m)
@@ -172,25 +214,25 @@ truncate <- function(x,
 # ----------------------------------------
 # Zero out or average truncated eigenvalues
 # ----------------------------------------
-    numerator <- sum(irl$eigen) - sum(na.omit(xi_denoised))
-    denominator <- sum(is.na(xi_denoised))
+    numerator <- sum(irl$eigen) - sum(na.omit(eigen_denoised))
+    denominator <- sum(is.na(eigen_denoised))
     gamma <- ifelse(zeroout,
                     0,
                     round(numerator / denominator, 4))
     mg <- paste0("The averaged truncated eigenvalues = ", gamma, "\n")
     if (verbose) cat(mg)
-    xi_denoised <- ifelse(is.na(xi_denoised), gamma, xi_denoised)
+    eigen_denoised <- ifelse(is.na(eigen_denoised), gamma, eigen_denoised)
 # ---------------------------------
 # Calculate estimated X, COV, CORR
 # ---------------------------------
     #calculate estimated X
-    x_denoised <- u %*% diag(xi_denoised * pdim) %*% t(v)
+    x_denoised <- u %*% diag(eigen_denoised * pdim) %*% t(v)
     #calculate empirical covariance
-    v_denoised <- v %*% diag(xi_denoised * pdim) %*% t(v) / (ndf - 1L)
+    v_denoised <- v %*% diag(eigen_denoised * pdim) %*% t(v) / (ndf - 1L)
     #symmetric rescaling to correlation matrix
     e_denoised <- v_denoised / tcrossprod(diag(v_denoised)^0.5)
 
-    ret <- list(xi_denoised = xi_denoised,
+    ret <- list(eigen_denoised = eigen_denoised,
                 x_denoised  = x_denoised,
                 v_denoised  = v_denoised,
                 e_denoised  = e_denoised,

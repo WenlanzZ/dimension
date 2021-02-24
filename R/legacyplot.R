@@ -9,16 +9,17 @@
 #'  scatter plot.
 #' @examples
 #' library(bcp)
-#' modified_legacyplot(bcp(as.vector(c(rep(10, 10), 9.5, rep(0, 10))),
+#' legacyplot(bcp(as.vector(c(rep(10, 10), 9.5, rep(0, 10))),
 #' p0 = 0.1))
 #' @import ggplot2
 #' @import gridExtra
 #' @importFrom stats runmed
 #' @export
 
-modified_legacyplot <- function(x,
-                                annotation   = NULL,
-                                medianfilter = FALSE) {
+legacyplot <- function(x, annotation   = NULL, medianfilter = FALSE) {
+  if (class(x) == "dimension") {
+    x <- x$bcp_irl
+  }
   x$posterior.prob[nrow(x$data)] <- 0
   if (missing(annotation)) {
     annotation <- nrow(x$data)

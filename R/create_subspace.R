@@ -30,14 +30,17 @@
 #' x <- x_sim(n = 100, p = 150, ncc = 10, var = c(rep(10, 5), rep(1, 5)))
 #' x %>% create_subspace(components = 8:30) %>% str()
 #' @importFrom tibble tibble
-#' @importFrom irlba irlba
+#' @importFrom irlba irlba partial_eigen
 #' @import doParallel
 #' @import parallel
 #' @import foreach
 #' @import Matrix
 #' @importFrom dplyr %>%
 #' @export
-create_subspace <- function(x, components = NULL, decomposition = c("svd", "eigen"), verbose = FALSE, ...) {
+create_subspace <- function(x,
+                            components = NULL,
+                            decomposition = c("svd", "eigen"),
+                            verbose = FALSE, ...) {
   # Checking for components input
   if (is.null(components)) {
     components <- seq_len(min(nrow(x), ncol(x)))
@@ -48,7 +51,6 @@ create_subspace <- function(x, components = NULL, decomposition = c("svd", "eige
   } else {
     components <- check_comp_input(components, nrow(x), ncol(x), verbose)
   }
-  
   if (missing(decomposition)) {
     decomposition <- "svd"
   }
@@ -83,7 +85,8 @@ create_subspace <- function(x, components = NULL, decomposition = c("svd", "eige
             tmp <- irlba(x, center = TRUE, nv = rnk)
           }
 
-          irl     <- tibble(eigen = tmp$d[components]^2 / pdim, dim = components)
+          irl     <- tibble(eigen = tmp$d[components]^2 / pdim,
+                            dim = components)
           sigma_a <- tmp$d[1:rnk]^2 / pdim
           v       <- tmp$v[, components]
           u       <- tmp$u[, components]
@@ -107,7 +110,6 @@ create_subspace <- function(x, components = NULL, decomposition = c("svd", "eige
           },
           stop("Invalid method input")
           )
-  
   value <- (list(ndf  = ndf,
                  pdim = pdim,
                  components = components,
