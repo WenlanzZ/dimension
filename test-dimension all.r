@@ -1,3 +1,7 @@
+# Wenlan Zang and Michael Kane
+# Data simulation and evaluation for dimension package
+# 12/01/2020
+
 library(tibble)
 library(dplyr)
 library(tidyr)
@@ -25,7 +29,6 @@ mae <- function(x, x_hat) {
 	mean(abs(x - x_hat))
 }
 
-setwd("/Users/wz262/Projects/dimension")
 library(devtools)
 document()
 
@@ -65,7 +68,10 @@ bench_params$runs <- foreach(i = seq_len(nrow(bench_params)),
           .errorhandling = "remove") %do% {
     #same model setting for d = 3
     M <- diag(c(2, 1, 1, rep(0, bench_params$p[i] - 3)))
-    sigma <- diag(rep(0.54^2, bench_params$p[i])) + M
+    sigma <- diag(rep(0.54^2, bench_params$p[i])) + M # 0.54^2 is the original setting from ladle papaer,
+                                                      # refer to method section in Luo, W. and Li, B. (2016),
+                                                      # Combining Eigenvalues and Variation of Eigenvectors
+                                                      # for Order Determination, Biometrika, 103. 875-887. 
     cor_cols <- rmvnorm(bench_params$n[i], rep(0, bench_params$p[i]), 
                         sigma = sigma)
     #run all methods on the same matrix
@@ -123,17 +129,12 @@ bench <- bench %>%
 bench %>% print(n = Inf)
 
 bench_params_2_2_1<- bench_params
-saveRDS(bench_params_2_2_1, "/Users/wz262/Projects/dimension/inst/benchmark/bench_params_2_2_1.rds")
+saveRDS(bench_params_2_2_1, "./dimension/inst/benchmark/bench_params_2_2_1.rds")
 bench_2_2_1<- bench
-saveRDS(bench_2_2_1, "/Users/wz262/Projects/dimension/inst/benchmark/bench_2_2_1.rds")
+saveRDS(bench_2_2_1, "./dimension/inst/benchmark/bench_2_2_1.rds")
 filter(bench_params, n == 100, p == 100)$runs
-bench_2_2_1 <- readRDS("/Users/wz262/Projects/dimension/inst/benchmark/bench_2_2_1.rds")
+bench_2_2_1 <- readRDS("./dimension/inst/benchmark/bench_2_2_1.rds")
 bench %>% trelliscope(name = "Dimension Estimation", panel_col = "plots")
-
-# Points from MK.
-# Get this running on a single machine first.
-# From the code, it's not clear that this is using the ladle estimator.
-# Where does the 0.54^2 come from?
 
 ################--------------------> model 2 <--------------------------#################
 bench_params <- 
@@ -156,7 +157,7 @@ bench_params <- bench_params %>% add_row(
 #             p = c(100, 500, 5000, 50000),
 #             d = 10,
 #             sigma = c(2, 6, 10)) %>% as_tibble()
-#drop setting that ladle cannot run through
+#drop setting that is too large and ladle cannot run through
 bench_params <- bench_params %>% filter(n <= 500, p <= 1000)
 
 
@@ -197,8 +198,8 @@ bench_params$runs <- foreach(i = seq_len(nrow(bench_params)),
   }
 }
 bench_params_sigma_ladle<- bench_params
-saveRDS(bench_params_sigma_ladle, "/Users/wz262/Projects/dimension/inst/benchmark/bench_params_sigma_ladle.rds")
-bench_params <- readRDS("/Users/wz262/Projects/dimension/inst/benchmark/bench_params_sigma_ladle.rds")
+saveRDS(bench_params_sigma_ladle, "./dimension/inst/benchmark/bench_params_sigma_ladle.rds")
+bench_params <- readRDS("./dimension/inst/benchmark/bench_params_sigma_ladle.rds")
 
 # distribute results
 bench<- foreach(i = seq_len(nrow(rank_ests)), .combine = bind_rows) %do% {
@@ -226,13 +227,13 @@ bench <- bench %>%
 bench %>% print(n = Inf)
 
 bench_sigma_ladle<- bench
-saveRDS(bench_sigma_ladle, "/Users/wz262/Projects/dimension/inst/benchmark/bench_sigma_ladle.rds")
+saveRDS(bench_sigma_ladle, "./dimension/inst/benchmark/bench_sigma_ladle.rds")
 
 
 #integrate all results
-bench_sigma_ladle <- readRDS("/Users/wz262/Projects/dimension/inst/benchmark/bench_sigma_ladle.rds")
-bench_2_2_1 <- readRDS("/Users/wz262/Projects/dimension/inst/benchmark/bench_2_2_1.rds")
-bench_sigma <- readRDS("/Users/wz262/Projects/dimension/inst/benchmark/bench_sigma.rds")
+bench_sigma_ladle <- readRDS("./dimension/inst/benchmark/bench_sigma_ladle.rds")
+bench_2_2_1 <- readRDS("./dimension/inst/benchmark/bench_2_2_1.rds")
+bench_sigma <- readRDS("./dimension/inst/benchmark/bench_sigma.rds")
 
 bench <- bench_2_2_1 %>% mutate(sigma = 2) %>% subset(select=c(1:3, 14, 4:13)) %>%
         add_row(bench_sigma_ladle)  %>%
@@ -242,7 +243,7 @@ bench_params <- bench_params_2_2_1 %>% subset(select=c(1:3, 6, 4:5)) %>%
         add_row(bench_params_sigma_ladle)  %>%
         add_row(bench_params_sigma)
 bench_params <- arrange(bench_params, n, p, d, sigma)
-saveRDS(bench_params, "/Users/wz262/Projects/dimension/inst/benchmark/bench_params.rds")
+saveRDS(bench_params, "./dimension/inst/benchmark/bench_params.rds")
 
 bench <- arrange(bench, n, p, d, sigma)
 bench %>% print(n = Inf)
@@ -270,9 +271,9 @@ bench2 <- bench %>% filter(d == 10) %>% mutate(mse = map_dbl(runs,
 bench <- bench1 %>% add_row(bench2)
 
 
-saveRDS(bench, "/Users/wz262/Projects/dimension/inst/benchmark/bench.rds")
-bench_all <- readRDS("/Users/wz262/Projects/dimension/inst/benchmark/bench.rds")
-write.csv(bench %>% subset(select= - c(6, 14)), "/Users/wz262/Projects/dimension/inst/benchmark/bench1.csv")
+saveRDS(bench, "./dimension/inst/benchmark/bench.rds")
+bench_all <- readRDS("./dimension/inst/benchmark/bench.rds")
+write.csv(bench %>% subset(select= - c(6, 14)), "./dimension/inst/benchmark/bench1.csv")
 
 bench_all %>% subset(select=c(1:4, 7, 13, 10, 11, 8, 12)) %>% print(n = Inf)
 bench_all %>% filter(rank_estimator_type == "double_post") %>% subset(select=c(1:4, 13, 10, 11, 12)) 
